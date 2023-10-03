@@ -4,6 +4,8 @@ import 'package:hooked_bloc/hooked_bloc.dart';
 import 'package:vr_trip/cubits/socket_host/socket_host_cubit.dart';
 import 'package:vr_trip/cubits/socket_manager/socket_manager_cubit.dart';
 import 'package:vr_trip/screens/device_host/device_host_screen.dart';
+import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
+import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
 
 import 'screens/devices_management/device_management_screen.dart';
 
@@ -75,6 +77,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                   )))
                     },
                 child: const Text('navigate to device host screen')),
+            ElevatedButton(
+                onPressed: () => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => VrPlayerScreen()))
+                },
+                child: const Text('navigate to VR Player screen')),
+            ElevatedButton(
+                onPressed: () => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => FileManagerScreen()))
+                },
+                child: const Text('navigate to File manager screen')),
           ],
         ),
       ),

@@ -13,6 +13,7 @@ class DeviceManagementScreen extends HookWidget {
     final socketManagerCubit = useBloc<SocketManagerCubit>();
 
     useEffect(() {
+      socketManagerCubit.startSocketServer();
       return () => socketManagerCubit.stopSocketServer();
     }, []);
 
