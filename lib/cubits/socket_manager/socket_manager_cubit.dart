@@ -1,16 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:socket_io/socket_io.dart';
-import 'package:vr_trip/services/socket_server/socket_server_service.dart';
 
 part 'socket_manager_state.dart';
 
 class SocketManagerCubit extends Cubit<SocketManagerState> {
-  final SocketServerService socketServerService;
   Server? _socketServer;
 
-  SocketManagerCubit({required this.socketServerService})
-      : super(const SocketManagerState());
+  SocketManagerCubit() : super(const SocketManagerState());
 
   void startSocketServer() {
     if (_socketServer == null) {
@@ -46,6 +43,14 @@ class SocketManagerCubit extends Cubit<SocketManagerState> {
       print('Socket server stopped');
       _socketServer = null;
       emit(state.copyWith(isServerActive: false));
+    }
+  }
+
+  void sendMessage(String message) {
+    if (_socketServer != null) {
+      print('Sending message: $message');
+      _socketServer?.sockets.emit('message', message);
+      _socketServer!.emit('message', message);
     }
   }
 

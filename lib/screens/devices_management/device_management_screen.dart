@@ -16,6 +16,10 @@ class DeviceManagementScreen extends HookWidget {
       return () => socketManagerCubit.stopSocketServer();
     }, []);
 
+    void handleSendMessage(String message) {
+      socketManagerCubit.sendMessage(message);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Manager'),
@@ -41,7 +45,9 @@ class DeviceManagementScreen extends HookWidget {
                   },
                   child: Text(
                       '${state.isServerActive ? 'Stop' : 'Start'} Server')),
-              SocketChat(items: socketManagerCubit.state.devices),
+              SocketChat(
+                  items: socketManagerCubit.state.devices,
+                  handleSendMessage: handleSendMessage),
             ],
           );
         },

@@ -1,42 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
 
 class DeviceHostScreen extends HookWidget {
   const DeviceHostScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    //final socketHostCubit = useBloc<SocketHostCubit>();
     final messages = useState<List<String>>([]);
-
-    void addMessage(String value) {
-      final currentList = List<String>.from(messages.value);
-      currentList.add(value);
-      messages.value = currentList;
-    }
 
     final socket = useMemoized(() => io(
           'http://192.168.1.31:3000', // Replace with your server address
           <String, dynamic>{
             'transports': ['websocket'],
-            'autoConnect': false,
+            'autoConnect': true,
           },
         ));
 
     useEffect(() {
       socket.connect();
-
-      final messageListener = socket.on('message', (data) {
-        print('Received message on SocketScreen: $data');
-        addMessage(data);
+      socket.on('message', (data) {
+        print('@1message received: $data');
+        messages.value = [...messages.value, data];
       });
-
-      return () {
-        socket.disconnect();
-        //messageListener.cancel();
-      };
-    }, const []);
+      return () => socket.disconnect();
+    }, []);
 
     return Scaffold(
       appBar: AppBar(
@@ -48,11 +37,22 @@ class DeviceHostScreen extends HookWidget {
           Text('Device Host Screen'),
           ElevatedButton(
             onPressed: () {
-              socket.emit('message', 'Hello from Socket Screen');
+              //socket.emit('message', 'Hello from Socket Screen');
             },
             child: Text('Send Message to Server'),
           ),
-          SocketChat(items: messages.value),
+          Container(
+            color: Colors.blueGrey[300],
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: messages.value.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  child: Text('Device ${messages.value[index]}'),
+                );
+              },
+            ),
+          ),
         ],
       )),
     );
