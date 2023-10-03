@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hooked_bloc/hooked_bloc.dart';
+import 'package:vr_trip/cubits/socket_manager/socket_manager_cubit.dart';
 import 'package:vr_trip/screens/device_host/device_host_screen.dart';
+import 'package:vr_trip/services/socket_server/socket_server_service.dart';
+
 import 'screens/devices_management/device_management_screen.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(HookedBlocConfigProvider(
+    builderCondition: (state) => state != null, // Global build condition
+    listenerCondition: (state) => state != null, // Global listen condition
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -50,18 +58,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  const DeviceManagementScreen()))
+                              builder: (context) => BlocProvider(
+                                    create: (context) => SocketManagerCubit(
+                                        socketServerService:
+                                            SocketServerService()),
+                                    child: DeviceManagementScreen(),
+                                  )))
                     },
                 child: const Text('navigate to device management screen')),
             ElevatedButton(
                 onPressed: () => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                          const DeviceHostScreen()))
-                },
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const DeviceHostScreen()))
+                    },
                 child: const Text('navigate to device host screen')),
           ],
         ),
