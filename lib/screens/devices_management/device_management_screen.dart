@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/providers/socket_manager/socket_manager_provider.dart';
 import 'package:vr_trip/services/socket_server/socket_server_service.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
-
-final devicesProvider = Provider<int>((ref) => 0);
-
-enum DeviceType { advertiser, browser }
 
 class DeviceManagementScreen extends HookConsumerWidget {
   const DeviceManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final socketServer = useMemoized(() => SocketServerService.instance);
-    final devices = useState<List<String>>([]);
+    final socketServer = ref.watch(socketServerProvider);
     final messages = useState<List<String>>([]);
-    final isActive = ref.watch(socketServerProvider);
+    final socketManager = ref.watch(socketManagerProvider);
 
     void addMessage(String value) {
       final currentList = List<String>.from(messages.value);
@@ -25,23 +20,10 @@ class DeviceManagementScreen extends HookConsumerWidget {
       messages.value = currentList;
     }
 
-    void addItem(String value) {
-      final currentList = List<String>.from(devices.value);
-      currentList.add(value);
-      devices.value = currentList;
-    }
-
-    void removeItem(String name) {
-      final currentList = List<String>.from(devices.value);
-      currentList.remove(name);
-      devices.value = currentList;
-    }
-
     useEffect(() {
-      socketServer.startSocketServer(ref);
-
+      socketServer.startSocketServer();
       return () {
-        socketServer.stopSocketServer(ref);
+        socketServer.stopSocketServer();
       };
     }, const []);
 
@@ -53,14 +35,19 @@ class DeviceManagementScreen extends HookConsumerWidget {
           child: Column(
         children: [
           Text(
-              'Socket server : ${isActive ? 'active' : 'stopped'}'),
+              'Socket server : ${socketManager.isActive ? 'active' : 'stopped'}'),
           ElevatedButton(
             onPressed: () {
-              socketServer.stopSocketServer(ref);
+              if (!socketManager.isActive) {
+                socketServer.startSocketServer();
+              } else {
+                socketServer.stopSocketServer();
+              }
             },
-            child: Text('Stop server'),
+            child: Text(
+                '${socketManager.isActive ? 'Stop socket' : 'Active socket'}'),
           ),
-          SocketChat(items: devices.value),
+          SocketChat(items: socketManager.getDevices),
           SocketChat(items: messages.value),
         ],
       )),

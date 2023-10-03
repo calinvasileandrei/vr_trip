@@ -1,52 +1,50 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:socket_io/socket_io.dart';
+import 'package:vr_trip/providers/socket_manager/socket_manager_provider.dart';
 
-final socketServerProvider = NotifierProvider<SocketServer, bool>(SocketServer.new);
-
-class SocketServer extends Notifier<bool> {
-  @override
-  bool build() => true;
-
-  void setServer( bool value ){
-    state = value;
-  }
-}
+final socketServerProvider = Provider<SocketServerService>((ref) {
+  return SocketServerService(ref: ref);
+});
 
 class SocketServerService {
-  static SocketServerService? _instance;
   Server? _socketServer;
+  final ProviderRef ref;
 
-  // Private constructor to prevent direct instantiation
-  SocketServerService._();
+  SocketServerService({
+    required this.ref,
+  });
 
-  // Singleton instance getter
-  static SocketServerService get instance {
-    _instance ??= SocketServerService._();
-    return _instance!;
-  }
-
-  void startSocketServer(WidgetRef ref) {
+  void startSocketServer() {
     if (_socketServer == null) {
       _socketServer = Server();
-      _socketServer!.listen(3000); // You can choose any available port
-      print('Socket server started on port 3000');
+      _socketServer!.listen(3000);
 
-      // Notify listeners that the server is running
-      //ref.read(socketServerProvider.notifier).setServer(true); // Update server status
+      print('Socket server started on port 3000');
+      ref.read(socketManagerProvider.notifier).setIsActive(true);
 
       _socketServer!.on('connection', (socket) {
         print('Client connected: ${socket.id}');
-        // Implement your socket logic here
+        ref.read(socketManagerProvider.notifier).addDevice(socket.id);
+
+        socket.on('message', (data) {
+          print('Received message: $data');
+          socket.emit('message', 'Server received your message: $data');
+        });
+
+        socket.on('disconnect', (_) {
+          print('Client disconnected: ${socket.id}');
+          ref.read(socketManagerProvider.notifier).removeDevice(socket.id);
+        });
       });
     }
   }
 
-  void stopSocketServer(WidgetRef ref) {
+  void stopSocketServer() {
     if (_socketServer != null) {
       _socketServer!.close();
       print('Socket server stopped');
-      _socketServer = null; // Reset the instance
-      ref.read(socketServerProvider.notifier).setServer(false); // Update server status
+      _socketServer = null;
+      ref.read(socketManagerProvider.notifier).setIsActive(false);
     }
   }
 }

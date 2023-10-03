@@ -23,7 +23,7 @@ class DeviceHostScreen extends HookWidget {
 
 
     final socket = useMemoized(() => io(
-      'http://192.168.2.114:3000', // Replace with your server address
+      'http://192.168.1.31:3000', // Replace with your server address
       <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': false,
