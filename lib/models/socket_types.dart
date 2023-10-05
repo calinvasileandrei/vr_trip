@@ -1,6 +1,13 @@
 
-class SocketMessage {
+class MySocketMessage {
   final message;
   final from;
-  SocketMessage({required this.message,required this.from});
+  MySocketMessage({required this.message,required this.from});
+}
+
+
+enum SocketServerStatus {
+  connection,
+  message,
+  disconnect,
 }

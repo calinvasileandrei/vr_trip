@@ -1,31 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:socket_io_client/socket_io_client.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/providers/socket_host_service_provider.dart';
+import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
 
-class DeviceHostScreen extends HookWidget {
+class DeviceHostScreen extends HookConsumerWidget {
   const DeviceHostScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    //final socketHostCubit = useBloc<SocketHostCubit>();
-    final messages = useState<List<String>>([]);
-
-    final socket = useMemoized(() => io(
-          'http://192.168.1.31:3000', // Replace with your server address
-          <String, dynamic>{
-            'transports': ['websocket'],
-            'autoConnect': true,
-          },
-        ));
-
-    useEffect(() {
-      socket.connect();
-      socket.on('message', (data) {
-        print('@1message received: $data');
-        messages.value = [...messages.value, data];
-      });
-      return () => socket.disconnect();
-    }, []);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final messages = ref.watch(hostMessagesSP);
 
     return Scaffold(
       appBar: AppBar(
@@ -36,20 +19,17 @@ class DeviceHostScreen extends HookWidget {
         children: [
           Text('Device Host Screen'),
           ElevatedButton(
-            onPressed: () {
-              //socket.emit('message', 'Hello from Socket Screen');
-            },
+            onPressed: () {},
             child: Text('Send Message to Server'),
           ),
           Container(
             color: Colors.blueGrey[300],
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: messages.value.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  child: Text('Device ${messages.value[index]}'),
-                );
+            child: messages.when(
+              loading: () => const Text('Awaiting messages from server...'),
+              error: (error, stackTrace) => Text(error.toString()),
+              data: (messagesItems) {
+                // Display all the messages in a scrollable list view.
+                return SocketChat(items: messagesItems);
               },
             ),
           ),
