@@ -14,8 +14,8 @@ class SocketServerService {
 
   // Messages
   List<MySocketMessage> _messages = [];
-  final _messagesController = StreamController<List<MySocketMessage>>.broadcast();
-
+  final _messagesController =
+      StreamController<List<MySocketMessage>>.broadcast();
 
   void startSocketServer() {
     if (_socketServer == null) {
@@ -32,13 +32,13 @@ class SocketServerService {
   }
 
   void connectionStream() async {
-    _socketServer?.on(SocketServerStatus.connection,(socket) {
+    _socketServer?.on(SocketServerStatus.connection, (socket) {
       Logger.log('Client connected: ${socket.id}');
       _addConnection(socket.id);
 
       socket.on('message', (data) {
         Logger.log('Socket[${socket.id}] - Message received: $data');
-        _addMessage(MySocketMessage(from:socket.id, message: data));
+        _addMessage(MySocketMessage(from: socket.id, message: data));
         //socket.emit('message', 'Server received your message: $data');
       });
 
@@ -65,6 +65,19 @@ class SocketServerService {
   }
   Stream<List<MySocketMessage>> getMessages() {
     return _messagesController.stream;
+  }
+
+  // Send a Message to the server
+  void sendBroadcastMessage(String message) {
+    try {
+      _socketServer?.emit(
+        SocketHostStatus.message.toString(),
+        MySocketMessage(message: message, from: 'server').toString(),
+      );
+      Logger.log('Message sent: $message');
+    } catch (e) {
+      Logger.error('Error sendMessage : $e');
+    }
   }
 
   // Stop Socket Server
