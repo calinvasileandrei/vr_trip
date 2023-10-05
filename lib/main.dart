@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hooked_bloc/hooked_bloc.dart';
-import 'package:vr_trip/cubits/socket_host/socket_host_cubit.dart';
-import 'package:vr_trip/cubits/socket_manager/socket_manager_cubit.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/screens/device_host/device_host_screen.dart';
 import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
 import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
@@ -10,11 +7,9 @@ import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
 import 'screens/devices_management/device_management_screen.dart';
 
 void main() {
-  runApp(HookedBlocConfigProvider(
-    builderCondition: (state) => state != null, // Global build condition
-    listenerCondition: (state) => state != null, // Global listen condition
-    child: const MyApp(),
-  ));
+  runApp(
+    const ProviderScope(child: MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -60,10 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BlocProvider(
-                                    create: (context) => SocketManagerCubit(),
-                                    child: DeviceManagementScreen(),
-                                  )))
+                              builder: (context) =>
+                                  const DeviceManagementScreen()))
                     },
                 child: const Text('navigate to device management screen')),
             ElevatedButton(
@@ -71,27 +64,24 @@ class _MyHomePageState extends State<MyHomePage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BlocProvider(
-                                    create: (context) => SocketHostCubit(),
-                                    child: DeviceHostScreen(),
-                                  )))
+                              builder: (context) => const DeviceHostScreen()))
                     },
                 child: const Text('navigate to device host screen')),
             ElevatedButton(
                 onPressed: () => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VrPlayerScreen()))
-                },
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const VrPlayerScreen()))
+                    },
                 child: const Text('navigate to VR Player screen')),
             ElevatedButton(
                 onPressed: () => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => FileManagerScreen()))
-                },
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const FileManagerScreen()))
+                    },
                 child: const Text('navigate to File manager screen')),
           ],
         ),

@@ -1,58 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooked_bloc/hooked_bloc.dart';
-import 'package:vr_trip/cubits/socket_manager/socket_manager_cubit.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/providers/socket_service_provider.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
 
-class DeviceManagementScreen extends HookWidget {
+class DeviceManagementScreen extends HookConsumerWidget {
   const DeviceManagementScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final socketManagerCubit = useBloc<SocketManagerCubit>();
-
-    useEffect(() {
-      socketManagerCubit.startSocketServer();
-      return () => socketManagerCubit.stopSocketServer();
-    }, []);
-
-    void handleSendMessage(String message) {
-      socketManagerCubit.sendMessage(message);
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final socketConnections = ref.watch(connectionsStreamProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Manager'),
       ),
-      body: Center(
-          child: BlocConsumer<SocketManagerCubit, SocketManagerState>(
-        listener: (context, state) {
-          if (state.status == SocketManagerStatus.success) {
-            print('success');
-          }
+      body: socketConnections.when(
+        loading: () => const Text('Loading...'),
+        error: (error, stackTrace) => Text(error.toString()),
+        data: (connections) {
+          // Display all the messages in a scrollable list view.
+          return SocketChat(items: connections);
         },
-        builder: (context, state) {
-          return Column(
-            children: [
-              Text('Server is ${state.isServerActive ? 'active' : 'inactive'}'),
-              ElevatedButton(
-                  onPressed: () {
-                    if (socketManagerCubit.state.isServerActive) {
-                      socketManagerCubit.stopSocketServer();
-                    } else {
-                      socketManagerCubit.startSocketServer();
-                    }
-                  },
-                  child: Text(
-                      '${state.isServerActive ? 'Stop' : 'Start'} Server')),
-              SocketChat(
-                  items: socketManagerCubit.state.devices,
-                  handleSendMessage: handleSendMessage),
-            ],
-          );
-        },
-      )),
+      ),
     );
   }
 }

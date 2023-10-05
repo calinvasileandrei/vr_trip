@@ -3,20 +3,35 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SocketChat extends HookWidget {
   final List<String> items;
-  final ValueSetter<String> handleSendMessage;
+  final ValueSetter<String>? handleSendMessage;
 
-  const SocketChat({super.key, required this.items,required this.handleSendMessage});
+  const SocketChat({super.key, required this.items, this.handleSendMessage});
 
   @override
   Widget build(BuildContext context) {
     final textController = useTextEditingController();
 
     void handleOnPress() {
-      handleSendMessage(textController.text);
+      handleSendMessage != null ? (textController.text) : null;
+    }
+
+    List<Widget> renderSocketInput (){
+      if (handleSendMessage == null) {
+        return [];
+      }
+      return [
+        TextField(
+          controller: textController, // Assign the controller
+          decoration: InputDecoration(labelText: 'Enter a message'),
+        ),
+        IconButton(onPressed: handleOnPress, icon: Icon(Icons.send))
+      ];
     }
 
     return Container(
       color: Colors.blueGrey[300],
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: items.length,
@@ -25,11 +40,7 @@ class SocketChat extends HookWidget {
             child: Column(
               children: [
                 Text('Device ${items[index]}'),
-                TextField(
-                  controller: textController, // Assign the controller
-                  decoration: InputDecoration(labelText: 'Enter a message'),
-                ),
-                IconButton(onPressed: handleOnPress, icon: Icon(Icons.send))
+                ...renderSocketInput()
               ],
             ),
           );
