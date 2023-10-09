@@ -63,7 +63,9 @@ class DeviceManagementScreen extends HookConsumerWidget {
             error: (error, stackTrace) => Text(error.toString()),
             data: (connections) {
               // Display all the messages in a scrollable list view.
-              return Center(child: SocketChat(items: connections));
+              return Center(child: SocketChat(items: connections,handleSendMessage: (String message){
+                ref.read(socketServerSP).sendBroadcastMessage(message);
+              },));
             },
           ),
         ],

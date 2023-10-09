@@ -42,9 +42,7 @@ class SocketHostService {
       Logger.log('Message received: $data');
       _addMessage(data);
     });
-    _socket?.on('disconnect', (data) {
-      Logger.log('Socket disconnected');
-    });
+    _socket?.onDisconnect((_) => Logger.log('Server stopped, disconnected'));
   }
 
   // Messages Methods

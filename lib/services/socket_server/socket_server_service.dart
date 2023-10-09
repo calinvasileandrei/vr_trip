@@ -78,6 +78,7 @@ class SocketServerService {
 
   // Send a Message to the server
   void sendBroadcastMessage(String message) {
+    Logger.log('Called sendBroadcastMessage() with message: $message');
     try {
       _socketServer?.emit(
         'message',

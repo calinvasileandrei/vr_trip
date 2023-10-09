@@ -12,7 +12,7 @@ class SocketChat extends HookWidget {
     final textController = useTextEditingController();
 
     void handleOnPress() {
-      handleSendMessage != null ? (textController.text) : null;
+      handleSendMessage!(textController.text);
     }
 
     List<Widget> renderSocketInput (){
