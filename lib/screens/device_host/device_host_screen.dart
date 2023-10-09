@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:vr_trip/providers/socket_host_service_provider.dart';
+import 'package:vr_trip/services/socket_host/socket_host_service.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
+
+final socketHostSP = Provider.autoDispose<SocketHostService>((ref) {
+  final service = SocketHostService(host: 'http://192.168.2.103', port: 3000);
+  service.initConnection();
+  service.startConnection();
+
+  ref.onDispose(() => service.stopConnection());
+
+  return service;
+});
+
+final hostMessagesSP = StreamProvider.autoDispose<List<String>>(
+    (ref) => ref.watch(socketHostSP).getMessages());
 
 class DeviceHostScreen extends HookConsumerWidget {
   const DeviceHostScreen({super.key});

@@ -31,5 +31,6 @@ enum SocketServerStatus {
 }
 
 enum SocketHostStatus {
-  message,
+  connected,
+  disconnected,
 }

@@ -31,7 +31,6 @@ class SocketChat extends HookWidget {
     return Container(
       color: Colors.blueGrey[300],
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: items.length,

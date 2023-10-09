@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:vr_trip/models/socket_types.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class SocketHostService {
@@ -39,9 +38,12 @@ class SocketHostService {
   void startConnection() {
     _socket?.connect();
     Logger.log('Socket connected');
-    _socket?.on(SocketHostStatus.message.toString(), (data) {
+    _socket?.on('message', (data) {
       Logger.log('Message received: $data');
       _addMessage(data);
+    });
+    _socket?.on('disconnect', (data) {
+      Logger.log('Socket disconnected');
     });
   }
 
@@ -59,7 +61,7 @@ class SocketHostService {
   void sendMessage(String message) {
     try {
       _socket?.emit(
-        SocketHostStatus.message.toString(),
+        'message',
         {
           "id": _socket?.id,
           "message": message, // Message to be sent
@@ -73,6 +75,7 @@ class SocketHostService {
   }
 
   void stopConnection() {
+    Logger.log('Called stopConnection()');
     _socket?.disconnect();
   }
 }

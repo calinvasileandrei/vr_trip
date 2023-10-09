@@ -22,7 +22,7 @@ class SocketServerService {
       try {
         _socketServer = Server();
         _socketServer!.listen(_port);
-        Logger.log('Socket server started on port: $_port');
+        Logger.log('Socket server started on port: ${_socketServer?.port}');
       } catch (e) {
         Logger.error('Error startSocketServer : $e');
       }
@@ -32,20 +32,20 @@ class SocketServerService {
   }
 
   void connectionStream() async {
-    _socketServer?.on(SocketServerStatus.connection.toString(), (socket) {
+    _socketServer?.on('connection', (socket) {
       Logger.log('Client connected: ${socket.id}');
       _addConnection(socket.id);
-      socket.emit(SocketHostStatus.message.toString(), "Welcome to the server");
+      socket.emit('message', "Welcome to the server");
 
-
-      socket.on(SocketServerStatus.message.toString(), (data) {
+      socket.on('message', (data) {
         Logger.log('Socket[${socket.id}] - Message received: $data');
         _addMessage(MySocketMessage(from: socket.id, message: data));
         //socket.emit('message', 'Server received your message: $data');
       });
 
-      socket.on(SocketServerStatus.disconnect.toString(), (_) {
+      socket.on('disconnect', (_) {
         Logger.log('Client disconnected: ${socket.id}');
+        _removeConnection(socket.id);
       });
     });
   }
@@ -55,6 +55,12 @@ class SocketServerService {
     _connectedSockets.add(socketId);
     _connectionsController.add(_connectedSockets);
   }
+
+  void _removeConnection(String socketId) {
+    _connectedSockets.remove(socketId);
+    _connectionsController.add(_connectedSockets);
+  }
+
   Stream<List<String>> getConnections() {
     Logger.log('Called getConnections()');
     return _connectionsController.stream;
@@ -65,6 +71,7 @@ class SocketServerService {
     _messages.add(message);
     _messagesController.add(_messages);
   }
+
   Stream<List<MySocketMessage>> getMessages() {
     return _messagesController.stream;
   }
@@ -73,7 +80,7 @@ class SocketServerService {
   void sendBroadcastMessage(String message) {
     try {
       _socketServer?.emit(
-        SocketHostStatus.message.toString(),
+        'message',
         MySocketMessage(message: message, from: 'server').toString(),
       );
       Logger.log('Message sent: $message');
