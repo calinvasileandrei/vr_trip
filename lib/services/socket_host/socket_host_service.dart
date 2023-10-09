@@ -36,18 +36,27 @@ class SocketHostService {
   }
 
   void startConnection() {
+    _resetMessages();
     _socket?.connect();
     Logger.log('Socket connected');
     _socket?.on('message', (data) {
       Logger.log('Message received: $data');
       _addMessage(data);
     });
-    _socket?.onDisconnect((_) => Logger.log('Server stopped, disconnected'));
+    _socket?.onDisconnect((_){
+      Logger.log('Server stopped, disconnected');
+      _resetMessages();
+    });
   }
 
   // Messages Methods
   void _addMessage(String message) {
     _messages.add(message);
+    _messagesController.add(_messages);
+  }
+
+  void _resetMessages() {
+    _messages = [];
     _messagesController.add(_messages);
   }
 
