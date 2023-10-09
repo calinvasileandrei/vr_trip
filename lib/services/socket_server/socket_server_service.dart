@@ -32,17 +32,19 @@ class SocketServerService {
   }
 
   void connectionStream() async {
-    _socketServer?.on(SocketServerStatus.connection, (socket) {
+    _socketServer?.on(SocketServerStatus.connection.toString(), (socket) {
       Logger.log('Client connected: ${socket.id}');
       _addConnection(socket.id);
+      socket.emit(SocketHostStatus.message.toString(), "Welcome to the server");
 
-      socket.on(SocketServerStatus.message, (data) {
+
+      socket.on(SocketServerStatus.message.toString(), (data) {
         Logger.log('Socket[${socket.id}] - Message received: $data');
         _addMessage(MySocketMessage(from: socket.id, message: data));
         //socket.emit('message', 'Server received your message: $data');
       });
 
-      socket.on(SocketServerStatus.disconnect, (_) {
+      socket.on(SocketServerStatus.disconnect.toString(), (_) {
         Logger.log('Client disconnected: ${socket.id}');
       });
     });
