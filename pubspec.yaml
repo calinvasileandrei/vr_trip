@@ -41,6 +41,7 @@ dependencies:
   vr_player: ^0.2.1
   flutter_hooks: ^0.20.1
   hooks_riverpod: ^2.4.2
+  network_info_plus: ^4.0.2
 
 dev_dependencies:
   flutter_test:

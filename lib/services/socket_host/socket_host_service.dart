@@ -38,6 +38,7 @@ class SocketHostService {
 
   void startConnection() {
     _socket?.connect();
+    Logger.log('Socket connected');
     _socket?.on(SocketHostStatus.message.toString(), (data) {
       Logger.log('Message received: $data');
       _addMessage(data);

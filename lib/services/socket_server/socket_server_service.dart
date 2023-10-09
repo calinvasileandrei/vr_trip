@@ -36,13 +36,13 @@ class SocketServerService {
       Logger.log('Client connected: ${socket.id}');
       _addConnection(socket.id);
 
-      socket.on('message', (data) {
+      socket.on(SocketServerStatus.message, (data) {
         Logger.log('Socket[${socket.id}] - Message received: $data');
         _addMessage(MySocketMessage(from: socket.id, message: data));
         //socket.emit('message', 'Server received your message: $data');
       });
 
-      socket.on('disconnect', (_) {
+      socket.on(SocketServerStatus.disconnect, (_) {
         Logger.log('Client disconnected: ${socket.id}');
       });
     });

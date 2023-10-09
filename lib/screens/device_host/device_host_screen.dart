@@ -19,7 +19,9 @@ class DeviceHostScreen extends HookConsumerWidget {
         children: [
           Text('Device Host Screen'),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              ref.read(socketHostSP).sendMessage('Hello from device host');
+            },
             child: Text('Send Message to Server'),
           ),
           Container(
