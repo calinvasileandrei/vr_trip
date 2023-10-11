@@ -3,22 +3,29 @@ import 'package:flutter/services.dart';
 import 'package:vr_player/vr_player.dart';
 
 class VrPlayerScreen extends StatefulWidget {
-  const VrPlayerScreen({super.key});
+  final String _videoPath;
+
+  const VrPlayerScreen({super.key, required String videoPath})
+      : _videoPath = videoPath;
 
   @override
-  _VrPlayerScreenState createState() => _VrPlayerScreenState();
+  _VrPlayerScreenState createState() => _VrPlayerScreenState(_videoPath);
 }
 
 class _VrPlayerScreenState extends State<VrPlayerScreen>
     with TickerProviderStateMixin {
+  final String _videoPath;
+
+  _VrPlayerScreenState(this._videoPath);
+
   late VrPlayerController _viewPlayerController;
   late AnimationController _animationController;
   late Animation<double> _animation;
   bool _isShowingBar = false;
   bool _isPlaying = false;
-  bool _isFullScreen = false;
+  bool _isFullScreen = true;
   bool _isVideoFinished = false;
-  bool _isLandscapeOrientation = false;
+  bool _isLandscapeOrientation = true;
   bool _isVolumeSliderShown = false;
   bool _isVolumeEnabled = true;
   late double _playerWidth;
@@ -37,7 +44,19 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
     _toggleShowingBar();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
     super.initState();
+  }
+
+  @override
+  dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+    super.dispose();
   }
 
   void _toggleShowingBar() {
@@ -60,10 +79,10 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('VR Player'),
-      ),
       body: GestureDetector(
+        onLongPress: () {
+          Navigator.pop(context);
+        },
         onTap: _toggleShowingBar,
         child: Stack(
           alignment: Alignment.bottomCenter,
@@ -248,10 +267,8 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
       ..onPositionChange = onChangePosition
       ..onFinishedChange = onReceiveEnded;
     _viewPlayerController.loadVideo(
-  /*    videoUrl:
-          'https://cdn.bitmovin.com/content/assets/playhouse-vr/m3u8s/105560.m3u8',*/
-    videoPath: '/storage/emulated/0/Download/demovr.mp4'
-    );
+        /* videoUrl: 'https://cdn.bitmovin.com/content/assets/playhouse-vr/m3u8s/105560.m3u8', */
+        videoPath: _videoPath);
   }
 
   void onReceiveState(VrState state) {
