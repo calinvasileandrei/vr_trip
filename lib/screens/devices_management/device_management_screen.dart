@@ -3,8 +3,19 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vr_trip/models/socket_types.dart';
+import 'package:vr_trip/services/network_discovery_server/network_discovery_server.dart';
 import 'package:vr_trip/services/socket_server/socket_server_service.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
+
+final networkDiscoveryServerSP = Provider<NetworkDiscoveryServer>((ref) {
+  final service = NetworkDiscoveryServer();
+  service.initService();
+  service.startBroadcast();
+
+  ref.onDispose(() => service.stopService());
+
+  return service;
+});
 
 final socketServerSP = Provider.autoDispose<SocketServerService>((ref) {
   final service = SocketServerService();
@@ -33,6 +44,7 @@ class DeviceManagementScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final socketConnections = ref.watch(serverConnectionsSP);
+    final discovery = ref.watch(networkDiscoveryServerSP);
     final serverIp = useFuture(getWifiIp());
 
     renderIp() {
@@ -52,20 +64,41 @@ class DeviceManagementScreen extends HookConsumerWidget {
       body: Column(
         children: [
           renderIp(),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(socketServerSP).stopSocketServer();
-            },
-            child: Text('Stop Server'),
+          Text('DiscoveryServer Status: ${discovery.getStatus().name}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  final status = ref.read(networkDiscoveryServerSP).getStatus();
+                  if (status == NetworkDiscoveryServerStatus.online) {
+                    ref.read(networkDiscoveryServerSP).startBroadcast();
+                  } else {
+                    ref.read(networkDiscoveryServerSP).stopBroadcast();
+                  }
+                },
+                child: Text('Toggle Discovery Server'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(socketServerSP).stopSocketServer();
+                },
+                child: Text('Stop Server'),
+              ),
+            ],
           ),
           socketConnections.when(
             loading: () => const Text('Awaiting host connections...'),
             error: (error, stackTrace) => Text(error.toString()),
             data: (connections) {
               // Display all the messages in a scrollable list view.
-              return Center(child: SocketChat(items: connections,handleSendMessage: (String message){
-                ref.read(socketServerSP).sendBroadcastMessage(message);
-              },));
+              return Center(
+                  child: SocketChat(
+                items: connections,
+                handleSendMessage: (String message) {
+                  ref.read(socketServerSP).sendBroadcastMessage(message);
+                },
+              ));
             },
           ),
         ],
