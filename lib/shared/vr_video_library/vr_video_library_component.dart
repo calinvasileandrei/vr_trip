@@ -7,7 +7,8 @@ import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/shared/library_item/library_item_component.dart';
 
 class VrVideoLibrary extends HookWidget {
-  const VrVideoLibrary({super.key});
+  final Function(LibraryItemModel) onItemPress;
+  const VrVideoLibrary({super.key,required this.onItemPress});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,7 @@ class VrVideoLibrary extends HookWidget {
         itemBuilder: (context, index) {
           return LibraryItem(
             item: folders.value[index],
+            onPress: onItemPress,
           );
         },
       ),

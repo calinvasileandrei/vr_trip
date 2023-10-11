@@ -2,36 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:vr_trip/models/socket_types.dart';
+import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/services/network_discovery_server/network_discovery_server.dart';
-import 'package:vr_trip/services/socket_server/socket_server_service.dart';
+import 'package:vr_trip/services/network_discovery_server/network_discovery_server_provider.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
-
-final networkDiscoveryServerSP = Provider<NetworkDiscoveryServer>((ref) {
-  final service = NetworkDiscoveryServer();
-  service.initService();
-  service.startBroadcast();
-
-  ref.onDispose(() => service.stopService());
-
-  return service;
-});
-
-final socketServerSP = Provider.autoDispose<SocketServerService>((ref) {
-  final service = SocketServerService();
-  service.startSocketServer();
-  service.connectionStream();
-
-  ref.onDispose(() => service.stopSocketServer());
-
-  return service;
-});
-
-final serverMessagesSP = StreamProvider.autoDispose<List<MySocketMessage>>(
-    (ref) => ref.watch(socketServerSP).getMessages());
-
-final serverConnectionsSP = StreamProvider.autoDispose<List<String>>(
-    (ref) => ref.watch(socketServerSP).getConnections());
+import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart';
 
 class DeviceManagementScreen extends HookConsumerWidget {
   const DeviceManagementScreen({super.key});
@@ -55,6 +31,12 @@ class DeviceManagementScreen extends HookConsumerWidget {
       } else {
         return const Text('Device Server IP: Loading...');
       }
+    }
+
+    void handleItemSelected(LibraryItemModel item) {
+      ref
+          .read(socketServerSP)
+          .sendBroadcastMessage(SocketActionTypes.selectVideo, item.path);
     }
 
     return Scaffold(
@@ -95,12 +77,10 @@ class DeviceManagementScreen extends HookConsumerWidget {
               return Center(
                   child: SocketChat(
                 items: connections,
-                handleSendMessage: (String message) {
-                  ref.read(socketServerSP).sendBroadcastMessage(message);
-                },
               ));
             },
           ),
+          VrVideoLibrary(onItemPress: handleItemSelected),
         ],
       ),
     );

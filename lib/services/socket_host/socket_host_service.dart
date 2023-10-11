@@ -39,6 +39,7 @@ class SocketHostService {
     _resetMessages();
     _socket?.connect();
     Logger.log('Socket connected');
+
     _socket?.on('message', (data) {
       Logger.log('Message received: $data');
       _addMessage(data);

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
 import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart';
 import 'package:vr_trip/utils/logger.dart';
 
@@ -54,6 +56,13 @@ class FileManagerScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    handleNavigateToVr(LibraryItemModel item) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VrPlayerScreen(videoPath: item.path)));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('File Manager'),
@@ -68,7 +77,7 @@ class FileManagerScreen extends HookWidget {
             },
             child: Text('Move File'),
           ),
-          const VrVideoLibrary(),
+          VrVideoLibrary(onItemPress: handleNavigateToVr),
         ],
       )),
     );
