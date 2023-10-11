@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:socket_io/socket_io.dart';
+import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/socket_types.dart';
+import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class SocketServerService {
@@ -39,7 +41,8 @@ class SocketServerService {
 
       socket.on('message', (data) {
         Logger.log('Socket[${socket.id}] - Message received: $data');
-        _addMessage(MySocketMessage(from: socket.id, message: data));
+        final message = SocketProtocolService.decodeMessage(data);
+        _addMessage(message);
         //socket.emit('message', 'Server received your message: $data');
       });
 
@@ -77,13 +80,12 @@ class SocketServerService {
   }
 
   // Send a Message to the server
-  void sendBroadcastMessage(String message) {
-    Logger.log('Called sendBroadcastMessage() with message: $message');
+  void sendBroadcastMessage(SocketActionTypes action, String value) {
+    Logger.log(
+        'Called sendBroadcastMessage() with action: ${action.name} and value: $value');
     try {
-      _socketServer?.emit(
-        'message',
-        MySocketMessage(message: message, from: 'server').toString(),
-      );
+      final message = SocketProtocolService.encodeMessage(action, value);
+      _socketServer?.emit('message', message);
       Logger.log('Message sent: $message');
     } catch (e) {
       Logger.error('Error sendMessage : $e');
