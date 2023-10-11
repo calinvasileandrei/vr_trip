@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:vr_trip/screens/device_host/device_host_screen.dart';
-import 'package:vr_trip/screens/devices_management/device_management_screen.dart';
-import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
-import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
+import 'package:vr_trip/router/routes.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
@@ -21,38 +19,17 @@ class HomeScreen extends HookConsumerWidget {
           children: <Widget>[
             ElevatedButton(
                 onPressed: () => {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const DeviceManagementScreen()))
+                      context.goNamed(AppRoutes.deviceManagement.name),
                     },
                 child: const Text('navigate to device management screen')),
             ElevatedButton(
                 onPressed: () => {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const DeviceHostScreen()))
+                      context.goNamed(AppRoutes.deviceHost.name),
                     },
                 child: const Text('navigate to device host screen')),
             ElevatedButton(
                 onPressed: () => {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const VrPlayerScreen(
-                                    videoPath:
-                                        '/data/user/0/com.calinvasileandrei.vr_trip/app_flutter/demovr.mp4',
-                                  )))
-                    },
-                child: const Text('navigate to VR Player screen')),
-            ElevatedButton(
-                onPressed: () => {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const FileManagerScreen()))
+                      context.goNamed(AppRoutes.fileManager.name),
                     },
                 child: const Text('navigate to File manager screen')),
           ],

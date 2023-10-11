@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
+import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
 import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
@@ -9,10 +11,8 @@ import 'package:vr_trip/utils/logger.dart';
 
 class DeviceHostSocket extends HookConsumerWidget {
   final String serverIp;
-  final Function(String) navigateToVrPlayer;
 
-  const DeviceHostSocket(
-      {super.key, required this.serverIp, required this.navigateToVrPlayer});
+  const DeviceHostSocket({super.key, required this.serverIp});
 
   void getLastMessage(BuildContext context, List<String> messages) async {
     Logger.log('getLastMessage - messages: $messages');
@@ -22,7 +22,10 @@ class DeviceHostSocket extends HookConsumerWidget {
     final message = messages[lastMessageIndex];
     SocketAction action = SocketProtocolService.parseMessage(message);
 
-    navigateToVrPlayer(action.value);
+    Future.delayed(Duration.zero, () {
+      context.goNamed(AppRoutes.vrPlayerHost.name,
+          pathParameters: {'videoPath': action.value});
+    });
   }
 
   @override
