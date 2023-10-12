@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/router/routes.dart';
@@ -12,51 +13,65 @@ import 'package:vr_trip/utils/logger.dart';
 class FileManagerScreen extends HookWidget {
   const FileManagerScreen({super.key});
 
-  Future<void> moveFile(String sourceFilePath, String newPath) async {
-    File sourceFile = File(sourceFilePath);
+  Future<Directory?> getLocalAppStorageFolder() async {
     try {
-      var file = File(sourceFilePath);
-      if (await file.exists()) {
-        final copyFile = file.copySync(newPath);
-        if (file.existsSync()) {
-          file.delete();
-          Logger.log('File moved to: ${copyFile.path}');
-        }
-      } else {
-        Logger.log('Cannot delete, File not exists');
+      // Get App Storage Path
+      final directory = await getApplicationDocumentsDirectory();
+      // Access App Storage
+      Directory localAppStorage =
+          Directory('${directory.path}/VR_Video_Library');
+
+      // If the folder doesn't exist, create it
+      if (!await localAppStorage.exists()) {
+        await localAppStorage.create();
       }
-    } on FileSystemException catch (e) {
-      Logger.error('moveFile error: $e');
-      // if rename fails, copy the source file and then delete it
+      //List all files in App Storage
+      return localAppStorage;
+    } catch (e) {
+      Logger.error('getLocalAppStorageFiles error: $e');
     }
+    return null;
   }
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
+  Future<void> moveFilesToVRTripFolder() async {
+    try {
+      // Get the VR_TRIP folder
+      final Directory? vrTripFolder = await getLocalAppStorageFolder();
 
-  handleMoveFile() async {
-    final internalAppPath = await _localPath;
+      if (vrTripFolder == null) {
+        return;
+      }
 
-    // Get all files inside Download folder
-    Directory dirDownload = Directory('/storage/emulated/0/Download');
-    var downloadsFile = dirDownload.listSync().where((e) => e is File);
-    Logger.log('downloadsFile: $downloadsFile');
+      // Get the Download folder for the device
+      // Note: This assumes the typical Android path. Adjust if needed for other platforms.
+      final Directory downloadDir = Directory("/storage/emulated/0/Download");
 
-    // Iterate on each file and move to internal app folder
-    downloadsFile.forEach((element) {
-      Logger.log('element: $element');
-      final newFileName = element.path.split('/').last;
-      final newFilePath = '$internalAppPath/$newFileName';
-      moveFile(element.path, newFilePath);
-    });
+      // If the Download directory doesn't exist, exit
+      if (!await downloadDir.exists()) {
+        Logger.log("Download directory doesn't exist");
+        return;
+      }
 
-    Logger.log('Handle Move File completed');
+      // List all files in the Download directory
+      List<FileSystemEntity> files = downloadDir.listSync();
+
+      // Iterate over all files and move them to the VR_TRIP folder
+      for (FileSystemEntity file in files) {
+        if (file is File) {
+          final String basename = p.basename(file.path);
+          final File newLocation = File('${vrTripFolder.path}/$basename');
+          await file.copy(newLocation.path);
+          await file.delete();
+        }
+      }
+    } catch (error) {
+      Logger.log("Error moving files: $error");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
     handleNavigateToVr(LibraryItemModel item) {
       context.goNamed(AppRoutes.vrPlayerFile.name,
           pathParameters: {'videoPath': item.path});
@@ -70,11 +85,8 @@ class FileManagerScreen extends HookWidget {
           child: Column(
         children: [
           ElevatedButton(
-            onPressed: () {
-              //socket.emit('message', 'Hello from Socket Screen');
-              handleMoveFile();
-            },
-            child: Text('Move File'),
+            onPressed: moveFilesToVRTripFolder,
+            child: Text('Import Files from Download/VR_TRIP folder'),
           ),
           VrVideoLibrary(onItemPress: handleNavigateToVr),
         ],

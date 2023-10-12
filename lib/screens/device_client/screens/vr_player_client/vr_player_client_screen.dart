@@ -41,6 +41,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   late double _playerHeight;
 
   bool showActionBar = true;
+  bool isVrMode = false;
 
   // Using the Riverpod provider to manage the state
   late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
@@ -129,13 +130,15 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   }
 
   activateVr() {
-    if (!ref.read(vrPlayerClientProvider).isVR) {
+    if (!isVrMode) {
       try {
         _viewPlayerController.toggleVRMode();
       } catch (e) {
         Logger.error('$prefix - ERROR - activateVr: $e');
       }
-      vrPlayerClientNotifier.toggleVRMode(true);
+      setState(() {
+        isVrMode = true;
+      });
     }
   }
 

@@ -46,6 +46,7 @@ dependencies:
   path_provider: ^2.1.1
   bonsoir: ^3.0.0+1
   go_router: ^11.1.3
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:
