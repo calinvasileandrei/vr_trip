@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vr_trip/main.dart';
 import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/screens/device_host/device_host_screen.dart';
-import 'package:vr_trip/screens/device_host/screens/vr_player_host_screen.dart';
+import 'package:vr_trip/screens/device_host/screens/vr_player_host/vr_player_host_screen.dart';
 import 'package:vr_trip/screens/devices_management/device_management_screen.dart';
 import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
 import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';

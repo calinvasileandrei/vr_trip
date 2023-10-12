@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
+import 'package:vr_trip/screens/device_host/screens/vr_player_host/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
 import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/date_utils.dart';
@@ -140,8 +141,6 @@ class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
     }
   }
 
-  void _toggleShowingBar() {}
-
   @override
   Widget build(BuildContext context) {
     _playerWidth = MediaQuery.of(context).size.width;
@@ -157,7 +156,7 @@ class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
             playAndPause(true);
             break;
           case SocketActionTypes.pause:
-            Logger.log('getLastMessage - play');
+            Logger.log('getLastMessage - pause');
             playAndPause(false);
             break;
           default:
@@ -168,22 +167,14 @@ class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
 
     return Scaffold(
       body: GestureDetector(
-        onLongPress: () {
-          context.pop();
-        },
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VrPlayer(
-              x: 0,
-              y: 0,
-              onCreated: onViewPlayerCreated,
-              width: _playerWidth,
-              height: _playerHeight,
-            ),
-          ],
-        ),
-      ),
+          onLongPress: () {
+            context.pop();
+          },
+          child: MyVrPlayer(
+            onViewPlayerCreated: onViewPlayerCreated,
+            playerWidth: _playerWidth,
+            playerHeight: _playerHeight,
+          )),
     );
   }
 
