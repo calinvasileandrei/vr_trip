@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:vr_trip/screens/device_host/widgets/device_host_socket/device_host_socket.dart';
+import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client.dart';
 
-class DeviceHostScreen extends HookConsumerWidget {
-  const DeviceHostScreen({
+class DeviceClientScreen extends HookConsumerWidget {
+  const DeviceClientScreen({
     super.key,
   });
 
@@ -19,7 +19,7 @@ class DeviceHostScreen extends HookConsumerWidget {
       if (serverIp == null) {
         return const Center(child: Text('Discovery is running'));
       }
-      return DeviceHostSocket(
+      return DeviceClientSocket(
         serverIp: serverIp,
       );
     }

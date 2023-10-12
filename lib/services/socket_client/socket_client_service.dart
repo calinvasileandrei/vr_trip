@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-class SocketHostService {
+class SocketClientService {
   Socket? _socket;
   final _port; //3000
   final _host; //http://192.168.1.31
@@ -12,7 +12,7 @@ class SocketHostService {
   List<String> _messages = [];
   final _messagesController = StreamController<List<String>>.broadcast();
 
-  SocketHostService({required String host, required int port})
+  SocketClientService({required String host, required int port})
       : _host = host,
         _port = port;
 

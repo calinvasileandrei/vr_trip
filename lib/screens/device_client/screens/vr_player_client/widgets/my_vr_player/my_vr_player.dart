@@ -24,6 +24,18 @@ class MyVrPlayer extends StatelessWidget {
           width: playerWidth,
           height: playerHeight,
         ),
+        /*MyVrPlayerActionBar(
+            isVideoFinished: isVideoFinished,
+            isPlaying: isPlaying,
+            currentPosition: currentPosition,
+            intDuration: intDuration,
+            duration: duration,
+            seekPosition: seekPosition,
+            playAndPause: playAndPause,
+            onChangeSliderPosition: onChangeSliderPosition,
+            fullScreenPressed: fullScreenPressed,
+            cardBoardPressed: cardBoardPressed,
+            seekToPosition: seekToPosition)*/
       ],
     );
   }

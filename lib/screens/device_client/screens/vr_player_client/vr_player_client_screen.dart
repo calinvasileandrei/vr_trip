@@ -4,32 +4,34 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
-import 'package:vr_trip/screens/device_host/screens/vr_player_host/widgets/my_vr_player/my_vr_player.dart';
+import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
 import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/date_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-class VrPlayerHostScreen extends ConsumerStatefulWidget {
+const prefix = '[vr_player_host_screen]';
+
+class VrPlayerClientScreen extends ConsumerStatefulWidget {
   final String _videoPath;
   final String _serverIp;
 
-  const VrPlayerHostScreen(
+  const VrPlayerClientScreen(
       {super.key, required String serverIp, required String videoPath})
       : _videoPath = videoPath,
         _serverIp = serverIp;
 
   @override
-  VrPlayerHostScreenState createState() =>
-      VrPlayerHostScreenState(_videoPath, _serverIp);
+  VrPlayerClientScreenState createState() =>
+      VrPlayerClientScreenState(_videoPath, _serverIp);
 }
 
-class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
+class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     with TickerProviderStateMixin {
   final String _videoPath;
   final String _serverIp;
 
-  VrPlayerHostScreenState(this._videoPath, this._serverIp);
+  VrPlayerClientScreenState(this._videoPath, this._serverIp);
 
   late VrPlayerController _viewPlayerController;
 
@@ -81,49 +83,58 @@ class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
     }
   }
 
-  void onReceiveDuration(int millis) {
-    setState(() {
-      _intDuration = millis;
-      _duration = millisecondsToDateTime(millis);
-    });
-  }
-
-  void onChangePosition(int millis) {
-    setState(() {
-      _currentPosition = millisecondsToDateTime(millis);
-      _seekPosition = millis.toDouble();
-    });
-  }
-
-  void onReceiveEnded(bool isFinished) {
-    setState(() {
-      _isVideoFinished = isFinished;
-    });
-  }
-
-  void onViewPlayerCreated(
+  onViewPlayerCreated(
     VrPlayerController controller,
     VrPlayerObserver observer,
   ) {
-    _viewPlayerController = controller;
-    observer
-      ..onStateChange = onReceiveState
-      ..onDurationChange = onReceiveDuration
-      ..onPositionChange = onChangePosition
-      ..onFinishedChange = onReceiveEnded;
-    _viewPlayerController.loadVideo(videoPath: _videoPath);
+    try {
+      _viewPlayerController = controller;
+      observer
+        ..onStateChange = onReceiveState
+        ..onDurationChange = (millis) {
+          setState(() {
+            _intDuration = millis;
+            _duration = millisecondsToDateTime(millis);
+          });
+        }
+        ..onPositionChange = (int millis) {
+          setState(() {
+            _currentPosition = millisecondsToDateTime(millis);
+            _seekPosition = millis.toDouble();
+          });
+        }
+        ..onFinishedChange = (isFinished) => setState(() {
+              _isVideoFinished = isFinished;
+            });
+    } catch (e) {
+      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
+    }
+
+    try {
+      _viewPlayerController.loadVideo(videoPath: _videoPath);
+    } catch (e) {
+      Logger.error('$prefix - ERROR - loadVideo: $e');
+    }
   }
 
   Future<void> playAndPause(bool startPlay) async {
     if (_isVideoFinished) {
-      await _viewPlayerController.seekTo(0);
+      try {
+        await _viewPlayerController.seekTo(0);
+      } catch (e) {
+        Logger.error('$prefix - ERROR - playAndPause seekTo beginning: $e');
+      }
     }
 
-    if (startPlay && !_isPlaying) {
-      activeteVr();
-      await _viewPlayerController.play();
-    } else if (!startPlay && _isPlaying) {
-      await _viewPlayerController.pause();
+    try {
+      if (startPlay && !_isPlaying) {
+        activateVr();
+        await _viewPlayerController.play();
+      } else if (!startPlay && _isPlaying) {
+        await _viewPlayerController.pause();
+      }
+    } catch (e) {
+      Logger.error('$prefix - ERROR - playAndPause: $e');
     }
 
     setState(() {
@@ -132,9 +143,13 @@ class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
     });
   }
 
-  activeteVr() {
+  activateVr() {
     if (!_isVR) {
-      _viewPlayerController.toggleVRMode();
+      try {
+        _viewPlayerController.toggleVRMode();
+      } catch (e) {
+        Logger.error('$prefix - ERROR - activateVr: $e');
+      }
       setState(() {
         _isVR = true;
       });
@@ -146,7 +161,7 @@ class VrPlayerHostScreenState extends ConsumerState<VrPlayerHostScreen>
     _playerWidth = MediaQuery.of(context).size.width;
     _playerHeight = MediaQuery.of(context).size.height;
 
-    ref.listen(hostMessagesSP(_serverIp), (previous, next) {
+    ref.listen(clientMessagesSP(_serverIp), (previous, next) {
       final list = next.value;
       if (list != null && list.isNotEmpty) {
         SocketAction action = SocketProtocolService.parseMessage(list.last);

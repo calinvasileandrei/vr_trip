@@ -9,10 +9,10 @@ import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-class DeviceHostSocket extends HookConsumerWidget {
+class DeviceClientSocket extends HookConsumerWidget {
   final String serverIp;
 
-  const DeviceHostSocket({super.key, required this.serverIp});
+  const DeviceClientSocket({super.key, required this.serverIp});
 
   void getLastMessage(BuildContext context, List<String> messages) async {
     Logger.log('getLastMessage - messages: $messages');
@@ -23,7 +23,7 @@ class DeviceHostSocket extends HookConsumerWidget {
     switch (action.type) {
       case SocketActionTypes.selectVideo:
         Future.delayed(Duration.zero, () {
-          context.goNamed(AppRoutes.vrPlayerHost.name,
+          context.goNamed(AppRoutes.vrPlayerClient.name,
               pathParameters: {'videoPath': action.value,'serverIp': serverIp});
         });
         break;
@@ -34,7 +34,7 @@ class DeviceHostSocket extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messages = ref.watch(hostMessagesSP(serverIp));
+    final messages = ref.watch(clientMessagesSP(serverIp));
     // If it's in the 'data' state, get the value.
     final List<String> messagesList =
         messages.maybeWhen(data: (value) => value, orElse: () => []);

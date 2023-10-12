@@ -5,6 +5,6 @@ enum AppRoutes {
   deviceManagement,
   deviceHost,
   vrPlayerFile,
-  vrPlayerHost,
+  vrPlayerClient,
   fileManager,
 }
