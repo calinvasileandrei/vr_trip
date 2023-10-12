@@ -18,14 +18,18 @@ class DeviceHostSocket extends HookConsumerWidget {
     Logger.log('getLastMessage - messages: $messages');
     if (messages.isEmpty) return;
 
-    final lastMessageIndex = messages.length - 1;
-    final message = messages[lastMessageIndex];
-    SocketAction action = SocketProtocolService.parseMessage(message);
+    SocketAction action = SocketProtocolService.parseMessage(messages.last);
 
-    Future.delayed(Duration.zero, () {
-      context.goNamed(AppRoutes.vrPlayerHost.name,
-          pathParameters: {'videoPath': action.value});
-    });
+    switch (action.type) {
+      case SocketActionTypes.selectVideo:
+        Future.delayed(Duration.zero, () {
+          context.goNamed(AppRoutes.vrPlayerHost.name,
+              pathParameters: {'videoPath': action.value,'serverIp': serverIp});
+        });
+        break;
+      default:
+        break;
+    }
   }
 
   @override

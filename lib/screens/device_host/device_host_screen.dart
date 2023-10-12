@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/screens/device_host/widgets/device_host_socket/device_host_socket.dart';
+import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client.dart';
 
 class DeviceHostScreen extends HookConsumerWidget {
-  const DeviceHostScreen({super.key});
+  const DeviceHostScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final serverIp = ref.watch(networkDiscoveryClientServerIpProvider);
+    final deviceIp = ref.watch(deviceIpStateProvider);
+    final serverIp =
+        ref.watch(networkDiscoveryClientServerIpProvider(deviceIp!));
 
     Widget renderDiscoveryOrDeviceHostSocket() {
       if (serverIp == null) {
@@ -19,14 +24,35 @@ class DeviceHostScreen extends HookConsumerWidget {
       );
     }
 
+    handleRefresh() {
+      ref
+          .read(networkDiscoveryClientServerIpProvider(deviceIp).notifier)
+          .state = null;
+      ref.read(networkDiscoveryClientProvider(deviceIp)).resetServerIp();
+      ref.read(networkDiscoveryClientProvider(deviceIp)).initService();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Host'),
         actions: [
-          Text('Server IP: ${serverIp ?? 'No server found'}'),
+          IconButton(
+            onPressed: () {
+              handleRefresh();
+            },
+            icon: const Icon(Icons.refresh),
+          ),
         ],
       ),
-      body: renderDiscoveryOrDeviceHostSocket(),
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Text('Server IP: ${serverIp ?? 'No server found'}'),
+          ),
+          renderDiscoveryOrDeviceHostSocket(),
+        ],
+      ),
     );
   }
 }

@@ -2,12 +2,14 @@ import 'package:bonsoir/bonsoir.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-final networkDiscoveryClientServerIpProvider = StateProvider<String?>((ref) {
-  return ref.read(networkDiscoveryClientProvider).resolvedServerIp;
+final networkDiscoveryClientServerIpProvider =
+    StateProvider.family<String?, String>((ref, deviceIp) {
+  return ref.read(networkDiscoveryClientProvider(deviceIp)).resolvedServerIp;
 });
 
-final networkDiscoveryClientProvider = Provider<NetworkDiscoveryClient>((ref) {
-  final client = NetworkDiscoveryClient(ref);
+final networkDiscoveryClientProvider =
+    Provider.family<NetworkDiscoveryClient, String>((ref, deviceIp) {
+  final client = NetworkDiscoveryClient(ref, deviceIp: deviceIp);
   client.initService();
   ref.onDispose(() => client.stopDiscovery());
   return client;
@@ -15,12 +17,13 @@ final networkDiscoveryClientProvider = Provider<NetworkDiscoveryClient>((ref) {
 
 class NetworkDiscoveryClient {
   final ProviderRef ref;
+  final String deviceIp;
   String type = '_wonderful-service._tcp';
 
   BonsoirDiscovery? _discovery;
   String? resolvedServerIp;
 
-  NetworkDiscoveryClient(this.ref);
+  NetworkDiscoveryClient(this.ref, {required this.deviceIp});
 
   initService() async {
     try {
@@ -47,10 +50,11 @@ class NetworkDiscoveryClient {
               'NetworkDiscoveryClient - initService - Service resolved : $service');
 
           final ip = service?['service.ip'];
-          if (ip != null) {
+          if (ip != null && deviceIp != ip) {
             resolvedServerIp = ip;
-            ref.read(networkDiscoveryClientServerIpProvider.notifier).state =
-                ip;
+            ref
+                .read(networkDiscoveryClientServerIpProvider(deviceIp).notifier)
+                .state = ip;
             Logger.log(
                 'NetworkDiscoveryClient - initService - _resolvedServerIp : $ip');
             stopDiscovery();
@@ -83,5 +87,11 @@ class NetworkDiscoveryClient {
     } catch (e) {
       Logger.error('NetworkDiscoveryClient - stopDiscovery - error: $e');
     }
+  }
+
+  resetServerIp() {
+    resolvedServerIp = null;
+    ref.read(networkDiscoveryClientServerIpProvider(deviceIp).notifier).state =
+        null;
   }
 }

@@ -25,12 +25,6 @@ class SocketProtocolService {
     MySocketMessage socketMessage = decodeMessage(message);
     SocketAction action = socketMessage.message;
 
-    switch (action.type) {
-      case SocketActionTypes.selectVideo:
-        Logger.log('$prefix selectVideo');
-        return action;
-      default:
-        return 'unknown';
-    }
+    return action;
   }
 }
