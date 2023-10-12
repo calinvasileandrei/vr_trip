@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
+import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
 import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
@@ -39,22 +40,10 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   late double _playerWidth;
   late double _playerHeight;
 
-  // Video Status
-  bool isVideoLoading = false;
-  bool isVideoReady = false;
-  bool _isVideoFinished = false;
-  bool _isPlaying = false;
+  bool showActionBar = true;
 
-  // Video Duration
-  String? _duration;
-  int? _intDuration;
-
-  // Video Position
-  double _seekPosition = 0;
-  String? _currentPosition;
-
-  // Video Settings
-  bool _isVR = false;
+  // Using the Riverpod provider to manage the state
+  late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
 
   @override
   void initState() {
@@ -68,15 +57,11 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   void onReceiveState(VrState state) {
     switch (state) {
       case VrState.loading:
-        setState(() {
-          isVideoLoading = true;
-        });
+        vrPlayerClientNotifier.setVideoLoading(true);
         break;
       case VrState.ready:
-        setState(() {
-          isVideoLoading = false;
-          isVideoReady = true;
-        });
+        vrPlayerClientNotifier.setVideoLoading(false);
+        vrPlayerClientNotifier.setVideoReady(true);
         break;
       default:
         break;
@@ -92,20 +77,17 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       observer
         ..onStateChange = onReceiveState
         ..onDurationChange = (millis) {
-          setState(() {
-            _intDuration = millis;
-            _duration = millisecondsToDateTime(millis);
-          });
+          vrPlayerClientNotifier.setDuration(
+            millisecondsToDateTime(millis),
+            millis,
+          );
         }
         ..onPositionChange = (int millis) {
-          setState(() {
-            _currentPosition = millisecondsToDateTime(millis);
-            _seekPosition = millis.toDouble();
-          });
+          vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
         }
-        ..onFinishedChange = (isFinished) => setState(() {
-              _isVideoFinished = isFinished;
-            });
+        ..onFinishedChange = (isFinished) {
+          vrPlayerClientNotifier.setVideoFinished(isFinished);
+        };
     } catch (e) {
       Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
     }
@@ -118,7 +100,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   }
 
   Future<void> playAndPause(bool startPlay) async {
-    if (_isVideoFinished) {
+    if (ref.read(vrPlayerClientProvider).isVideoFinished) {
       try {
         await _viewPlayerController.seekTo(0);
       } catch (e) {
@@ -127,37 +109,41 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     }
 
     try {
-      if (startPlay && !_isPlaying) {
+      if (startPlay && !ref.read(vrPlayerClientProvider).isPlaying) {
         activateVr();
+        setState(() {
+          showActionBar = false;
+        });
         await _viewPlayerController.play();
-      } else if (!startPlay && _isPlaying) {
+        vrPlayerClientNotifier.setPlayingStatus(true);
+      } else if (!startPlay && ref.read(vrPlayerClientProvider).isPlaying) {
+        setState(() {
+          showActionBar = true;
+        });
         await _viewPlayerController.pause();
+        vrPlayerClientNotifier.setPlayingStatus(false);
       }
     } catch (e) {
       Logger.error('$prefix - ERROR - playAndPause: $e');
     }
-
-    setState(() {
-      _isPlaying = startPlay;
-      _isVideoFinished = false;
-    });
   }
 
   activateVr() {
-    if (!_isVR) {
+    if (!ref.read(vrPlayerClientProvider).isVR) {
       try {
         _viewPlayerController.toggleVRMode();
       } catch (e) {
         Logger.error('$prefix - ERROR - activateVr: $e');
       }
-      setState(() {
-        _isVR = true;
-      });
+      vrPlayerClientNotifier.toggleVRMode(true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Accessing the state using the provider
+    final vrState = ref.watch(vrPlayerClientProvider);
+
     _playerWidth = MediaQuery.of(context).size.width;
     _playerHeight = MediaQuery.of(context).size.height;
 
@@ -182,14 +168,34 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
 
     return Scaffold(
       body: GestureDetector(
-          onLongPress: () {
-            context.pop();
+        onLongPress: () {
+          context.pop();
+        },
+        onTap: () {
+          setState(() {
+            showActionBar = !showActionBar;
+          });
+        },
+        child: MyVrPlayer(
+          onViewPlayerCreated: onViewPlayerCreated,
+          playerWidth: _playerWidth,
+          playerHeight: _playerHeight,
+          showActionBar: showActionBar,
+          onChangeSliderPosition: (position) {
+            // Your logic for onChangeSliderPosition here
           },
-          child: MyVrPlayer(
-            onViewPlayerCreated: onViewPlayerCreated,
-            playerWidth: _playerWidth,
-            playerHeight: _playerHeight,
-          )),
+          fullScreenPressed: () {
+            // Your logic for fullScreenPressed here
+          },
+          cardBoardPressed: () {
+            // Your logic for cardBoardPressed here
+          },
+          seekToPosition: (position) {
+            // Your logic for seekToPosition here
+          },
+          playAndPause: () {},
+        ),
+      ),
     );
   }
 
