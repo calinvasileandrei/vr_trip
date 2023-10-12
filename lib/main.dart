@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vr_trip/router/router.dart';
 import 'package:vr_trip/screens/home/home_screen.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 void main() {
   runApp(
-    const ProviderScope(child: MyApp()),
+    ProviderScope(child: MyApp()),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'VR Trip',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      routerDelegate: appRouter.routerDelegate,
+      routeInformationParser: appRouter.routeInformationParser,
+      routeInformationProvider: appRouter.routeInformationProvider,
     );
   }
 }

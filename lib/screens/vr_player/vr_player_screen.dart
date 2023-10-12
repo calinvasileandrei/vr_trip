@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vr_player/vr_player.dart';
 
 class VrPlayerScreen extends StatefulWidget {
@@ -81,7 +82,7 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
     return Scaffold(
       body: GestureDetector(
         onLongPress: () {
-          Navigator.pop(context);
+          context.pop();
         },
         onTap: _toggleShowingBar,
         child: Stack(
