@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class SocketChat extends HookWidget {
+class SocketClients extends HookWidget {
   final List<String> items;
   final ValueSetter<String>? handleSendMessage;
 
-  const SocketChat({super.key, required this.items, this.handleSendMessage});
+  const SocketClients({super.key, required this.items, this.handleSendMessage});
 
   @override
   Widget build(BuildContext context) {
