@@ -6,7 +6,7 @@ import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
 import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
-import 'package:vr_trip/shared/socket_chat/socket_chat.dart';
+import 'package:vr_trip/shared/socket_messages/socket_messages.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class DeviceClientSocket extends HookConsumerWidget {
@@ -48,7 +48,8 @@ class DeviceClientSocket extends HookConsumerWidget {
       return null;
     }, [messagesList.length]);
 
-    return Center(
+
+    return SingleChildScrollView(
         child: Column(
       children: [
         Container(
@@ -57,7 +58,7 @@ class DeviceClientSocket extends HookConsumerWidget {
             loading: () => const Text('Awaiting messages from server...'),
             error: (error, stackTrace) => Text(error.toString()),
             data: (messagesItems) {
-              return SocketChat(items: messagesItems);
+              return SocketMessages(items: messagesItems);
             },
           ),
         ),

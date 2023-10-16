@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client.dart';
@@ -12,6 +13,7 @@ class DeviceClientScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final deviceIp = ref.watch(deviceIpStateProvider);
+    final deviceNumber = ref.watch(deviceNumberSP);
     final serverIp =
         ref.watch(networkDiscoveryClientServerIpProvider(deviceIp!));
 
@@ -19,6 +21,11 @@ class DeviceClientScreen extends HookConsumerWidget {
       if (serverIp == null) {
         return const Center(child: Text('Discovery is running'));
       }
+
+      if (deviceNumber == null) {
+        return const Center(child: Text('Device number is not set'));
+      }
+
       return DeviceClientSocket(
         serverIp: serverIp,
       );
@@ -48,7 +55,13 @@ class DeviceClientScreen extends HookConsumerWidget {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Text('Server IP: ${serverIp ?? 'No server found'}'),
+            child: Column(
+              children: [
+                Text('Server IP: ${serverIp ?? 'No server found'}'),
+                Text('Device IP: ${deviceIp}'),
+                Text('Device Number: ${deviceNumber}')
+              ],
+            ),
           ),
           renderDiscoveryOrDeviceHostSocket(),
         ],
