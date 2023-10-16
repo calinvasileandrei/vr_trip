@@ -51,6 +51,11 @@ class HomeScreen extends HookConsumerWidget {
                         context.goNamed(AppRoutes.fileManager.name),
                       },
                   child: const Text('navigate to File manager screen')),
+              ElevatedButton(
+                  onPressed: () => {
+                    context.goNamed(AppRoutes.settings.name),
+                  },
+                  child: const Text('navigate to Settings screen')),
             ],
           ),
         );

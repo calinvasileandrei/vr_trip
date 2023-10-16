@@ -5,6 +5,7 @@ import 'package:vr_trip/screens/device_client/device_client_screen.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_screen.dart';
 import 'package:vr_trip/screens/devices_management/device_management_screen.dart';
 import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
+import 'package:vr_trip/screens/settings/settings_screen.dart';
 import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -42,6 +43,11 @@ final GoRouter appRouter = GoRouter(
                   VrPlayerScreen(videoPath: state.pathParameters["videoPath"]!),
             ),
           ],
+        ),
+        GoRoute(
+          name: AppRoutes.settings.name,
+          path: 'settings',
+          builder: (context, state) => const SettingsScreen(),
         ),
       ],
       name: AppRoutes.home.name,

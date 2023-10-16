@@ -7,4 +7,5 @@ enum AppRoutes {
   vrPlayerFile,
   vrPlayerClient,
   fileManager,
+  settings,
 }

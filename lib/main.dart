@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/router/router.dart';
 import 'package:vr_trip/screens/home/home_screen.dart';
+import 'package:vr_trip/services/settings/settings_service.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final initialDeviceNumber = await loadDeviceNumberFromPrefs();
+
   runApp(
-    ProviderScope(child: MyApp()),
+    ProviderScope(overrides: [
+      deviceNumberSP.overrideWith((ref) => (initialDeviceNumber))
+    ], child: MyApp()),
   );
 }
 
