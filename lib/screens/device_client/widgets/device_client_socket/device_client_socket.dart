@@ -23,8 +23,10 @@ class DeviceClientSocket extends HookConsumerWidget {
     switch (action.type) {
       case SocketActionTypes.selectVideo:
         Future.delayed(Duration.zero, () {
-          context.goNamed(AppRoutes.vrPlayerClient.name,
-              pathParameters: {'videoPath': action.value,'serverIp': serverIp});
+          context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
+            'videoPath': action.value,
+            'serverIp': serverIp
+          });
         });
         break;
       default:
@@ -35,6 +37,7 @@ class DeviceClientSocket extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final messages = ref.watch(clientMessagesSP(serverIp));
+    final socketConnected = ref.watch(isConnectedSocketClientSP);
     // If it's in the 'data' state, get the value.
     final List<String> messagesList =
         messages.maybeWhen(data: (value) => value, orElse: () => []);
@@ -48,6 +51,24 @@ class DeviceClientSocket extends HookConsumerWidget {
       return null;
     }, [messagesList.length]);
 
+    renderStartButton() {
+      return (ElevatedButton(
+          onPressed: () {
+            ref.read(socketClientSP(serverIp)).initConnection();
+            ref.read(socketClientSP(serverIp)).startConnection();
+          },
+          child: Text('Connect To Server')));
+    }
+
+    useEffect(() {
+      // await 1 second and execute code below
+      Future.delayed(Duration(seconds: 1), () {
+        ref.read(socketClientSP(serverIp)).initConnection();
+        ref.read(socketClientSP(serverIp)).startConnection();
+      });
+
+      return null;
+    }, []);
 
     return SingleChildScrollView(
         child: Column(
@@ -62,6 +83,13 @@ class DeviceClientSocket extends HookConsumerWidget {
             },
           ),
         ),
+        Text('Socket Client connected: $socketConnected'),
+        renderStartButton(),
+        ElevatedButton(
+            onPressed: () {
+              ref.read(socketClientSP(serverIp)).stopConnection();
+            },
+            child: Text('Disconnect'))
       ],
     ));
   }

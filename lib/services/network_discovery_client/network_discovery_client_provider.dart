@@ -5,13 +5,17 @@ final clientMessagesSP = StreamProvider.autoDispose
     .family<List<String>, String>(
         (ref, serverIp) => ref.watch(socketClientSP(serverIp)).getMessages());
 
+
+final isConnectedSocketClientSP = StateProvider.autoDispose((ref) => false);
+
 // Base Provider
 final socketClientSP =
     Provider.family<SocketClientService, String>((ref, serverIp) {
-  final service = SocketClientService(host: 'http://$serverIp', port: 3000);
+  final service = SocketClientService(host: 'http://$serverIp', port: 3000,ref: ref);
+/*
   service.initConnection();
   service.startConnection();
-
+*/
   ref.onDispose(() => service.stopConnection());
 
   return service;

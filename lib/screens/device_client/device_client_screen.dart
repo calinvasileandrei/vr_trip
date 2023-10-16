@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client.dart';
+import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
 
 class DeviceClientScreen extends HookConsumerWidget {
   const DeviceClientScreen({
@@ -42,6 +44,15 @@ class DeviceClientScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Host'),
+        leading: IconButton(
+          onPressed: () {
+            if (serverIp != null) {
+              ref.read(socketClientSP(serverIp)).stopConnection();
+              context.pop();
+            }
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         actions: [
           IconButton(
             onPressed: () {
