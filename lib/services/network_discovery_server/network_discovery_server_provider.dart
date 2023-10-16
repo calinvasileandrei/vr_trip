@@ -3,7 +3,7 @@ import 'package:vr_trip/models/socket_types.dart';
 import 'package:vr_trip/services/network_discovery_server/network_discovery_server.dart';
 import 'package:vr_trip/services/socket_server/socket_server_service.dart';
 
-final socketServerSP = Provider.autoDispose<SocketServerService>((ref) {
+final socketServerSP = Provider<SocketServerService>((ref) {
   final service = SocketServerService();
   service.startSocketServer();
   service.connectionStream();
@@ -13,10 +13,10 @@ final socketServerSP = Provider.autoDispose<SocketServerService>((ref) {
   return service;
 });
 
-final serverMessagesSP = StreamProvider.autoDispose<List<MySocketMessage>>(
+final serverMessagesSP = StreamProvider<List<MySocketMessage>>(
     (ref) => ref.watch(socketServerSP).getMessages());
 
-final serverConnectionsSP = StreamProvider.autoDispose<List<String>>(
+final serverConnectionsSP = StreamProvider<List<String>>(
     (ref) => ref.watch(socketServerSP).getConnections());
 
 // Base Provider

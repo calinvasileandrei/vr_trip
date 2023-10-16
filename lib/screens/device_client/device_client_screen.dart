@@ -64,16 +64,9 @@ class DeviceClientScreen extends HookConsumerWidget {
       ),
       body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Column(
-              children: [
-                Text('Server IP: ${serverIp ?? 'No server found'}'),
-                Text('Device IP: ${deviceIp}'),
-                Text('Device Number: ${deviceNumber}')
-              ],
-            ),
-          ),
+          Text('Server IP: ${serverIp ?? 'No server found'}'),
+          Text('Device IP: ${deviceIp}'),
+          Text('Device Number: ${deviceNumber}'),
           renderDiscoveryOrDeviceHostSocket(),
         ],
       ),
