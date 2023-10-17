@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
+import 'package:vr_trip/providers/socket_client/types.dart';
 import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 import 'package:vr_trip/services/network_discovery_client/network_discovery_client.dart';
-import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
+import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 
 class DeviceClientScreen extends HookConsumerWidget {
   const DeviceClientScreen({
@@ -30,6 +31,7 @@ class DeviceClientScreen extends HookConsumerWidget {
 
       return DeviceClientSocket(
         serverIp: serverIp,
+        deviceName: deviceNumber,
       );
     }
 
@@ -47,7 +49,7 @@ class DeviceClientScreen extends HookConsumerWidget {
         leading: IconButton(
           onPressed: () {
             if (serverIp != null) {
-              ref.read(socketClientSP(serverIp)).stopConnection();
+              ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: ''))).stopConnection();
               context.pop();
             }
           },

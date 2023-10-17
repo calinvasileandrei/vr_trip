@@ -2,21 +2,22 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
+import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class SocketClientService {
   final ProviderRef ref;
-  Socket? _socket;
-  final _port; //3000
+  final String deviceName;
   final _host; //http://192.168.1.31
+  final _port; //3000
+  Socket? _socket;
 
   // Messages
   List<String> _messages = [];
   final _messagesController = StreamController<List<String>>.broadcast();
 
   SocketClientService(
-      {required String host, required int port, required this.ref})
+      {required String host, required int port, required this.ref,required this.deviceName})
       : _host = host,
         _port = port;
 
@@ -41,14 +42,29 @@ class SocketClientService {
 
   void startConnection() {
     _resetMessages();
-    _socket?.connect();
-    Logger.log('Socket Client connected');
-    ref.read(isConnectedSocketClientSP.notifier).state = true;
+
+    _socket?.onConnect((_){
+      Logger.log('Socket Client connected');
+      ref.read(isConnectedSocketClientSP.notifier).state = true;
+    });
+
 
     _socket?.on('message', (data) {
       Logger.log('Message received: $data');
       _addMessage(data);
     });
+
+    _socket?.on('greeting', (data) {
+      Logger.log('Greeting received from server: $data');
+      if (data is List) {
+        // data.first is the dataValue from the server.
+        // data.last is the callback ack function.
+        print('data from default => ${data.first}');
+        data.last('deviceId: 1'); // the ack function.
+      }
+        _socket?.emit('greeting', 'deviceNumber:1');
+    });
+
     _socket?.onDisconnect((_) {
       Logger.log('Socket Client disconnected');
       ref.read(isConnectedSocketClientSP.notifier).state = false;

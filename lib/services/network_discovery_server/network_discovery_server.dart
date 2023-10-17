@@ -8,7 +8,7 @@ class NetworkDiscoveryServer {
   BonsoirBroadcast? _broadcast;
   NetworkDiscoveryServerStatus _status = NetworkDiscoveryServerStatus.offline;
 
-  initService() {
+  initService() async {
     try {
       BonsoirService service = const BonsoirService(
         name: 'VR_TRIP_SERVER',
@@ -20,6 +20,7 @@ class NetworkDiscoveryServer {
       _service = service;
       _status = NetworkDiscoveryServerStatus.online;
       Logger.log('NetworkDiscoveryServer - initService - service: $service');
+      return Future(() => true);
     } catch (e) {
       Logger.error('NetworkDiscoveryServer - initService - error: $e');
       _status = NetworkDiscoveryServerStatus.error;

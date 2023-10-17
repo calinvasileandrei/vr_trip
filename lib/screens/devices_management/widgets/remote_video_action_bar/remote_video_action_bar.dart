@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
-import 'package:vr_trip/services/network_discovery_server/network_discovery_server_provider.dart';
+import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
 
 class RemoteVideoActionBar extends HookConsumerWidget {
   const RemoteVideoActionBar({super.key});
