@@ -42,6 +42,7 @@ class SocketClientService {
 
   void startConnection() {
     _resetMessages();
+    _socket?.connect();
 
     _socket?.onConnect((_){
       Logger.log('Socket Client connected');

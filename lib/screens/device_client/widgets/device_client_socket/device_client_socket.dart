@@ -62,15 +62,6 @@ class DeviceClientSocket extends HookConsumerWidget {
           child: Text('Connect To Server')));
     }
 
-    useEffect(() {
-      // await 1 second and execute code below
-      Future.delayed(Duration(seconds: 1), () {
-        ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: deviceName))).initConnection();
-        ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: deviceName))).startConnection();
-      });
-
-      return null;
-    }, []);
 
     return SingleChildScrollView(
         child: Column(

@@ -23,8 +23,8 @@ final socketServerSP = Provider<SocketServerService>((ref) {
   return service;
 });
 
-final networkDiscoveryServerSP = Provider<NetworkDiscoveryServer>((ref) {
-  final service = NetworkDiscoveryServer();
+final networkDiscoveryServerSP = Provider.autoDispose<NetworkDiscoveryServer>((ref) {
+  final service = NetworkDiscoveryServer(ref);
 
   ref.onDispose(() => service.stopService());
 

@@ -40,7 +40,7 @@ class DeviceClientScreen extends HookConsumerWidget {
           .read(networkDiscoveryClientServerIpProvider(deviceIp).notifier)
           .state = null;
       ref.read(networkDiscoveryClientProvider(deviceIp)).resetServerIp();
-      ref.read(networkDiscoveryClientProvider(deviceIp)).initService();
+      ref.read(networkDiscoveryClientProvider(deviceIp)).initServiceDiscovery();
     }
 
     return Scaffold(

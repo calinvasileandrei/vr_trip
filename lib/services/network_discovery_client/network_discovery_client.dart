@@ -1,5 +1,6 @@
-import 'package:bonsoir/bonsoir.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:nsd/nsd.dart';
+import 'package:vr_trip/models/nsd_model.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 final networkDiscoveryClientServerIpProvider =
@@ -10,46 +11,32 @@ final networkDiscoveryClientServerIpProvider =
 final networkDiscoveryClientProvider =
     Provider.family<NetworkDiscoveryClient, String>((ref, deviceIp) {
   final client = NetworkDiscoveryClient(ref, deviceIp: deviceIp);
-  client.initService();
-  ref.onDispose(() => client.stopDiscovery());
+  client.initServiceDiscovery();
+  ref.onDispose(() => client.stopServiceDiscovery());
   return client;
 });
 
 class NetworkDiscoveryClient {
   final ProviderRef ref;
   final String deviceIp;
-  String type = '_wonderful-service._tcp';
 
-  BonsoirDiscovery? _discovery;
+  Discovery? _discovery;
   String? resolvedServerIp;
 
   NetworkDiscoveryClient(this.ref, {required this.deviceIp});
 
-  initService() async {
+  initServiceDiscovery() async {
     try {
-      // This is the type of service we're looking for :
-      String type = '_wonderful-service._tcp';
+      final discovery = await startDiscovery(nsdServiceType);
+      Logger.log('NetworkDiscoveryClient - initService - discovery start');
 
-      // Once defined, we can start the discovery :
-      BonsoirDiscovery discovery = BonsoirDiscovery(type: type);
-      await discovery.ready;
-      Logger.log('NetworkDiscoveryClient - initService - discovery ready');
+      discovery.addServiceListener((service, status) {
+        if (status == ServiceStatus.found) {
+          // put service in own collection, etc.
 
-      // If you want to listen to the discovery :
-      discovery.eventStream!.listen((event) {
-        // `eventStream` is not null as the discovery instance is "ready" !
-        if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
           Logger.log(
-              'NetworkDiscoveryClient - initService - Service found : ${event.service?.toJson()}');
-          event.service!.resolve(discovery
-              .serviceResolver); // Should be called when the user wants to connect to this service.
-        } else if (event.type ==
-            BonsoirDiscoveryEventType.discoveryServiceResolved) {
-          Map<String, dynamic>? service = event.service?.toJson();
-          Logger.log(
-              'NetworkDiscoveryClient - initService - Service resolved : $service');
-
-          final ip = service?['service.ip'];
+              'NetworkDiscoveryClient - initService - Service found : ${service}');
+          final ip = service.host;
           if (ip != null && deviceIp != ip) {
             resolvedServerIp = ip;
             ref
@@ -57,29 +44,20 @@ class NetworkDiscoveryClient {
                 .state = ip;
             Logger.log(
                 'NetworkDiscoveryClient - initService - _resolvedServerIp : $ip');
-            stopDiscovery();
+            stopServiceDiscovery();
           }
-        } else if (event.type ==
-            BonsoirDiscoveryEventType.discoveryServiceLost) {
-          Logger.log(
-              'NetworkDiscoveryClient - initService - Service lost : ${event.service?.toJson()}');
         }
       });
-
-      // Start discovery **after** having listened to discovery events
-      await discovery.start();
       _discovery = discovery;
-
-      Logger.log('NetworkDiscoveryClient - initService - discovery start');
     } catch (e) {
       Logger.error('NetworkDiscoveryClient - initService - error: $e');
     }
   }
 
-  stopDiscovery() async {
+  stopServiceDiscovery() async {
     try {
       if (_discovery != null) {
-        await _discovery!.stop();
+        await stopDiscovery(_discovery!);
         _discovery = null;
         Logger.log(
             'NetworkDiscoveryClient - stopDiscovery - discovery stopped');
