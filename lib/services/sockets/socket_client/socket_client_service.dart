@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
+import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class SocketClientService {
@@ -55,15 +57,16 @@ class SocketClientService {
       _addMessage(data);
     });
 
+    _socket?.on('selectVideo', (data) => {
+
+    });
+
     _socket?.on('greeting', (data) {
       Logger.log('Greeting received from server: $data');
-      if (data is List) {
-        // data.first is the dataValue from the server.
-        // data.last is the callback ack function.
-        print('data from default => ${data.first}');
-        data.last('deviceId: 1'); // the ack function.
+      SocketAckMessageResponse? dataMessage = SocketProtocolService.getAckMessage(data);
+      if(dataMessage != null){
+        dataMessage.ackCallback(deviceName);
       }
-        _socket?.emit('greeting', 'deviceNumber:1');
     });
 
     _socket?.onDisconnect((_) {
@@ -112,6 +115,7 @@ class SocketClientService {
         _socket?.clearListeners();
         _socket?.dispose();
         _socket = null;
+        _messages=[];
         Logger.log('Socket disconnected');
       }else{
         Logger.warn('Socket already disconnected');

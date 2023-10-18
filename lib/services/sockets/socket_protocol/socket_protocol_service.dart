@@ -27,4 +27,13 @@ class SocketProtocolService {
 
     return action;
   }
+
+  static getAckMessage(dynamic data) {
+    if (data is List) {
+      // data.first is the dataValue from the server.
+      // data.last is the callback ack function.
+      return SocketAckMessageResponse(value: data.first, ackCallback: data.last);
+    }
+    return null;
+  }
 }

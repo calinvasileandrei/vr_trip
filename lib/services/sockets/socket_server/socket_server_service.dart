@@ -46,6 +46,9 @@ class SocketServerService {
         // find connectedSocket by socket.id and set the deviceName to socketDeviceName
         _connectedSockets.firstWhere((element) => element.id == socket.id).deviceName = sockedDeviceName;
         _connectionsController.add(_connectedSockets);
+
+        socket.emit('message', SocketProtocolService.encodeMessage(SocketActionTypes.message, 'Hello $sockedDeviceName from server!'));
+
       });
 
 
