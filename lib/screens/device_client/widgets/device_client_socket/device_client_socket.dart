@@ -14,7 +14,8 @@ class DeviceClientSocket extends HookConsumerWidget {
   final String serverIp;
   final String deviceName;
 
-  const DeviceClientSocket({super.key, required this.serverIp, required this.deviceName});
+  const DeviceClientSocket(
+      {super.key, required this.serverIp, required this.deviceName});
 
   void getLastMessage(BuildContext context, List<String> messages) async {
     Logger.log('getLastMessage - messages: $messages');
@@ -38,7 +39,8 @@ class DeviceClientSocket extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messages = ref.watch(clientMessagesSP(SocketClientProviderParams(serverIp: serverIp, deviceName: deviceName)));
+    final messages = ref.watch(clientMessagesSP(SocketClientProviderParams(
+        serverIp: serverIp, deviceName: deviceName)));
     final socketConnected = ref.watch(isConnectedSocketClientSP);
     // If it's in the 'data' state, get the value.
     final List<String> messagesList =
@@ -52,16 +54,6 @@ class DeviceClientSocket extends HookConsumerWidget {
       }
       return null;
     }, [messagesList.length]);
-
-    renderStartButton() {
-      return (ElevatedButton(
-          onPressed: () {
-            ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: deviceName))).initConnection();
-            ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: deviceName))).startConnection();
-          },
-          child: Text('Connect To Server')));
-    }
-
 
     return SingleChildScrollView(
         child: Column(
@@ -77,10 +69,20 @@ class DeviceClientSocket extends HookConsumerWidget {
           ),
         ),
         Text('Socket Client connected: $socketConnected'),
-        renderStartButton(),
         ElevatedButton(
             onPressed: () {
-              ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: deviceName))).stopConnection();
+              ref
+                  .read(socketClientSP(SocketClientProviderParams(
+                      serverIp: serverIp, deviceName: deviceName)))
+                  .initConnection();
+            },
+            child: Text('Connect To Server')),
+        ElevatedButton(
+            onPressed: () {
+              ref
+                  .read(socketClientSP(SocketClientProviderParams(
+                      serverIp: serverIp, deviceName: deviceName)))
+                  .stopConnection();
             },
             child: Text('Disconnect'))
       ],

@@ -25,6 +25,7 @@ class SocketServerService {
       try {
         _socketServer = Server();
         _socketServer!.listen(_port);
+        connectionStream();
         Logger.log('Socket server started on port: ${_socketServer?.port}');
       } catch (e) {
         Logger.error('Error startSocketServer : $e');
@@ -110,7 +111,7 @@ class SocketServerService {
         _socketServer = null;
         _connectedSockets = [];
         _messages = [];
-        _connectionsController.close();
+        //todo:check this = _connectionsController.close();
       } catch (e) {
         Logger.error('Error stopSocketServer : $e');
       }

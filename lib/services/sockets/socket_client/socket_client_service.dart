@@ -108,9 +108,13 @@ class SocketClientService {
   void stopConnection() {
     Logger.log('Called stopConnection()');
     try {
-      if (_socket != null && _socket!.connected == true) {
-        _socket?.disconnect();
+      if (_socket != null) {
+        _socket?.clearListeners();
+        _socket?.dispose();
         _socket = null;
+        Logger.log('Socket disconnected');
+      }else{
+        Logger.warn('Socket already disconnected');
       }
     } catch (e) {
       Logger.error('Error stopConnection : $e');

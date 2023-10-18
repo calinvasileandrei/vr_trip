@@ -16,12 +16,14 @@ final socketClientSP =
     Provider.family<SocketClientService, SocketClientProviderParams>(
         (ref, params) {
   final service = SocketClientService(
-      host: 'http://$params.serverIp',
+      host: 'http://${params.serverIp}',
       port: 3000,
       ref: ref,
       deviceName: params.deviceName);
+
   service.initConnection();
   service.startConnection();
+
   ref.onDispose(() => service.stopConnection());
 
   return service;

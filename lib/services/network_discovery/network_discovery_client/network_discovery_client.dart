@@ -15,10 +15,10 @@ class NetworkDiscoveryClient {
 
   initServiceDiscovery() async {
     try {
-      final discovery = await startDiscovery(nsdServiceType);
+      _discovery = await startDiscovery(nsdServiceType);
       Logger.log('NetworkDiscoveryClient - initService - discovery start');
 
-      discovery.addServiceListener((service, status) {
+      _discovery?.addServiceListener((service, status) {
         if (status == ServiceStatus.found) {
           // put service in own collection, etc.
 
@@ -36,7 +36,6 @@ class NetworkDiscoveryClient {
           }
         }
       });
-      _discovery = discovery;
     } catch (e) {
       Logger.error('NetworkDiscoveryClient - initService - error: $e');
     }

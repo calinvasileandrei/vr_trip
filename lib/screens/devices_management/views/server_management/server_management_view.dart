@@ -3,8 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/providers/discoveryService/discoveryService_provider.dart';
-import 'package:vr_trip/screens/devices_management/widgets/server_action_bar/server_action_bar.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
+import 'package:vr_trip/screens/devices_management/widgets/server_action_bar/server_action_bar.dart';
 import 'package:vr_trip/shared/socket_clients/socket_clients.dart';
 
 class ServerManagementView extends HookConsumerWidget {
@@ -17,12 +17,9 @@ class ServerManagementView extends HookConsumerWidget {
     final discovery = ref.watch(networkDiscoveryServerSP);
     final discoveryServiceStatus = ref.watch(discoveryServiceStatusSP);
 
-    initBroadCast() async {
-      await discovery.initService();
-    }
-
     useEffect(() {
-      initBroadCast();
+      discovery.initService();
+      return null;
     }, []);
 
     return Center(

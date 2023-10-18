@@ -16,8 +16,6 @@ final serverConnectionsSP = StreamProvider<List<ClientSocketModel>>(
 final socketServerSP = Provider<SocketServerService>((ref) {
   final service = SocketServerService();
   service.startSocketServer();
-  service.connectionStream();
-
   ref.onDispose(() => service.stopSocketServer());
 
   return service;
