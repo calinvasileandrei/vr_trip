@@ -1,11 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nsd/nsd.dart';
+import 'package:vr_trip/models/nsd_model.dart';
 import 'package:vr_trip/providers/discoveryService/discoveryService_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-import '../../models/nsd_model.dart';
 
-enum NetworkDiscoveryServerStatus { offline, online, error }
 
 class NetworkDiscoveryServer {
   final ProviderRef ref;

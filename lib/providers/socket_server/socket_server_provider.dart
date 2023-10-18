@@ -1,8 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/models/client_socket_model.dart';
 import 'package:vr_trip/models/socket_types.dart';
-import 'package:vr_trip/services/network_discovery_server/network_discovery_server.dart';
-import 'package:vr_trip/services/socket_server/socket_server_service.dart';
+import 'package:vr_trip/services/network_discovery/network_discovery_server/network_discovery_server.dart';
+import 'package:vr_trip/services/sockets/socket_server/socket_server_service.dart';
 
 
 

@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:vr_trip/services/socket_client/socket_client_service.dart';
+import 'package:vr_trip/services/sockets/socket_client/socket_client_service.dart';
 
 import 'types.dart';
 

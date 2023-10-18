@@ -4,7 +4,7 @@ import 'package:socket_io/socket_io.dart';
 import 'package:vr_trip/models/client_socket_model.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/socket_types.dart';
-import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
+import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class SocketServerService {

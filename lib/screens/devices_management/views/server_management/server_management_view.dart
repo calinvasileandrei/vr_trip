@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/providers/discoveryService/discoveryService_provider.dart';
 import 'package:vr_trip/screens/devices_management/widgets/server_action_bar/server_action_bar.dart';
-import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
 import 'package:vr_trip/shared/socket_clients/socket_clients.dart';
 

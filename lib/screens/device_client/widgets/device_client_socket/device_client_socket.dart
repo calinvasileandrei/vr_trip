@@ -6,7 +6,7 @@ import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 import 'package:vr_trip/providers/socket_client/types.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
+import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/shared/socket_messages/socket_messages.dart';
 import 'package:vr_trip/utils/logger.dart';
 

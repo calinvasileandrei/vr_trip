@@ -4,8 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});

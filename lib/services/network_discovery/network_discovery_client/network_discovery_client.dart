@@ -1,20 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nsd/nsd.dart';
 import 'package:vr_trip/models/nsd_model.dart';
+import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
-
-final networkDiscoveryClientServerIpProvider =
-    StateProvider.family<String?, String>((ref, deviceIp) {
-  return ref.read(networkDiscoveryClientProvider(deviceIp)).resolvedServerIp;
-});
-
-final networkDiscoveryClientProvider =
-    Provider.family<NetworkDiscoveryClient, String>((ref, deviceIp) {
-  final client = NetworkDiscoveryClient(ref, deviceIp: deviceIp);
-  client.initServiceDiscovery();
-  ref.onDispose(() => client.stopServiceDiscovery());
-  return client;
-});
 
 class NetworkDiscoveryClient {
   final ProviderRef ref;
