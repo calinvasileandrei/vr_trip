@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:vr_trip/models/client_socket_model.dart';
 
-class SocketChat extends HookWidget {
-  final List<String> items;
+class SocketClients extends HookWidget {
+  final List<ClientSocketModel> items;
   final ValueSetter<String>? handleSendMessage;
 
-  const SocketChat({super.key, required this.items, this.handleSendMessage});
+  const SocketClients({super.key, required this.items, this.handleSendMessage});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class SocketChat extends HookWidget {
           return Container(
             child: Column(
               children: [
-                Text('Device ${items[index]}'),
+                Text('Device ${items[index].deviceName ?? items[index].id}'),
                 ...renderSocketInput()
               ],
             ),

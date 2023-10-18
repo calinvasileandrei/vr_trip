@@ -3,16 +3,19 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
+import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
+import 'package:vr_trip/providers/socket_client/types.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/services/network_discovery_client/network_discovery_client_provider.dart';
-import 'package:vr_trip/services/socket_protocol/socket_protocol_service.dart';
+import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/shared/socket_messages/socket_messages.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class DeviceClientSocket extends HookConsumerWidget {
   final String serverIp;
+  final String deviceName;
 
-  const DeviceClientSocket({super.key, required this.serverIp});
+  const DeviceClientSocket(
+      {super.key, required this.serverIp, required this.deviceName});
 
   void getLastMessage(BuildContext context, List<String> messages) async {
     Logger.log('getLastMessage - messages: $messages');
@@ -23,8 +26,10 @@ class DeviceClientSocket extends HookConsumerWidget {
     switch (action.type) {
       case SocketActionTypes.selectVideo:
         Future.delayed(Duration.zero, () {
-          context.goNamed(AppRoutes.vrPlayerClient.name,
-              pathParameters: {'videoPath': action.value,'serverIp': serverIp});
+          context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
+            'videoPath': action.value,
+            'serverIp': serverIp
+          });
         });
         break;
       default:
@@ -34,7 +39,9 @@ class DeviceClientSocket extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messages = ref.watch(clientMessagesSP(serverIp));
+    final messages = ref.watch(clientMessagesSP(SocketClientProviderParams(
+        serverIp: serverIp, deviceName: deviceName)));
+    final socketConnected = ref.watch(isConnectedSocketClientSP);
     // If it's in the 'data' state, get the value.
     final List<String> messagesList =
         messages.maybeWhen(data: (value) => value, orElse: () => []);
@@ -47,7 +54,6 @@ class DeviceClientSocket extends HookConsumerWidget {
       }
       return null;
     }, [messagesList.length]);
-
 
     return SingleChildScrollView(
         child: Column(
@@ -62,6 +68,23 @@ class DeviceClientSocket extends HookConsumerWidget {
             },
           ),
         ),
+        Text('Socket Client connected: $socketConnected'),
+        ElevatedButton(
+            onPressed: () {
+              ref
+                  .read(socketClientSP(SocketClientProviderParams(
+                      serverIp: serverIp, deviceName: deviceName)))
+                  .initConnection();
+            },
+            child: Text('Connect To Server')),
+        ElevatedButton(
+            onPressed: () {
+              ref
+                  .read(socketClientSP(SocketClientProviderParams(
+                      serverIp: serverIp, deviceName: deviceName)))
+                  .stopConnection();
+            },
+            child: Text('Disconnect'))
       ],
     ));
   }
