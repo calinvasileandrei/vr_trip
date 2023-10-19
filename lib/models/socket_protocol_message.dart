@@ -1,4 +1,4 @@
-enum SocketActionTypes { play, pause, forward, backward, selectVideo,message }
+enum SocketActionTypes { play, pause, forward, backward, selectVideo,selectVideoAck,message }
 
 class SocketAction {
   final SocketActionTypes type;

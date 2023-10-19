@@ -18,8 +18,14 @@ class SocketClientService {
   List<String> _messages = [];
   final _messagesController = StreamController<List<String>>.broadcast();
 
+  List<String> _playMessages = [];
+  final _playMessagesController = StreamController<List<String>>.broadcast();
+
   SocketClientService(
-      {required String host, required int port, required this.ref,required this.deviceName})
+      {required String host,
+      required int port,
+      required this.ref,
+      required this.deviceName})
       : _host = host,
         _port = port;
 
@@ -46,25 +52,42 @@ class SocketClientService {
     _resetMessages();
     _socket?.connect();
 
-    _socket?.onConnect((_){
+    _socket?.onConnect((_) {
       Logger.log('Socket Client connected');
       ref.read(isConnectedSocketClientSP.notifier).state = true;
     });
-
 
     _socket?.on('message', (data) {
       Logger.log('Message received: $data');
       _addMessage(data);
     });
 
-    _socket?.on('selectVideo', (data) => {
-
+    // Custom Events
+    _socket?.on('play', (data) {
+      Logger.log('Play received: $data');
+      _playMessages.add(data);
+      _playMessagesController.add(_playMessages);
+      _socket?.emit('message', 'PlayAck received from device: $deviceName');
     });
+
+    _socket?.on('pause', (data) {
+      Logger.log('Pause received: $data');
+      _addMessage(data);
+    });
+
+    _socket?.on('selectVideo', (data) {
+      Logger.log('SelectVideo received: $data');
+      _addMessage(data);
+      _socket?.emit('selectVideoAck', deviceName);
+    });
+
+    // End Custom Events
 
     _socket?.on('greeting', (data) {
       Logger.log('Greeting received from server: $data');
-      SocketAckMessageResponse? dataMessage = SocketProtocolService.getAckMessage(data);
-      if(dataMessage != null){
+      SocketAckMessageResponse? dataMessage =
+          SocketProtocolService.getAckMessage(data);
+      if (dataMessage != null) {
         dataMessage.ackCallback(deviceName);
       }
     });
@@ -115,9 +138,9 @@ class SocketClientService {
         _socket?.clearListeners();
         _socket?.dispose();
         _socket = null;
-        _messages=[];
+        _messages = [];
         Logger.log('Socket disconnected');
-      }else{
+      } else {
         Logger.warn('Socket already disconnected');
       }
     } catch (e) {

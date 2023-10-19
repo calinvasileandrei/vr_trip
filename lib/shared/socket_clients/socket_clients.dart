@@ -16,19 +16,6 @@ class SocketClients extends HookWidget {
       handleSendMessage!(textController.text);
     }
 
-    List<Widget> renderSocketInput (){
-      if (handleSendMessage == null) {
-        return [];
-      }
-      return [
-        TextField(
-          controller: textController, // Assign the controller
-          decoration: InputDecoration(labelText: 'Enter a message'),
-        ),
-        IconButton(onPressed: handleOnPress, icon: Icon(Icons.send))
-      ];
-    }
-
     return Container(
       color: Colors.blueGrey[300],
       width: MediaQuery.of(context).size.width,
@@ -36,11 +23,18 @@ class SocketClients extends HookWidget {
         shrinkWrap: true,
         itemCount: items.length,
         itemBuilder: (context, index) {
+          final connection = items[index];
           return Container(
-            child: Column(
+            child: Row(
               children: [
-                Text('Device ${items[index].deviceName ?? items[index].id}'),
-                ...renderSocketInput()
+                Text('Device ${connection.deviceName ?? connection.id}'),
+                IconButton(
+                    icon: const Icon(Icons.circle),
+                    color: connection.lastActionSent ==
+                            connection.lastActionReceived
+                        ? Colors.green
+                        : Colors.red,
+                    onPressed: () {})
               ],
             ),
           );

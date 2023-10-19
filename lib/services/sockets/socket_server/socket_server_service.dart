@@ -52,6 +52,13 @@ class SocketServerService {
       });
 
 
+      socket.on('selectVideoAck', (data){
+        final String deviceName = data;
+        _connectedSockets.firstWhere((element) => element.deviceName == deviceName).lastActionReceived = SocketActionTypes.selectVideo;
+        _connectionsController.add(_connectedSockets);
+        Logger.log('Socket[${socket.id}] - selectVideoAck received: $data');
+      });
+
       socket.on('message', (data) {
         Logger.log('Socket[${socket.id}] - Message received: $data');
         final message = SocketProtocolService.decodeMessage(data);
@@ -98,7 +105,12 @@ class SocketServerService {
         'Called sendBroadcastMessage() with action: ${action.name} and value: $value');
     try {
       final message = SocketProtocolService.encodeMessage(action, value);
-      _socketServer?.emit('message', message);
+      _socketServer?.emit(action.name, message);
+      // update all the _connectedSockets with lastActionSent = action
+      _connectedSockets.forEach((element) {
+        element.lastActionSent = action;
+      });
+      _connectionsController.add(_connectedSockets);
       Logger.log('Message sent: $message');
     } catch (e) {
       Logger.error('Error sendMessage : $e');

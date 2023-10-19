@@ -11,6 +11,12 @@ final clientMessagesSP = StreamProvider.autoDispose
 
 final isConnectedSocketClientSP = StateProvider.autoDispose((ref) => false);
 
+final playMessagesSP = StreamProvider.autoDispose
+    .family<List<String>, SocketClientProviderParams>((ref, params) => ref
+        .watch(socketClientSP(SocketClientProviderParams(
+            serverIp: params.serverIp, deviceName: params.deviceName)))
+        .getMessages());
+
 // Base Provider
 final socketClientSP =
     Provider.family<SocketClientService, SocketClientProviderParams>(
