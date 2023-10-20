@@ -22,8 +22,7 @@ class NetworkDiscoveryClient {
         if (status == ServiceStatus.found) {
           // put service in own collection, etc.
 
-          Logger.log(
-              'NetworkDiscoveryClient - initService - Service found : ${service}');
+          Logger.log('NetworkDiscoveryClient - initService - Service found : ${service}');
           final ip = service.host;
           if (ip != null && deviceIp != ip) {
             resolvedServerIp = ip;

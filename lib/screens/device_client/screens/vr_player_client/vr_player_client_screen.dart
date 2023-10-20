@@ -6,7 +6,6 @@ import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
-import 'package:vr_trip/providers/socket_client/types.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
@@ -149,14 +148,12 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     // Accessing the state using the provider
     final vrState = ref.watch(vrPlayerClientProvider);
     final deviceName = ref.watch(deviceNumberSP);
+    final socketClient = ref.watch(socketClientSP);
 
     _playerWidth = MediaQuery.of(context).size.width;
     _playerHeight = MediaQuery.of(context).size.height;
 
-    ref.listen(
-        clientMessagesSP(SocketClientProviderParams(
-            serverIp: _serverIp,
-            deviceName: deviceName ?? '')), (previous, next) {
+    ref.listen(clientMessagesSP, (previous, next) {
       final list = next.value;
       if (list != null && list.isNotEmpty) {
         SocketAction action = SocketProtocolService.parseMessage(list.last);

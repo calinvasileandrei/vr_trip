@@ -49,7 +49,7 @@ class DeviceClientScreen extends HookConsumerWidget {
         leading: IconButton(
           onPressed: () {
             if (serverIp != null) {
-              ref.read(socketClientSP(SocketClientProviderParams(serverIp: serverIp, deviceName: ''))).stopConnection();
+              ref.read(socketClientSP).stopConnection();
               context.pop();
             }
           },

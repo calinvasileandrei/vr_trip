@@ -48,7 +48,6 @@ class SocketServerService {
         _connectionsController.add(_connectedSockets);
 
         socket.emit('message', SocketProtocolService.encodeMessage(SocketActionTypes.message, 'Hello $sockedDeviceName from server!'));
-
       });
 
 

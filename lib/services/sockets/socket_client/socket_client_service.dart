@@ -8,11 +8,37 @@ import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service
 import 'package:vr_trip/utils/logger.dart';
 
 class SocketClientService {
-  final ProviderRef ref;
-  final String deviceName;
-  final _host; //http://192.168.1.31
-  final _port; //3000
+  static final SocketClientService _instance = SocketClientService._internal();
+
+  // Properties
+  WidgetRef? ref;
+  String? deviceName;
+  String? _host;
+  int? _port;
   Socket? _socket;
+
+  // Singleton accessor
+  static SocketClientService get instance => _instance;
+
+  SocketClientService._internal();
+
+  void initialize({
+    required String host,
+    required int port,
+    required WidgetRef ref,
+    required String deviceName,
+  }) {
+    // Only initialize if the properties haven't been set yet
+    if (_host == null &&
+        _port == null &&
+        this.ref == null &&
+        this.deviceName == null) {
+      this._host = host;
+      this._port = port;
+      this.ref = ref;
+      this.deviceName = deviceName;
+    }
+  }
 
   // Messages
   List<String> _messages = [];
@@ -20,14 +46,6 @@ class SocketClientService {
 
   List<String> _playMessages = [];
   final _playMessagesController = StreamController<List<String>>.broadcast();
-
-  SocketClientService(
-      {required String host,
-      required int port,
-      required this.ref,
-      required this.deviceName})
-      : _host = host,
-        _port = port;
 
   void initConnection() {
     if (_socket == null) {
@@ -54,7 +72,7 @@ class SocketClientService {
 
     _socket?.onConnect((_) {
       Logger.log('Socket Client connected');
-      ref.read(isConnectedSocketClientSP.notifier).state = true;
+      ref?.read(isConnectedSocketClientSP.notifier).state = true;
     });
 
     _socket?.on('message', (data) {
@@ -94,7 +112,7 @@ class SocketClientService {
 
     _socket?.onDisconnect((_) {
       Logger.log('Socket Client disconnected');
-      ref.read(isConnectedSocketClientSP.notifier).state = false;
+      ref?.read(isConnectedSocketClientSP.notifier).state = false;
       _resetMessages();
     });
   }
@@ -114,7 +132,6 @@ class SocketClientService {
     return _messagesController.stream;
   }
 
-  // Send a Message to the server
   void sendMessage(String message) {
     try {
       _socket?.emit(

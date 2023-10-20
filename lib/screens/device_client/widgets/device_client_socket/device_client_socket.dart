@@ -39,28 +39,45 @@ class DeviceClientSocket extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messages = ref.watch(clientMessagesSP(SocketClientProviderParams(
-        serverIp: serverIp, deviceName: deviceName)));
+    final socketClient = ref.watch(socketClientSP);
+    final messagesAsyncValue = ref.watch(clientMessagesSP);
     final socketConnected = ref.watch(isConnectedSocketClientSP);
-    // If it's in the 'data' state, get the value.
-    final List<String> messagesList =
-        messages.maybeWhen(data: (value) => value, orElse: () => []);
 
     useEffect(() {
-      Logger.log('useEffect - messagesList: $messagesList');
-      if (messagesList.isNotEmpty) {
-        // Assuming you have a function named 'handleListChange' that you want to execute:
-        getLastMessage(context, messagesList);
-      }
+      messagesAsyncValue.when(data: (messages) {
+        Logger.log('useEffect - messagesList: $messages');
+        if (messages.isNotEmpty) {
+          getLastMessage(context, messages);
+        }
+      }, loading: () {
+        Logger.log('useEffect - loading');
+      }, error: (err, stack) {
+        Logger.log('useEffect - error: $err');
+      });
+
       return null;
-    }, [messagesList.length]);
+    }, [messagesAsyncValue]);
+
+    useEffect((){
+      // Initialize the service
+      socketClient.initialize(
+          host: 'http://${serverIp}',
+          port: 3000,
+          ref: ref,
+          deviceName: deviceName
+      );
+
+      socketClient.initConnection();
+      socketClient.startConnection();
+        return null;
+      }, []);
 
     return SingleChildScrollView(
         child: Column(
       children: [
         Container(
           color: Colors.blueGrey[300],
-          child: messages.when(
+          child: messagesAsyncValue.when(
             loading: () => const Text('Awaiting messages from server...'),
             error: (error, stackTrace) => Text(error.toString()),
             data: (messagesItems) {
@@ -72,16 +89,14 @@ class DeviceClientSocket extends HookConsumerWidget {
         ElevatedButton(
             onPressed: () {
               ref
-                  .read(socketClientSP(SocketClientProviderParams(
-                      serverIp: serverIp, deviceName: deviceName)))
+                  .read(socketClientSP)
                   .initConnection();
             },
             child: Text('Connect To Server')),
         ElevatedButton(
             onPressed: () {
               ref
-                  .read(socketClientSP(SocketClientProviderParams(
-                      serverIp: serverIp, deviceName: deviceName)))
+                  .read(socketClientSP)
                   .stopConnection();
             },
             child: Text('Disconnect'))
