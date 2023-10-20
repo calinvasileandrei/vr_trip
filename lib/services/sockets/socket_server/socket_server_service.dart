@@ -13,7 +13,8 @@ class SocketServerService {
 
   // Connections
   List<ClientSocketModel> _connectedSockets = [];
-  final _connectionsController = StreamController<List<ClientSocketModel>>.broadcast();
+  final _connectionsController =
+      StreamController<List<ClientSocketModel>>.broadcast();
 
   // Messages
   List<MySocketMessage> _messages = [];
@@ -41,19 +42,30 @@ class SocketServerService {
       _addConnection(socket.id);
 
       //Socket Name Greeting
-      socket.emitWithAck('greeting', 'Hello from server!', ack: (sockedDeviceName) {
-        Logger.log('Socket[${socket.id}] - Greeting received: $sockedDeviceName');
+      socket.emitWithAck('greeting', 'Hello from server!',
+          ack: (sockedDeviceName) {
+        Logger.log(
+            'Socket[${socket.id}] - Greeting received: $sockedDeviceName');
         // find connectedSocket by socket.id and set the deviceName to socketDeviceName
-        _connectedSockets.firstWhere((element) => element.id == socket.id).deviceName = sockedDeviceName;
+        _connectedSockets
+            .firstWhere((element) => element.id == socket.id)
+            .deviceName = sockedDeviceName;
         _connectionsController.add(_connectedSockets);
 
-        socket.emit('message', SocketProtocolService.encodeMessage(SocketActionTypes.message, 'Hello $sockedDeviceName from server!'));
+        socket.emit(
+            'message',
+            SocketProtocolService.encodeMessage(SocketActionTypes.message,
+                'Hello $sockedDeviceName from server!'));
       });
 
+      socket.on('actionAck', (data) {
+        final String deviceName = data.first;
+        final SocketActionTypes action = SocketActionTypes.values
+            .firstWhere((element) => element.name == data.last);
 
-      socket.on('selectVideoAck', (data){
-        final String deviceName = data;
-        _connectedSockets.firstWhere((element) => element.deviceName == deviceName).lastActionReceived = SocketActionTypes.selectVideo;
+        _connectedSockets
+            .firstWhere((element) => element.deviceName == deviceName)
+            .lastActionReceived = action;
         _connectionsController.add(_connectedSockets);
         Logger.log('Socket[${socket.id}] - selectVideoAck received: $data');
       });
@@ -106,9 +118,9 @@ class SocketServerService {
       final message = SocketProtocolService.encodeMessage(action, value);
       _socketServer?.emit(action.name, message);
       // update all the _connectedSockets with lastActionSent = action
-      _connectedSockets.forEach((element) {
+      for (var element in _connectedSockets) {
         element.lastActionSent = action;
-      });
+      }
       _connectionsController.add(_connectedSockets);
       Logger.log('Message sent: $message');
     } catch (e) {

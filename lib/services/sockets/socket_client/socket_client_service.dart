@@ -44,9 +44,6 @@ class SocketClientService {
   List<String> _messages = [];
   final _messagesController = StreamController<List<String>>.broadcast();
 
-  List<String> _playMessages = [];
-  final _playMessagesController = StreamController<List<String>>.broadcast();
-
   void initConnection() {
     if (_socket == null) {
       try {
@@ -83,20 +80,20 @@ class SocketClientService {
     // Custom Events
     _socket?.on('play', (data) {
       Logger.log('Play received: $data');
-      _playMessages.add(data);
-      _playMessagesController.add(_playMessages);
-      _socket?.emit('message', 'PlayAck received from device: $deviceName');
+      _addMessage(data);
+      _socket?.emit('actionAck', [deviceName, SocketActionTypes.play.name]);
     });
 
     _socket?.on('pause', (data) {
       Logger.log('Pause received: $data');
       _addMessage(data);
+      _socket?.emit('actionAck', [deviceName, SocketActionTypes.pause.name]);
     });
 
     _socket?.on('selectVideo', (data) {
       Logger.log('SelectVideo received: $data');
       _addMessage(data);
-      _socket?.emit('selectVideoAck', deviceName);
+      _socket?.emit('actionAck', [deviceName, SocketActionTypes.selectVideo.name]);
     });
 
     // End Custom Events

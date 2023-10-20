@@ -29,22 +29,35 @@ class SocketMessages extends HookWidget {
       ];
     }
 
-    return Container(
-      color: Colors.blueGrey[300],
-      width: MediaQuery.of(context).size.width,
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return Container(
-            child: Column(
-              children: [
-                Text('Device ${items[index]}'),
-                ...renderSocketInput()
-              ],
-            ),
-          );
-        },
+    return SingleChildScrollView(
+      child: Container(
+        height: 350,
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: const EdgeInsets.all(12),
+        // border radius 12
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.black,
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        width: MediaQuery.of(context).size.width,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                children: [
+                  Text('Device ${items[index]}'),
+                  ...renderSocketInput()
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

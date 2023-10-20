@@ -6,9 +6,6 @@ final clientMessagesSP = StreamProvider.autoDispose(
 
 final isConnectedSocketClientSP = StateProvider.autoDispose((ref) => false);
 
-final playMessagesSP = StreamProvider.autoDispose(
-    (ref) => ref.watch(socketClientSP).getMessages());
-
 // Base Provider
 final socketClientSP = Provider((ref) {
   // Access the Singleton instance
