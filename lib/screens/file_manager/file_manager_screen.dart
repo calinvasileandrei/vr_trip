@@ -57,11 +57,16 @@ class FileManagerScreen extends HookWidget {
 
       // Iterate over all files and move them to the VR_TRIP folder
       for (FileSystemEntity file in files) {
-        if (file is File) {
-          final String basename = p.basename(file.path);
-          final File newLocation = File('${vrTripFolder.path}/$basename');
-          await file.copy(newLocation.path);
-          await file.delete();
+        try{
+          if (file is File) {
+            final String basename = p.basename(file.path);
+            final File newLocation = File('${vrTripFolder.path}/$basename');
+            await file.copy(newLocation.path);
+            Logger.log('File moved: ${file.path}');
+            await file.delete();
+          }
+        }catch (e){
+          Logger.log("Error moving file: $e");
         }
       }
     } catch (error) {

@@ -50,8 +50,8 @@ class DeviceClientScreen extends HookConsumerWidget {
           onPressed: () {
             if (serverIp != null) {
               ref.read(socketClientSP).stopConnection();
-              context.pop();
             }
+            context.pop();
           },
           icon: const Icon(Icons.arrow_back),
         ),

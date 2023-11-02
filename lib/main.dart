@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'VR Trip',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue, background: const Color(0xFFEAEEF2)),
         useMaterial3: true,
       ),
       routerDelegate: appRouter.routerDelegate,
@@ -71,6 +72,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const HomeScreen();
+    return HomeScreen();
   }
 }
