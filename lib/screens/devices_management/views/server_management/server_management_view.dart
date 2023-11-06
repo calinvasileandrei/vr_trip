@@ -23,23 +23,32 @@ class ServerManagementView extends HookConsumerWidget {
     }, []);
 
     return Center(
-      child: Column(
-        children: [
-          Text('Device Server IP: ${deviceIp}'),
-          Text('DiscoveryServer Status: ${discoveryServiceStatus.name}'),
-          const ServerActionBar(),
-          socketConnections.when(
-            loading: () => const Text('Awaiting client connections...'),
-            error: (error, stackTrace) => Text(error.toString()),
-            data: (connections) {
-              // Display all the messages in a scrollable list view.
-              return Center(
-                  child: SocketClients(
-                items: connections,
-              ));
-            },
-          )
-        ],
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('IP: ${deviceIp}'),
+                Text('Ricerca device: ${discoveryServiceStatus.name}'),
+              ],
+            ),
+
+            const ServerActionBar(),
+            socketConnections.when(
+              loading: () => Expanded(child: Center(child: const Text('In attesa di device...'))),
+              error: (error, stackTrace) => Text(error.toString()),
+              data: (connections) {
+                // Display all the messages in a scrollable list view.
+                return Center(
+                    child: SocketClients(
+                  items: connections,
+                ));
+              },
+            )
+          ],
+        ),
       ),
     );
   }

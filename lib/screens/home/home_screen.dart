@@ -26,7 +26,7 @@ class HomeScreen extends HookConsumerWidget {
     {
       "route": AppRoutes.deviceManagement.name,
       "icon": Icons.wifi,
-      "label": "Device Management",
+      "label": "Device Manager",
     },
     {
       "route": AppRoutes.deviceHost.name,

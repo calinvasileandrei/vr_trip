@@ -18,20 +18,23 @@ class ServerActionBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-          onPressed: () => toggleDiscovery(ref),
-          child: Text('Toggle Discovery Server'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            ref.read(socketServerSP).stopSocketServer();
-          },
-          child: Text('Stop Server'),
-        ),
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(
+            onPressed: () => toggleDiscovery(ref),
+            child: Text('Toggle Ricerca '),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(socketServerSP).stopSocketServer();
+            },
+            child: Text('Disconnetti'),
+          ),
+        ],
+      ),
     );
   }
 }

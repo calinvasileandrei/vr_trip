@@ -16,8 +16,25 @@ class LibraryChooserView extends HookConsumerWidget {
           .sendBroadcastMessage(SocketActionTypes.selectVideo, item.path);
     }
 
-    return Flex(
-        direction: Axis.vertical,
-        children: [VrVideoLibrary(onItemPress: handleItemSelected)]);
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5.0),
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.white24,
+            offset: Offset(0.0, 1.0), //(x,y)
+            blurRadius: 12.0,
+          ),
+        ],
+      ),
+      child: Flex(
+          direction: Axis.vertical,
+          children: [
+            Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                child: const Text('Video Library', style: TextStyle(fontSize: 20))),
+            VrVideoLibrary(onItemPress: handleItemSelected)]),
+    );
   }
 }

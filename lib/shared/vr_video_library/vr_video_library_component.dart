@@ -55,7 +55,6 @@ class VrVideoLibrary extends HookWidget {
 
     return Expanded(
       child: Container(
-        color: Colors.grey[300],
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         child: ListView.builder(
           shrinkWrap: true,

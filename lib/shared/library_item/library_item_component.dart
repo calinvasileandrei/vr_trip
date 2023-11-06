@@ -19,10 +19,9 @@ class LibraryItem extends StatelessWidget {
         width: 50,
         height: 50,
         margin: const EdgeInsets.all(10),
-        color: Colors.blue[100],
+        color: Theme.of(context).colorScheme.background,
         child: Center(child: Text(item.name)),
       ),
     );
-    ;
   }
 }

@@ -14,7 +14,9 @@ class DeviceManagementScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Manager'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: const Column(
         children: [
           MySnapView(children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:vr_trip/models/client_socket_model.dart';
+import 'package:vr_trip/shared/ui_kit/my_text/my_text_component.dart';
 
 class SocketClients extends HookWidget {
   final List<ClientSocketModel> items;
@@ -17,7 +18,6 @@ class SocketClients extends HookWidget {
     }
 
     return Container(
-      color: Colors.blueGrey[300],
       width: MediaQuery.of(context).size.width,
       child: ListView.builder(
         shrinkWrap: true,
@@ -25,9 +25,23 @@ class SocketClients extends HookWidget {
         itemBuilder: (context, index) {
           final connection = items[index];
           return Container(
+            // add elevation to the container
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              color: Theme.of(context).colorScheme.background,
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.white10,
+                  offset: Offset(0.0, 1.0), //(x,y)
+                  blurRadius: 12.0,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Device ${connection.deviceName ?? connection.id}'),
+                MyText('Device ${connection.deviceName ?? connection.id}'),
                 IconButton(
                     icon: const Icon(Icons.circle),
                     color: connection.lastActionSent ==

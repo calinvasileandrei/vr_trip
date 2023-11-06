@@ -4,9 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
-import 'package:vr_trip/providers/socket_client/types.dart';
-import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
+import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 
 class DeviceClientScreen extends HookConsumerWidget {
   const DeviceClientScreen({
@@ -22,11 +21,11 @@ class DeviceClientScreen extends HookConsumerWidget {
 
     Widget renderDiscoveryOrDeviceHostSocket() {
       if (serverIp == null) {
-        return const Center(child: Text('Discovery is running'));
+        return const Center(child: Text('Ricerca server in corso...'));
       }
 
       if (deviceNumber == null) {
-        return const Center(child: Text('Device number is not set'));
+        return const Center(child: Text('Nome dispositivo non impostato!'));
       }
 
       return DeviceClientSocket(
@@ -46,6 +45,7 @@ class DeviceClientScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Host'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           onPressed: () {
             if (serverIp != null) {
@@ -66,9 +66,14 @@ class DeviceClientScreen extends HookConsumerWidget {
       ),
       body: Column(
         children: [
-          Text('Server IP: ${serverIp ?? 'No server found'}'),
-          Text('Device IP: ${deviceIp}'),
-          Text('Device Number: ${deviceNumber}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('IP: ${deviceIp}'),
+              Text('Nome: ${deviceNumber}'),
+            ],
+          ),
+          Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
           renderDiscoveryOrDeviceHostSocket(),
         ],
       ),
