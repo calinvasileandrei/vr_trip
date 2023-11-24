@@ -3,73 +3,43 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/shared/ui_kit/my_button/my_button_component.dart';
 import 'package:vr_trip/shared/ui_kit/my_text/my_text_component.dart';
 import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart';
+import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
+
+const String IMPORT_FOLDER = 'VR_TRIP';
+const String DATA_FOLDER = 'VR_Video_Library';
+const String DOWNLOAD_FOLDER = '/storage/emulated/0/Download';
 
 class FileManagerScreen extends HookWidget {
   const FileManagerScreen({super.key});
 
-  Future<Directory?> getLocalAppStorageFolder() async {
-    try {
-      // Get App Storage Path
-      final directory = await getApplicationDocumentsDirectory();
-      // Access App Storage
-      Directory localAppStorage =
-          Directory('${directory.path}/VR_Video_Library');
-
-      // If the folder doesn't exist, create it
-      if (!await localAppStorage.exists()) {
-        await localAppStorage.create();
-      }
-      //List all files in App Storage
-      return localAppStorage;
-    } catch (e) {
-      Logger.error('getLocalAppStorageFiles error: $e');
-    }
-    return null;
-  }
-
   Future<void> moveFilesToVRTripFolder() async {
     try {
       // Get the VR_TRIP folder
-      final Directory? vrTripFolder = await getLocalAppStorageFolder();
-
-      if (vrTripFolder == null) {
-        return;
-      }
+      final Directory? vrTripFolder =
+          await FileUtils.getLocalAppStorageFolder();
 
       // Get the Download folder for the device
       // Note: This assumes the typical Android path. Adjust if needed for other platforms.
-      final Directory downloadDir = Directory("/storage/emulated/0/Download");
+      final Directory downloadDir =
+          Directory("$DOWNLOAD_FOLDER/$IMPORT_FOLDER");
 
       // If the Download directory doesn't exist, exit
-      if (!await downloadDir.exists()) {
-        Logger.log("Download directory doesn't exist");
+      if (!await downloadDir.exists() || vrTripFolder == null) {
+        Logger.log("Download directory or VrTrip directory doesn't exist");
         return;
       }
 
       // List all files in the Download directory
       List<FileSystemEntity> files = downloadDir.listSync();
-
       // Iterate over all files and move them to the VR_TRIP folder
       for (FileSystemEntity file in files) {
-        try {
-          if (file is File) {
-            final String basename = p.basename(file.path);
-            final File newLocation = File('${vrTripFolder.path}/$basename');
-            await file.copy(newLocation.path);
-            Logger.log('File moved: ${file.path}');
-            await file.delete();
-          }
-        } catch (e) {
-          Logger.log("Error moving file: $e");
-        }
+        FileUtils.moveFile(file, vrTripFolder.path);
       }
     } catch (error) {
       Logger.log("Error moving files: $error");
@@ -78,9 +48,16 @@ class FileManagerScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = useState(false);
+
     handleNavigateToVr(LibraryItemModel item) {
       context.goNamed(AppRoutes.vrPlayerFile.name,
           pathParameters: {'videoPath': item.path});
+    }
+
+    handleDeleteItem(LibraryItemModel item) {
+      Logger.log('handleDeleteItem - item: $item');
+      FileUtils.deleteFile(item.path);
     }
 
     return Scaffold(
@@ -94,16 +71,24 @@ class FileManagerScreen extends HookWidget {
           children: [
             Container(
               margin: const EdgeInsets.symmetric(vertical: 20),
-              child: MyButton('Importa file da Download/VR_TRIP', onPressed: moveFilesToVRTripFolder),
+              child: MyButton('Importa file da Download/$IMPORT_FOLDER',
+                  onPressed: () async {
+                isLoading.value = true;
+                await moveFilesToVRTripFolder();
+                isLoading.value = false;
+              },isLoading: isLoading.value,
+              ),
             ),
             Container(
               child: MyText(
-                'Percorsi importati:',
+                'Video importati:',
                 textStyle: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            VrVideoLibrary(onItemPress: handleNavigateToVr),
-
+            VrVideoLibrary(
+                onItemPress: handleNavigateToVr,
+                onItemLongPress: handleDeleteItem,
+            ),
           ],
         ),
       ),

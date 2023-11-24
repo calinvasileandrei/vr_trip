@@ -64,6 +64,7 @@ class DeviceClientScreen extends HookConsumerWidget {
           ),
         ],
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Column(
         children: [
           Row(

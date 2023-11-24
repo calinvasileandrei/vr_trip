@@ -5,12 +5,17 @@ import 'package:vr_trip/utils/logger.dart';
 class LibraryItem extends StatelessWidget {
   final LibraryItemModel item;
   final Function(LibraryItemModel) onPress;
+  Function(LibraryItemModel)? onLongPress;
 
-  const LibraryItem({super.key, required this.item, required this.onPress});
+  LibraryItem({super.key, required this.item, required this.onPress, this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPress: (){
+        Logger.log('handleItemLongPress - item: $item');
+        if(onLongPress != null) onLongPress!(item);
+      },
       onTap: () {
         Logger.log('handleItemPress - item: $item');
         onPress(item);

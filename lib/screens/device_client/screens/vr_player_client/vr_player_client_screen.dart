@@ -56,6 +56,13 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     super.initState();
   }
 
+  void onChangePosition(int millis) {
+    Logger.log('$prefix - onPositionChange: $millis');
+    vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
+    vrPlayerClientNotifier
+        .setCurrentPosition(millisecondsToDateTime(millis));
+  }
+
   void onReceiveState(VrState state) {
     switch (state) {
       case VrState.loading:
@@ -79,14 +86,13 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       observer
         ..onStateChange = onReceiveState
         ..onDurationChange = (millis) {
+          Logger.log('$prefix - onDurationChange: $millis');
           vrPlayerClientNotifier.setDuration(
             millisecondsToDateTime(millis),
             millis,
           );
         }
-        ..onPositionChange = (int millis) {
-          vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
-        }
+        ..onPositionChange = onChangePosition
         ..onFinishedChange = (isFinished) {
           vrPlayerClientNotifier.setVideoFinished(isFinished);
         };
@@ -105,6 +111,9 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     if (ref.read(vrPlayerClientProvider).isVideoFinished) {
       try {
         await _viewPlayerController.seekTo(0);
+        vrPlayerClientNotifier.setVideoFinished(false);
+        vrPlayerClientNotifier.setSeekPosition(0);
+        vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(0));
       } catch (e) {
         Logger.error('$prefix - ERROR - playAndPause seekTo beginning: $e');
       }
@@ -182,24 +191,38 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
             showActionBar = !showActionBar;
           });
         },
+
         child: MyVrPlayer(
           onViewPlayerCreated: onViewPlayerCreated,
           playerWidth: _playerWidth,
           playerHeight: _playerHeight,
           showActionBar: showActionBar,
           onChangeSliderPosition: (position) {
-            // Your logic for onChangeSliderPosition here
+            // Currently not used
           },
           fullScreenPressed: () {
             // Your logic for fullScreenPressed here
           },
           cardBoardPressed: () {
             // Your logic for cardBoardPressed here
+            try {
+              _viewPlayerController.toggleVRMode();
+            } catch (e) {
+              Logger.error('$prefix - ERROR - activateVr: $e');
+            }
+            setState(() {
+              isVrMode = !isVrMode;
+            });
           },
           seekToPosition: (position) {
             // Your logic for seekToPosition here
+            onChangePosition(position);
+            _viewPlayerController.seekTo(position);
           },
-          playAndPause: () {},
+          playAndPause: () {
+            var isVideoPlaying = vrState.isPlaying;
+            playAndPause(!isVideoPlaying);
+          },
         ),
       ),
     );

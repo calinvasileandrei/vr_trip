@@ -57,6 +57,7 @@ class MyVrPlayerActionBar extends ConsumerWidget {
                   },
                   onChanged: (value) {
                     onChangeSliderPosition(value.toInt());
+                    seekToPosition(value.toInt());
                   },
                 ),
               ),

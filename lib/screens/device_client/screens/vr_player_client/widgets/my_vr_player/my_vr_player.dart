@@ -38,7 +38,7 @@ class MyVrPlayer extends StatelessWidget {
           width: playerWidth,
           height: playerHeight,
         ),
-        if (showActionBar)
+        // if (showActionBar)
           MyVrPlayerActionBar(
             playAndPause: playAndPause,
             onChangeSliderPosition: onChangeSliderPosition,

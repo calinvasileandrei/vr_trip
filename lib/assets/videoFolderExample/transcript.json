@@ -1,0 +1,20 @@
+{
+  "nomeVideo": "video.mp4",
+  "timeline": [
+    {
+      "nomeClip": "Nome della clip",
+      "start": "00:00:00",
+      "end": "00:10:00"
+    },
+    {
+      "nomeClip": "Nome della clip 2",
+      "start": "00:10:00",
+      "end": "00:20:00"
+    },
+    {
+      "nomeClip": "Nome della clip 3",
+      "start": "00:20:00",
+      "end": "00:30:00"
+    }
+  ]
+}

@@ -77,6 +77,7 @@ class DeviceClientSocket extends HookConsumerWidget {
         ElevatedButton(
             onPressed: () {
               ref.read(socketClientSP).initConnection();
+              socketClient.startConnection();
             },
             child: Text('Connect To Server')),
         ElevatedButton(

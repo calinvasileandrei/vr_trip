@@ -1,57 +1,56 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/shared/library_item/library_item_component.dart';
+import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class VrVideoLibrary extends HookWidget {
   final Function(LibraryItemModel) onItemPress;
+  Function(LibraryItemModel)? onItemLongPress;
 
-  const VrVideoLibrary({super.key, required this.onItemPress});
+  VrVideoLibrary({super.key, required this.onItemPress, this.onItemLongPress});
 
   @override
   Widget build(BuildContext context) {
     final folders = useState<List<LibraryItemModel>>([]);
-
-    Future<List<FileSystemEntity>> getLocalAppStorageFiles() async {
-      try {
-        // Get App Storage Path
-        final directory = await getApplicationDocumentsDirectory();
-        // Access App Storage
-        Directory localAppStorage =
-            Directory('${directory.path}/VR_Video_Library');
-
-        // If the folder doesn't exist, create it
-        if (!await localAppStorage.exists()) {
-          await localAppStorage.create();
-        }
-        //List all files in App Storage
-        return localAppStorage.listSync();
-      } catch (e) {
-        Logger.error('getLocalAppStorageFiles error: $e');
-      }
-      return [];
-    }
+    final directoryWatcher = useRef<StreamSubscription<FileSystemEvent>?>(null);
 
     handleListFilesInAppStorage() async {
-      final localAppStorageList = await getLocalAppStorageFiles();
+      var fileDirectory = await FileUtils.getLocalAppStorageFolder();
+      if (fileDirectory == null) {
+        Logger.error('handleListFilesInAppStorage - fileDirectory is null');
+        return;
+      }
 
+      final localAppStorageList = fileDirectory.listSync();
+      List<LibraryItemModel> newFiles = [];
       for (FileSystemEntity item in localAppStorageList) {
         final shortName = item.path.split('/').last;
         // Save to folders state
-        folders.value = [
-          ...folders.value,
-          LibraryItemModel(name: shortName, path: item.path)
-        ];
+        newFiles.add(LibraryItemModel(name: shortName, path: item.path));
       }
+      folders.value = newFiles;
     }
 
     useEffect(() {
       handleListFilesInAppStorage();
-    }, []);
+
+      (() async {
+        Directory? libraryDirectory =
+            await FileUtils.getLocalAppStorageFolder();
+        if (libraryDirectory != null) {
+          directoryWatcher.value = libraryDirectory.watch().listen((event) {
+            handleListFilesInAppStorage();
+          });
+        }
+      })();
+
+      return () => directoryWatcher.value?.cancel(); // Cleanup
+    }, const []);
 
     return Expanded(
       child: Container(
@@ -63,6 +62,11 @@ class VrVideoLibrary extends HookWidget {
             return LibraryItem(
               item: folders.value[index],
               onPress: onItemPress,
+              onLongPress: (item) {
+                if (onItemLongPress != null) {
+                  onItemLongPress!(item);
+                }
+              },
             );
           },
         ),

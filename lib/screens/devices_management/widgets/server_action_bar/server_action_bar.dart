@@ -3,16 +3,20 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/models/nsd_model.dart';
 import 'package:vr_trip/providers/discoveryService/discoveryService_provider.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
+import 'package:vr_trip/utils/logger.dart';
 
 class ServerActionBar extends HookConsumerWidget {
   const ServerActionBar({super.key});
 
   void toggleDiscovery(WidgetRef ref) {
     final status = ref.read(discoveryServiceStatusSP);
+    Logger.log('Discovery toggle status: $status');
     if (status == NetworkDiscoveryServerStatus.online) {
-      ref.read(networkDiscoveryServerSP).initService();
-    } else {
+      Logger.log('ToggleDiscovery: stopService');
       ref.read(networkDiscoveryServerSP).stopService();
+    } else {
+      Logger.log('ToggleDiscovery: initService');
+      ref.read(networkDiscoveryServerSP).initService();
     }
   }
 

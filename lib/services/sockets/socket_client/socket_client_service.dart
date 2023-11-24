@@ -152,7 +152,7 @@ class SocketClientService {
         _socket?.clearListeners();
         _socket?.dispose();
         _socket = null;
-        _messages = [];
+        _resetMessages();
         Logger.log('Socket disconnected');
       } else {
         Logger.warn('Socket already disconnected');
