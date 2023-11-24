@@ -1,4 +1,4 @@
-enum SocketActionTypes { play, pause, forward, backward, selectVideo }
+enum SocketActionTypes { play, pause, forward, backward, selectVideo,selectVideoAck,message }
 
 class SocketAction {
   final SocketActionTypes type;
@@ -17,4 +17,11 @@ class SocketAction {
             SocketActionTypes.values.firstWhere((e) => e.name == json['type']),
         value: json['value'],
       );
+}
+
+class SocketAckMessageResponse{
+  final String value;
+  final Function ackCallback;
+
+  SocketAckMessageResponse({required this.value, required this.ackCallback});
 }

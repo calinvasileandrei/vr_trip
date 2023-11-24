@@ -3,82 +3,95 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/router/routes.dart';
+import 'package:vr_trip/shared/ui_kit/my_button/my_button_component.dart';
+import 'package:vr_trip/shared/ui_kit/my_text/my_text_component.dart';
 import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart';
+import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
+
+const String IMPORT_FOLDER = 'VR_TRIP';
+const String DATA_FOLDER = 'VR_Video_Library';
+const String DOWNLOAD_FOLDER = '/storage/emulated/0/Download';
 
 class FileManagerScreen extends HookWidget {
   const FileManagerScreen({super.key});
 
-  Future<void> moveFile(String sourceFilePath, String newPath) async {
-    File sourceFile = File(sourceFilePath);
+  Future<void> moveFilesToVRTripFolder() async {
     try {
-      var file = File(sourceFilePath);
-      if (await file.exists()) {
-        final copyFile = file.copySync(newPath);
-        if (file.existsSync()) {
-          file.delete();
-          Logger.log('File moved to: ${copyFile.path}');
-        }
-      } else {
-        Logger.log('Cannot delete, File not exists');
+      // Get the VR_TRIP folder
+      final Directory? vrTripFolder =
+          await FileUtils.getLocalAppStorageFolder();
+
+      // Get the Download folder for the device
+      // Note: This assumes the typical Android path. Adjust if needed for other platforms.
+      final Directory downloadDir =
+          Directory("$DOWNLOAD_FOLDER/$IMPORT_FOLDER");
+
+      // If the Download directory doesn't exist, exit
+      if (!await downloadDir.exists() || vrTripFolder == null) {
+        Logger.log("Download directory or VrTrip directory doesn't exist");
+        return;
       }
-    } on FileSystemException catch (e) {
-      Logger.error('moveFile error: $e');
-      // if rename fails, copy the source file and then delete it
+
+      // List all files in the Download directory
+      List<FileSystemEntity> files = downloadDir.listSync();
+      // Iterate over all files and move them to the VR_TRIP folder
+      for (FileSystemEntity file in files) {
+        FileUtils.moveFile(file, vrTripFolder.path);
+      }
+    } catch (error) {
+      Logger.log("Error moving files: $error");
     }
-  }
-
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  handleMoveFile() async {
-    final internalAppPath = await _localPath;
-
-    // Get all files inside Download folder
-    Directory dirDownload = Directory('/storage/emulated/0/Download');
-    var downloadsFile = dirDownload.listSync().where((e) => e is File);
-    Logger.log('downloadsFile: $downloadsFile');
-
-    // Iterate on each file and move to internal app folder
-    downloadsFile.forEach((element) {
-      Logger.log('element: $element');
-      final newFileName = element.path.split('/').last;
-      final newFilePath = '$internalAppPath/$newFileName';
-      moveFile(element.path, newFilePath);
-    });
-
-    Logger.log('Handle Move File completed');
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = useState(false);
+
     handleNavigateToVr(LibraryItemModel item) {
       context.goNamed(AppRoutes.vrPlayerFile.name,
           pathParameters: {'videoPath': item.path});
     }
 
+    handleDeleteItem(LibraryItemModel item) {
+      Logger.log('handleDeleteItem - item: $item');
+      FileUtils.deleteFile(item.path);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('File Manager'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
-          child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              //socket.emit('message', 'Hello from Socket Screen');
-              handleMoveFile();
-            },
-            child: Text('Move File'),
-          ),
-          VrVideoLibrary(onItemPress: handleNavigateToVr),
-        ],
-      )),
+      body: Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 20),
+              child: MyButton('Importa file da Download/$IMPORT_FOLDER',
+                  onPressed: () async {
+                isLoading.value = true;
+                await moveFilesToVRTripFolder();
+                isLoading.value = false;
+              },isLoading: isLoading.value,
+              ),
+            ),
+            Container(
+              child: MyText(
+                'Video importati:',
+                textStyle: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            VrVideoLibrary(
+                onItemPress: handleNavigateToVr,
+                onItemLongPress: handleDeleteItem,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

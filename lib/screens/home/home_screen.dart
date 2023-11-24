@@ -4,16 +4,46 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/services/device_ip_state_provider/device_ip_state_provider.dart';
 
 class HomeScreen extends HookConsumerWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
 
   Future<String?> getWifiIp() async {
     final info = NetworkInfo();
     return await info.getWifiIP();
   }
+
+  final List<Function> customFunctions = [
+    () => AppRoutes.deviceManagement.name,
+    () => AppRoutes.deviceHost.name,
+    () => AppRoutes.fileManager.name,
+    () => AppRoutes.settings.name,
+  ];
+
+  final List<Map<String, dynamic>> data = [
+    {
+      "route": AppRoutes.deviceManagement.name,
+      "icon": Icons.wifi,
+      "label": "Device Manager",
+    },
+    {
+      "route": AppRoutes.deviceHost.name,
+      "icon": Icons.person_outline,
+      "label": "Device Host",
+    },
+    {
+      "route": AppRoutes.fileManager.name,
+      "icon": Icons.file_copy,
+      "label": "File Manager",
+    },
+    {
+      "route": AppRoutes.settings.name,
+      "icon": Icons.settings,
+      "label": "Settings",
+    }
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,26 +62,47 @@ class HomeScreen extends HookConsumerWidget {
 
     Widget renderIp() {
       if (ip != null) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                  onPressed: () => {
-                        context.goNamed(AppRoutes.deviceManagement.name),
-                      },
-                  child: const Text('navigate to device management screen')),
-              ElevatedButton(
-                  onPressed: () => {
-                        context.goNamed(AppRoutes.deviceHost.name),
-                      },
-                  child: const Text('navigate to device host screen')),
-              ElevatedButton(
-                  onPressed: () => {
-                        context.goNamed(AppRoutes.fileManager.name),
-                      },
-                  child: const Text('navigate to File manager screen')),
-            ],
+        return Container(
+          margin: const EdgeInsets.all(20.0),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.7,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 20,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () {
+                  // Use the index of the container to call the corresponding function.
+                  final route = data[index]['route'];
+                  context.goNamed(route);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white10, width: 1.0),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          data[index]['icon'],
+                          size: 100,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        Text(
+                          '${data[index]['label']}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            itemCount: customFunctions.length,
           ),
         );
       } else {
@@ -60,6 +111,7 @@ class HomeScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('VR Trip'),
