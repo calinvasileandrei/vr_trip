@@ -5,8 +5,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/router/routes.dart';
+import 'package:vr_trip/services/library_reader/library_reader_service.dart';
 import 'package:vr_trip/shared/ui_kit/my_button/my_button_component.dart';
 import 'package:vr_trip/shared/ui_kit/my_text/my_text_component.dart';
+import 'package:vr_trip/shared/vr_video_library/download_library_component.dart';
 import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart';
 import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
@@ -52,7 +54,7 @@ class FileManagerScreen extends HookWidget {
 
     handleNavigateToVr(LibraryItemModel item) {
       context.goNamed(AppRoutes.vrPlayerFile.name,
-          pathParameters: {'videoPath': item.path});
+          pathParameters: {'videoPath': item.videoPath});
     }
 
     handleDeleteItem(LibraryItemModel item) {
@@ -70,24 +72,50 @@ class FileManagerScreen extends HookWidget {
         child: Column(
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 20),
-              child: MyButton('Importa file da Download/$IMPORT_FOLDER',
-                  onPressed: () async {
-                isLoading.value = true;
-                await moveFilesToVRTripFolder();
-                isLoading.value = false;
-              },isLoading: isLoading.value,
+              child: MyText(
+                'Downloads/VR_TRIP:',
+                textStyle: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            DownloadLibrary(
+              onItemPress: (item) => null,
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              child: MyButton(
+                'Importa Download/$IMPORT_FOLDER',
+                onPressed: () async {
+                  isLoading.value = true;
+                  //await moveFilesToVRTripFolder();
+                  await LibraryReaderService.saveFromDownload();
+                  isLoading.value = false;
+                },
+                isLoading: isLoading.value,
               ),
             ),
             Container(
               child: MyText(
-                'Video importati:',
+                'Libreria Interna:',
                 textStyle: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             VrVideoLibrary(
-                onItemPress: handleNavigateToVr,
-                onItemLongPress: handleDeleteItem,
+              onItemPress: handleNavigateToVr,
+              onItemLongPress: handleDeleteItem,
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              child: MyButton(
+                'Delete Library',
+                onPressed: () async {
+                  final Directory? libraryFolder =
+                      await FileUtils.getLocalAppStorageFolder();
+                  if (libraryFolder != null) {
+                    await FileUtils.deleteEverythingInPath(libraryFolder.path);
+                  }
+                },
+                isLoading: isLoading.value,
+              ),
             ),
           ],
         ),

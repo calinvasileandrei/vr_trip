@@ -28,7 +28,8 @@ class NetworkDiscoveryClient {
 
           Logger.log('NetworkDiscoveryClient - initService - Service found : ${service}');
           final ip = service.host;
-          if (ip != null && deviceIp != ip && NetworkUtils.isValidIpAddress(ip)) {
+          if (ip != null && deviceIp != ip && NetworkUtils.isValidIpAddress(ip) && !_possibleManagers.contains(ip)) {
+
             _addManager(ip);
             Logger.log(
                 'NetworkDiscoveryClient - initService - Service added to list : $ip');

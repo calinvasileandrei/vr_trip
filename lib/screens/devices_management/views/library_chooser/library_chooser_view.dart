@@ -13,7 +13,7 @@ class LibraryChooserView extends HookConsumerWidget {
     void handleItemSelected(LibraryItemModel item) {
       ref
           .read(socketServerSP)
-          .sendBroadcastMessage(SocketActionTypes.selectVideo, item.path);
+          .sendBroadcastMessage(SocketActionTypes.selectVideo, item.videoPath);
     }
 
     return Container(

@@ -1,20 +1,20 @@
 {
-  "nomeVideo": "video.mp4",
+  "nomeVideo": "ITA_ROMA_IMP_REV.mp4",
   "timeline": [
     {
-      "nomeClip": "Nome della clip",
+      "nomeClip": "INIZIO",
       "start": "00:00:00",
-      "end": "00:10:00"
+      "end": "00:02:00"
     },
     {
-      "nomeClip": "Nome della clip 2",
-      "start": "00:10:00",
-      "end": "00:20:00"
+      "nomeClip": "META",
+      "start": "00:02:00",
+      "end": "00:016:48"
     },
     {
-      "nomeClip": "Nome della clip 3",
-      "start": "00:20:00",
-      "end": "00:30:00"
+      "nomeClip": "FINE",
+      "start": "00:16:48",
+      "end": "00:17:48"
     }
   ]
 }

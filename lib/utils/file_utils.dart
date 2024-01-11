@@ -1,15 +1,14 @@
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
-import 'package:path/path.dart' as p;
 
 const String prefix = 'FileUtils';
 const String DATA_FOLDER = 'VR_Video_Library';
 const String DOWNLOAD_FOLDER = '/storage/emulated/0/Download';
 
 class FileUtils {
-
   static Future<Directory?> getDownloadFolder() async {
     try {
       // Get App Storage Path
@@ -63,13 +62,14 @@ class FileUtils {
     }
   }
 
-  static moveFile(FileSystemEntity fromFilePath, String toFolderPath) async {
+  static Future<void> moveFile(
+      FileSystemEntity fromFilePath, String toFolderPath) async {
     try {
       if (fromFilePath is File) {
         final String basename = p.basename(fromFilePath.path);
         final String newLocationPath = '$toFolderPath/$basename';
 
-        if(await fileExists(newLocationPath)){
+        if (await fileExists(newLocationPath)) {
           Logger.log('File already exists in new location');
           return;
         }
@@ -85,9 +85,77 @@ class FileUtils {
     }
   }
 
+  static Future<bool> copyLibraryItemDirectory(
+      String sourcePath, String finalPath) async {
+    final directoryName = sourcePath.split('/').last;
+
+    Directory newDirectory = Directory('$finalPath/$directoryName');
+    var videoFileExists = await fileExists('$sourcePath/video.mp4');
+    var transcriptFileExists = await fileExists('$sourcePath/transcript.json');
+
+    if (!newDirectory.existsSync() && videoFileExists && transcriptFileExists) {
+      await newDirectory.create(recursive: true);
+      Logger.log('Created directory $finalPath');
+
+      File videoFile = File('$sourcePath/video.mp4');
+      await videoFile.copy('${newDirectory.path}/video.mp4');
+      Logger.log('Copied video file');
+
+      File transcriptFile = File('$sourcePath/transcript.json');
+      await transcriptFile.copy('${newDirectory.path}/transcript.json');
+      Logger.log('Copied transcript file');
+
+      Logger.log('Library - result: ${newDirectory.listSync()}');
+
+      return true;
+    }
+    Logger.error(
+        'copyLibraryItemDirectory - video exists ($videoFileExists) or transcript exists($transcriptFileExists) file or directory already exists');
+    return false;
+  }
+
+  static Future<void> deleteEverythingInPath(String targetPath) async {
+    // Check if the target path exists
+    if (await Directory(targetPath).exists()) {
+      // Get a list of all files and subdirectories in the target directory
+      List<FileSystemEntity> entities = Directory(targetPath).listSync();
+
+      // Delete each file/directory
+      for (var entity in entities) {
+        Logger.log('Deleting entity ${entity.path}');
+        if (entity is File) {
+          // If it's a file, delete it
+          await entity.delete();
+          Logger.log('Deleted file ${entity.path.split('/').last}');
+        } else if (entity is Directory) {
+          // If it's a directory, recursively delete it
+          Logger.log('Deleting directory ${entity.path}');
+          entity.deleteSync(recursive: true);
+        }
+      }
+      Logger.log('Deleted everything in $targetPath completed');
+    } else {
+      Logger.error('Target path does not exist');
+    }
+
+    Logger.log('Delete Target - result: ${Directory(targetPath).listSync()}');
+  }
+
   static Future<bool> fileExists(String filePath) async {
     final file = File(filePath);
     return await file.exists();
   }
-}
 
+  static void listDirectoryContents(String path) {
+    Directory directory = Directory(path);
+    List contents = directory.listSync();
+    for (var content in contents) {
+      if (content is File) {
+        Logger.log('File: ${content.path}');
+      } else if (content is Directory) {
+        Logger.log('Directory: ${content.path}');
+        listDirectoryContents(content.path);
+      }
+    }
+  }
+}

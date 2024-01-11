@@ -3,24 +3,40 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:vr_trip/models/library_item_model.dart';
-import 'package:vr_trip/services/library_reader/library_reader_service.dart';
-import 'package:vr_trip/shared/library_item/library_item_component.dart';
+import 'package:vr_trip/models/download_item_model.dart';
+import 'package:vr_trip/shared/download_item/download_item_component.dart';
 import 'package:vr_trip/utils/file_utils.dart';
+import 'package:vr_trip/utils/logger.dart';
 
-class VrVideoLibrary extends HookWidget {
-  final Function(LibraryItemModel) onItemPress;
-  Function(LibraryItemModel)? onItemLongPress;
+class DownloadLibrary extends HookWidget {
+  final Function(DownloadItemModel) onItemPress;
+  Function(DownloadItemModel)? onItemLongPress;
 
-  VrVideoLibrary({super.key, required this.onItemPress, this.onItemLongPress});
+  DownloadLibrary({super.key, required this.onItemPress, this.onItemLongPress});
 
   @override
   Widget build(BuildContext context) {
-    final folders = useState<List<LibraryItemModel>>([]);
+    final folders = useState<List<DownloadItemModel>>([]);
     final directoryWatcher = useRef<StreamSubscription<FileSystemEvent>?>(null);
 
     handleListFilesInAppStorage() async {
-      folders.value = await LibraryReaderService.loadLibrary();
+      var fileDirectory =
+          await Directory('/storage/emulated/0/Download/VR_TRIP');
+      if (!await fileDirectory.exists()) {
+        Logger.error('handleListFilesInAppStorage - fileDirectory is null');
+        return;
+      }
+
+      final localAppStorageList = fileDirectory.listSync();
+      Logger.log(
+          'Download Library - localAppStorageList: $localAppStorageList');
+      List<DownloadItemModel> newFiles = [];
+      for (FileSystemEntity item in localAppStorageList) {
+        final shortName = item.path.split('/').last;
+        // Save to folders state
+        newFiles.add(DownloadItemModel(name: shortName, path: item.path));
+      }
+      folders.value = newFiles;
     }
 
     useEffect(() {
@@ -47,7 +63,7 @@ class VrVideoLibrary extends HookWidget {
           shrinkWrap: true,
           itemCount: folders.value.length,
           itemBuilder: (context, index) {
-            return LibraryItem(
+            return DownloadItem(
               item: folders.value[index],
               onPress: onItemPress,
               onLongPress: (item) {
