@@ -17,6 +17,7 @@ class HomeScreen extends HookConsumerWidget {
 
   final List<Function> customFunctions = [
     () => AppRoutes.deviceManagement.name,
+    () => AppRoutes.selectManager.name,
     () => AppRoutes.deviceHost.name,
     () => AppRoutes.fileManager.name,
     () => AppRoutes.settings.name,
@@ -34,9 +35,14 @@ class HomeScreen extends HookConsumerWidget {
       "label": "Device Host",
     },
     {
+      "route": AppRoutes.selectManager.name,
+      "icon": Icons.account_tree,
+      "label": "Selezione Manager",
+    },
+    {
       "route": AppRoutes.fileManager.name,
       "icon": Icons.file_copy,
-      "label": "File Manager",
+      "label": "Gestione File",
     },
     {
       "route": AppRoutes.settings.name,
@@ -67,7 +73,7 @@ class HomeScreen extends HookConsumerWidget {
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.7,
+              childAspectRatio: 0.8,
               mainAxisSpacing: 20,
               crossAxisSpacing: 20,
             ),

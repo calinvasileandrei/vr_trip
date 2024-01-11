@@ -17,10 +17,5 @@ class LibraryReaderService{
     if(videoFilePath == false || transcriptFilePath == false){
       throw Exception('Video not found');
     }
-
-
-
   }
-
-
 }

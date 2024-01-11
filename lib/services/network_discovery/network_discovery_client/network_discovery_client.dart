@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nsd/nsd.dart';
 import 'package:vr_trip/models/nsd_model.dart';
-import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
 import 'package:vr_trip/utils/network_utils.dart';
 
@@ -10,7 +11,10 @@ class NetworkDiscoveryClient {
   final String deviceIp;
 
   Discovery? _discovery;
-  String? resolvedServerIp;
+
+  // Messages
+  List<String> _possibleManagers = [];
+  final _possibleManagersController = StreamController<List<String>>.broadcast();
 
   NetworkDiscoveryClient(this.ref, {required this.deviceIp});
 
@@ -25,13 +29,9 @@ class NetworkDiscoveryClient {
           Logger.log('NetworkDiscoveryClient - initService - Service found : ${service}');
           final ip = service.host;
           if (ip != null && deviceIp != ip && NetworkUtils.isValidIpAddress(ip)) {
-            resolvedServerIp = ip;
-            ref
-                .read(networkDiscoveryClientServerIpProvider(deviceIp).notifier)
-                .state = ip;
+            _addManager(ip);
             Logger.log(
-                'NetworkDiscoveryClient - initService - _resolvedServerIp : $ip');
-            stopServiceDiscovery();
+                'NetworkDiscoveryClient - initService - Service added to list : $ip');
           }
         }
       });
@@ -57,10 +57,13 @@ class NetworkDiscoveryClient {
     }
   }
 
-  resetServerIp() {
-    resolvedServerIp = null;
-    ref.read(networkDiscoveryClientServerIpProvider(deviceIp).notifier).state =
-        null;
-    Logger.log('NetworkDiscoveryClient - resetServerIp');
+  // Messages Methods
+  void _addManager(String manager) {
+    _possibleManagers.add(manager);
+    _possibleManagersController.add(_possibleManagers);
+  }
+
+  Stream<List<String>> getManagers() {
+    return _possibleManagersController.stream;
   }
 }

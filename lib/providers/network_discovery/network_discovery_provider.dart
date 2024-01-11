@@ -2,15 +2,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/services/network_discovery/network_discovery_client/network_discovery_client.dart';
 
 final networkDiscoveryClientServerIpProvider =
-StateProvider.autoDispose.family<String?, String>((ref, deviceIp) {
-  return ref.read(networkDiscoveryClientProvider(deviceIp)).resolvedServerIp;
-});
+StateProvider<String?>((ref) => null);
 
 final networkDiscoveryClientProvider =
-Provider.family<NetworkDiscoveryClient, String>((ref, deviceIp) {
+Provider.autoDispose.family<NetworkDiscoveryClient, String>((ref, deviceIp) {
   final client = NetworkDiscoveryClient(ref, deviceIp: deviceIp);
   client.initServiceDiscovery();
   ref.onDispose(() => client.stopServiceDiscovery());
   return client;
 });
 
+
+final possibleManagerSP = StreamProvider.autoDispose.family<List<String>,String>(
+        (ref,deviceIp) => ref.watch(networkDiscoveryClientProvider(deviceIp)).getManagers());

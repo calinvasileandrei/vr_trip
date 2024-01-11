@@ -5,6 +5,7 @@ import 'package:vr_trip/screens/device_client/device_client_screen.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_screen.dart';
 import 'package:vr_trip/screens/devices_management/device_management_screen.dart';
 import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
+import 'package:vr_trip/screens/select_manager/select_manager_screen.dart';
 import 'package:vr_trip/screens/settings/settings_screen.dart';
 import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
 
@@ -16,6 +17,11 @@ final GoRouter appRouter = GoRouter(
           name: AppRoutes.deviceManagement.name,
           path: 'device_management',
           builder: (context, state) => const DeviceManagementScreen(),
+        ),
+        GoRoute(
+          name: AppRoutes.selectManager.name,
+          path: 'select_manager',
+          builder: (context, state) => const SelectManagerScreen(),
         ),
         GoRoute(
           name: AppRoutes.deviceHost.name,

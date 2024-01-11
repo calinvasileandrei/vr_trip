@@ -16,12 +16,11 @@ class DeviceClientScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final deviceIp = ref.watch(deviceIpStateProvider);
     final deviceNumber = ref.watch(deviceNumberSP);
-    final serverIp =
-        ref.watch(networkDiscoveryClientServerIpProvider(deviceIp!));
+    final serverIp = ref.watch(networkDiscoveryClientServerIpProvider);
 
     Widget renderDiscoveryOrDeviceHostSocket() {
       if (serverIp == null) {
-        return const Center(child: Text('Ricerca server in corso...'));
+        return const Center(child: Text('Seleziona un manager per continuare'));
       }
 
       if (deviceNumber == null) {
@@ -32,14 +31,6 @@ class DeviceClientScreen extends HookConsumerWidget {
         serverIp: serverIp,
         deviceName: deviceNumber,
       );
-    }
-
-    handleRefresh() {
-      ref
-          .read(networkDiscoveryClientServerIpProvider(deviceIp).notifier)
-          .state = null;
-      ref.read(networkDiscoveryClientProvider(deviceIp)).resetServerIp();
-      ref.read(networkDiscoveryClientProvider(deviceIp)).initServiceDiscovery();
     }
 
     return Scaffold(
@@ -55,14 +46,6 @@ class DeviceClientScreen extends HookConsumerWidget {
           },
           icon: const Icon(Icons.arrow_back),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              handleRefresh();
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Column(
