@@ -74,9 +74,14 @@ class DownloadLibrary extends HookWidget {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
-            child: MyText(
-              'Downloads/VR_TRIP',
-              textStyle: Theme.of(context).textTheme.titleLarge,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MyText(
+                  'Downloads/VR_TRIP',
+                  textStyle: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
             ),
           ),
           Expanded(

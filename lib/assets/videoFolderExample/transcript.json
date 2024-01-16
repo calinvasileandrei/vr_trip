@@ -4,16 +4,26 @@
     {
       "nomeClip": "INIZIO",
       "start": "00:00:00",
-      "end": "00:00:08"
+      "end": "00:00:12"
+    },
+    {
+      "nomeClip": "AFTER INFO",
+      "start": "00:00:12",
+      "end": "00:00:24"
     },
     {
       "nomeClip": "META",
-      "start": "00:02:00",
-      "end": "00:16:48"
+      "start": "00:00:24",
+      "end": "00:01:00"
+    },
+    {
+      "nomeClip": "AFTER META",
+      "start": "00:01:00",
+      "end": "00:10:00"
     },
     {
       "nomeClip": "FINE",
-      "start": "00:16:48",
+      "start": "00:10:00",
       "end": "00:17:48"
     }
   ]

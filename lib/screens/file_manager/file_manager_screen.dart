@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:vr_trip/consts/file_consts.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/services/library_reader/library_reader_service.dart';
 import 'package:vr_trip/shared/my_snap_view/my_snap_view.dart';
 import 'package:vr_trip/shared/vr_video_library/download_library_component.dart';
 import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart';
@@ -46,7 +45,6 @@ class FileManagerScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-
     handleNavigateToVr(LibraryItemModel item) {
       /*context.goNamed(AppRoutes.vrPlayerFile.name, pathParameters: {
         'libraryItemPath': item.path,

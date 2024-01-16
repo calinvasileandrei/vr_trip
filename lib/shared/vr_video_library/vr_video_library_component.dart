@@ -13,8 +13,13 @@ import 'package:vr_trip/utils/file_utils.dart';
 class VrVideoLibrary extends HookWidget {
   final Function(LibraryItemModel) onItemPress;
   Function(LibraryItemModel)? onItemLongPress;
+  final bool? disableDeleteButton;
 
-  VrVideoLibrary({super.key, required this.onItemPress, this.onItemLongPress});
+  VrVideoLibrary(
+      {super.key,
+      required this.onItemPress,
+      this.onItemLongPress,
+      this.disableDeleteButton});
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +57,19 @@ class VrVideoLibrary extends HookWidget {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
-            child: MyText(
-              'Libreria Interna',
-              textStyle: Theme.of(context).textTheme.titleLarge,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MyText(
+                  'Libreria Interna',
+                  textStyle: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
             ),
           ),
           Expanded(
             flex: 20,
             child: ListView.builder(
-              shrinkWrap: true,
               itemCount: folders.value.length,
               itemBuilder: (context, index) {
                 return LibraryItem(
@@ -75,18 +84,18 @@ class VrVideoLibrary extends HookWidget {
               },
             ),
           ),
-          MyButton(
-            'Delete Library',
-            onPressed: () async {
-              final Directory? libraryFolder =
-              await FileUtils.getLocalAppStorageFolder();
-              if (libraryFolder != null) {
-                await FileUtils.deleteEverythingInPath(libraryFolder.path);
-              }
-            },
-            isLoading: isLoading.value,
-          )
-
+          if (disableDeleteButton == null || disableDeleteButton == false)
+            MyButton(
+              'Delete Library',
+              onPressed: () async {
+                final Directory? libraryFolder =
+                await FileUtils.getLocalAppStorageFolder();
+                if (libraryFolder != null) {
+                  await FileUtils.deleteEverythingInPath(libraryFolder.path);
+                }
+              },
+              isLoading: isLoading.value,
+            ),
         ],
       ),
     );

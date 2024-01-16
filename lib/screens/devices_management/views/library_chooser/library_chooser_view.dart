@@ -28,13 +28,7 @@ class LibraryChooserView extends HookConsumerWidget {
           ),
         ],
       ),
-      child: Flex(
-          direction: Axis.vertical,
-          children: [
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                child: const Text('Video Library', style: TextStyle(fontSize: 20))),
-            VrVideoLibrary(onItemPress: handleItemSelected)]),
+      child: VrVideoLibrary(onItemPress: handleItemSelected,disableDeleteButton: true,),
     );
   }
 }
