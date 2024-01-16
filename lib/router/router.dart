@@ -30,9 +30,9 @@ final GoRouter appRouter = GoRouter(
           routes: <GoRoute>[
             GoRoute(
               name: AppRoutes.vrPlayerClient.name,
-              path: 'vr_player_client/:videoPath/:serverIp',
+              path: 'vr_player_client/:libraryItemPath/:serverIp',
               builder: (context, state) => VrPlayerClientScreen(
-                  videoPath: state.pathParameters["videoPath"]!,
+                  libraryItemPath: state.pathParameters["libraryItemPath"]!,
                   serverIp: state.pathParameters["serverIp"]!),
             ),
           ],
@@ -44,9 +44,9 @@ final GoRouter appRouter = GoRouter(
           routes: <GoRoute>[
             GoRoute(
               name: AppRoutes.vrPlayerFile.name,
-              path: 'vr_player_file/:videoPath',
+              path: 'vr_player_file/:libraryItemPath',
               builder: (context, state) =>
-                  VrPlayerScreen(videoPath: state.pathParameters["videoPath"]!),
+                  VrPlayerScreen(libraryItemPath: state.pathParameters["libraryItemPath"]!),
             ),
           ],
         ),

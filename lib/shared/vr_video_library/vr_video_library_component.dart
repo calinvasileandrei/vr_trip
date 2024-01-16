@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/services/library_reader/library_reader_service.dart';
-import 'package:vr_trip/shared/library_item/library_item_component.dart';
+import 'package:vr_trip/shared/vr_video_library/widgets/library_item/library_item_component.dart';
 import 'package:vr_trip/utils/file_utils.dart';
 
 class VrVideoLibrary extends HookWidget {

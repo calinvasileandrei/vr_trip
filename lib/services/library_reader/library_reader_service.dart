@@ -9,28 +9,6 @@ import '../../utils/logger.dart';
 const String IMPORT_FOLDER = 'VR_TRIP';
 
 class LibraryReaderService {
-  static Future<Map<String, dynamic>> loadLibraryItem(
-      String videoFolderName) async {
-    // Check folder, video and transcript integrity
-    // If folder is not exist, throw error
-    // If video is not exist, throw error
-    // If transcript is not exist, throw error
-
-    // open directory
-    var libraryFolder = await FileUtils.getLocalAppStorageFolder();
-
-    var isItemIntegrity =
-        await integrityItemCheck('${libraryFolder!.path}/$videoFolderName');
-
-    if (!isItemIntegrity) {
-      var videoFilePath = await FileUtils.fileExists(
-          '${libraryFolder!.path}/$videoFolderName/video.mp4');
-      var transcriptFilePath = await FileUtils.fileExists(
-          '${libraryFolder.path}/$videoFolderName/transcript.json');
-      return {'video': videoFilePath, 'transcript': transcriptFilePath};
-    }
-    throw Exception('Video not found');
-  }
 
   static Future<void> saveFromDownload() async {
     try {
@@ -95,8 +73,11 @@ class LibraryReaderService {
         continue;
       }
       final directoryName = directory.path.split('/').last;
-      var transcriptObject = jsonDecode(
-          await File('${directory.path}/transcript.json').readAsString());
+      var transcriptFile =
+          await File('${directory.path}/transcript.json').readAsString();
+      final TranscriptObject transcriptObject = TranscriptObject.fromJson(json.decode(transcriptFile));
+
+
       // Save to folders state
       newFiles.add(LibraryItemModel(name: directoryName, path: directory.path, videoPath: '${directory.path}/video.mp4', transcriptObject: transcriptObject));
       Logger.log('Added directory ${directory.path} to library');

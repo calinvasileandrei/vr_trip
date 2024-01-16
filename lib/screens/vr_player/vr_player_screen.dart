@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vr_player/vr_player.dart';
+import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/utils/libraryItem_utils.dart';
 
 class VrPlayerScreen extends StatefulWidget {
-  final String _videoPath;
+  final String _libraryItemPath;
 
-  const VrPlayerScreen({super.key, required String videoPath})
-      : _videoPath = videoPath;
+  const VrPlayerScreen({super.key, required String libraryItemPath})
+      : _libraryItemPath = libraryItemPath;
 
   @override
-  _VrPlayerScreenState createState() => _VrPlayerScreenState(_videoPath);
+  _VrPlayerScreenState createState() => _VrPlayerScreenState(_libraryItemPath);
 }
 
 class _VrPlayerScreenState extends State<VrPlayerScreen>
     with TickerProviderStateMixin {
-  final String _videoPath;
+  final String _libraryItemPath;
+  LibraryItemModel? _libraryItem;
 
-  _VrPlayerScreenState(this._videoPath);
+  _VrPlayerScreenState(this._libraryItemPath);
 
   late VrPlayerController _viewPlayerController;
   late AnimationController _animationController;
@@ -50,6 +53,14 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
       DeviceOrientation.landscapeLeft,
     ]);
     super.initState();
+    // Fetching the library item
+    (() async {
+      var fetchedItem =
+          await LibraryItemUtils.fetchLibraryItem(_libraryItemPath);
+      if (fetchedItem != null) {
+        _libraryItem = fetchedItem;
+      }
+    })();
   }
 
   @override
@@ -85,124 +96,128 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
           context.pop();
         },
         onTap: _toggleShowingBar,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VrPlayer(
-              x: 0,
-              y: 0,
-              onCreated: onViewPlayerCreated,
-              width: _playerWidth,
-              height: _playerHeight,
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: FadeTransition(
-                opacity: _animation,
-                child: ColoredBox(
-                  color: Colors.black,
-                  child: Row(
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(
-                          _isVideoFinished
-                              ? Icons.replay
-                              : _isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                          color: Colors.white,
-                        ),
-                        onPressed: playAndPause,
-                      ),
-                      Text(
-                        _currentPosition?.toString() ?? '00:00',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      Expanded(
-                        child: SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: Colors.amberAccent,
-                            inactiveTrackColor: Colors.grey,
-                            trackHeight: 5,
-                            thumbColor: Colors.white,
-                            thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 8,
-                            ),
-                            overlayColor: Colors.purple.withAlpha(32),
-                            overlayShape: const RoundSliderOverlayShape(
-                              overlayRadius: 14,
-                            ),
-                          ),
-                          child: Slider(
-                            value: _seekPosition,
-                            max: _intDuration?.toDouble() ?? 0,
-                            onChangeEnd: (value) {
-                              _viewPlayerController.seekTo(value.toInt());
-                            },
-                            onChanged: (value) {
-                              onChangePosition(value.toInt());
-                            },
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _duration?.toString() ?? '99:99',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      if (_isFullScreen || _isLandscapeOrientation)
-                        IconButton(
-                          icon: Icon(
-                            _isVolumeEnabled
-                                ? Icons.volume_up_rounded
-                                : Icons.volume_off_rounded,
-                            color: Colors.white,
-                          ),
-                          onPressed: () =>
-                              switchVolumeSliderDisplay(show: true),
-                        ),
-                      IconButton(
-                        icon: Icon(
-                          _isFullScreen
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                          color: Colors.white,
-                        ),
-                        onPressed: fullScreenPressed,
-                      ),
-                      if (_isFullScreen)
-                        IconButton(
-                          icon: Icon(
-                            Icons.ad_units,
-                            color: Colors.white,
-                          ),
-                          onPressed: cardBoardPressed,
-                        )
-                      else
-                        Container(),
-                    ],
+        child: _libraryItem == null
+            ? Container(
+                color: Colors.black,
+              )
+            : Stack(
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  VrPlayer(
+                    x: 0,
+                    y: 0,
+                    onCreated: onViewPlayerCreated,
+                    width: _playerWidth,
+                    height: _playerHeight,
                   ),
-                ),
-              ),
-            ),
-            Positioned(
-              height: 180,
-              right: 4,
-              top: MediaQuery.of(context).size.height / 4,
-              child: _isVolumeSliderShown
-                  ? RotatedBox(
-                      quarterTurns: 3,
-                      child: Slider(
-                        value: _currentSliderValue,
-                        divisions: 10,
-                        onChanged: onChangeVolumeSlider,
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: FadeTransition(
+                      opacity: _animation,
+                      child: ColoredBox(
+                        color: Colors.black,
+                        child: Row(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(
+                                _isVideoFinished
+                                    ? Icons.replay
+                                    : _isPlaying
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                color: Colors.white,
+                              ),
+                              onPressed: playAndPause,
+                            ),
+                            Text(
+                              _currentPosition?.toString() ?? '00:00',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            Expanded(
+                              child: SliderTheme(
+                                data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: Colors.amberAccent,
+                                  inactiveTrackColor: Colors.grey,
+                                  trackHeight: 5,
+                                  thumbColor: Colors.white,
+                                  thumbShape: const RoundSliderThumbShape(
+                                    enabledThumbRadius: 8,
+                                  ),
+                                  overlayColor: Colors.purple.withAlpha(32),
+                                  overlayShape: const RoundSliderOverlayShape(
+                                    overlayRadius: 14,
+                                  ),
+                                ),
+                                child: Slider(
+                                  value: _seekPosition,
+                                  max: _intDuration?.toDouble() ?? 0,
+                                  onChangeEnd: (value) {
+                                    _viewPlayerController.seekTo(value.toInt());
+                                  },
+                                  onChanged: (value) {
+                                    onChangePosition(value.toInt());
+                                  },
+                                ),
+                              ),
+                            ),
+                            Text(
+                              _duration?.toString() ?? '99:99',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            if (_isFullScreen || _isLandscapeOrientation)
+                              IconButton(
+                                icon: Icon(
+                                  _isVolumeEnabled
+                                      ? Icons.volume_up_rounded
+                                      : Icons.volume_off_rounded,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () =>
+                                    switchVolumeSliderDisplay(show: true),
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                _isFullScreen
+                                    ? Icons.fullscreen_exit
+                                    : Icons.fullscreen,
+                                color: Colors.white,
+                              ),
+                              onPressed: fullScreenPressed,
+                            ),
+                            if (_isFullScreen)
+                              IconButton(
+                                icon: Icon(
+                                  Icons.ad_units,
+                                  color: Colors.white,
+                                ),
+                                onPressed: cardBoardPressed,
+                              )
+                            else
+                              Container(),
+                          ],
+                        ),
                       ),
-                    )
-                  : const SizedBox(),
-            ),
-          ],
-        ),
+                    ),
+                  ),
+                  Positioned(
+                    height: 180,
+                    right: 4,
+                    top: MediaQuery.of(context).size.height / 4,
+                    child: _isVolumeSliderShown
+                        ? RotatedBox(
+                            quarterTurns: 3,
+                            child: Slider(
+                              value: _currentSliderValue,
+                              divisions: 10,
+                              onChanged: onChangeVolumeSlider,
+                            ),
+                          )
+                        : const SizedBox(),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -269,7 +284,7 @@ class _VrPlayerScreenState extends State<VrPlayerScreen>
       ..onFinishedChange = onReceiveEnded;
     _viewPlayerController.loadVideo(
         /* videoUrl: 'https://cdn.bitmovin.com/content/assets/playhouse-vr/m3u8s/105560.m3u8', */
-        videoPath: _videoPath);
+        videoPath: _libraryItem!.videoPath);
   }
 
   void onReceiveState(VrState state) {

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_player/vr_player.dart';
+import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
@@ -10,30 +11,31 @@ import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/date_utils.dart';
+import 'package:vr_trip/utils/libraryItem_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 const prefix = '[vr_player_host_screen]';
 
 class VrPlayerClientScreen extends ConsumerStatefulWidget {
-  final String _videoPath;
   final String _serverIp;
+  final String _libraryItemPath;
 
   const VrPlayerClientScreen(
-      {super.key, required String serverIp, required String videoPath})
-      : _videoPath = videoPath,
+      {super.key, required String serverIp, required String libraryItemPath})
+      : _libraryItemPath = libraryItemPath,
         _serverIp = serverIp;
 
   @override
   VrPlayerClientScreenState createState() =>
-      VrPlayerClientScreenState(_videoPath, _serverIp);
+      VrPlayerClientScreenState(_libraryItemPath, _serverIp);
 }
 
 class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     with TickerProviderStateMixin {
-  final String _videoPath;
+  final String _libraryItemPath;
   final String _serverIp;
 
-  VrPlayerClientScreenState(this._videoPath, this._serverIp);
+  VrPlayerClientScreenState(this._libraryItemPath, this._serverIp);
 
   late VrPlayerController _viewPlayerController;
 
@@ -43,6 +45,8 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
 
   bool showActionBar = true;
   bool isVrMode = false;
+
+  LibraryItemModel? _libraryItem;
 
   // Using the Riverpod provider to manage the state
   late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
@@ -54,13 +58,29 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       DeviceOrientation.landscapeLeft,
     ]);
     super.initState();
+
+    // Fetching the library item
+    (() async{
+      var fetchedItem = await LibraryItemUtils.fetchLibraryItem(_libraryItemPath);
+      if(fetchedItem != null) {
+        _libraryItem = fetchedItem;
+      }
+    })();
   }
 
   void onChangePosition(int millis) {
-    Logger.log('$prefix - onPositionChange: $millis');
     vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
+    var durationText = millisecondsToDateTime(millis);
+    Logger.log('$prefix - onPositionChange: $durationText');
     vrPlayerClientNotifier
-        .setCurrentPosition(millisecondsToDateTime(millis));
+        .setCurrentPosition(durationText);
+    for (var element in _libraryItem!.transcriptObject.timeline) {
+      Logger.log('$prefix - onChangePosition - element: $element');
+      if (element.end == durationText) {
+        _viewPlayerController.pause();
+        Logger.log('$prefix - onChangePosition - found end: $element');
+      }
+    }
   }
 
   void onReceiveState(VrState state) {
@@ -101,7 +121,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     }
 
     try {
-      _viewPlayerController.loadVideo(videoPath: _videoPath);
+      _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
     } catch (e) {
       Logger.error('$prefix - ERROR - loadVideo: $e');
     }
@@ -192,7 +212,9 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
           });
         },
 
-        child: MyVrPlayer(
+        child: _libraryItem == null? Container(
+          color: Colors.black,
+        ) :MyVrPlayer(
           onViewPlayerCreated: onViewPlayerCreated,
           playerWidth: _playerWidth,
           playerHeight: _playerHeight,

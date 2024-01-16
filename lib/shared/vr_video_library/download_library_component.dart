@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:vr_trip/models/download_item_model.dart';
-import 'package:vr_trip/shared/download_item/download_item_component.dart';
+import 'package:vr_trip/shared/vr_video_library/widgets/download_item/download_item_component.dart';
 import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
