@@ -24,8 +24,15 @@ class LibraryItem extends StatelessWidget {
         width: 50,
         height: 50,
         margin: const EdgeInsets.all(10),
-        color: Theme.of(context).colorScheme.background,
-        child: Center(child: Text(item.name)),
+        color: Theme.of(context).colorScheme.surface,
+        child: Center(child: Row(
+          children: [
+            Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(Icons.folder,color: Theme.of(context).colorScheme.onSurface)),
+            Text(item.name),
+          ],
+        )),
       ),
     );
   }

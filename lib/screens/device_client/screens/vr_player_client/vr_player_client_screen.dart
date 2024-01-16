@@ -13,6 +13,7 @@ import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service
 import 'package:vr_trip/utils/date_utils.dart';
 import 'package:vr_trip/utils/libraryItem_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
+import 'package:vr_trip/utils/vr_player_utils.dart';
 
 const prefix = '[vr_player_host_screen]';
 
@@ -47,6 +48,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   bool isVrMode = false;
 
   LibraryItemModel? _libraryItem;
+  TimelineItem? _playingTimelineItem;
 
   // Using the Riverpod provider to manage the state
   late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
@@ -60,10 +62,12 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     super.initState();
 
     // Fetching the library item
-    (() async{
-      var fetchedItem = await LibraryItemUtils.fetchLibraryItem(_libraryItemPath);
-      if(fetchedItem != null) {
+    (() async {
+      var fetchedItem =
+          await LibraryItemUtils.fetchLibraryItem(_libraryItemPath);
+      if (fetchedItem != null) {
         _libraryItem = fetchedItem;
+        _playingTimelineItem = _libraryItem!.transcriptObject.timeline[0];
       }
     })();
   }
@@ -71,15 +75,24 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   void onChangePosition(int millis) {
     vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
     var durationText = millisecondsToDateTime(millis);
+    vrPlayerClientNotifier.setCurrentPosition(durationText);
     Logger.log('$prefix - onPositionChange: $durationText');
-    vrPlayerClientNotifier
-        .setCurrentPosition(durationText);
-    for (var element in _libraryItem!.transcriptObject.timeline) {
-      Logger.log('$prefix - onChangePosition - element: $element');
-      if (element.end == durationText) {
-        _viewPlayerController.pause();
-        Logger.log('$prefix - onChangePosition - found end: $element');
-      }
+
+    // Logic for stopping the video on timeline item end
+    TimelineItem currentTimelineItem = VrPlayerUtils.computeTimeLineItem(
+        millis, _libraryItem!.transcriptObject.timeline);
+
+    if (currentTimelineItem.end == durationText) {
+      _viewPlayerController.pause();
+      //Set seek position
+      var newSeekPosition = VrPlayerUtils.timeStringToMilliseconds(currentTimelineItem.end) +
+          1000;
+      _viewPlayerController.seekTo(newSeekPosition);
+      vrPlayerClientNotifier.setSeekPosition(newSeekPosition.toDouble());
+      //Set current position
+      vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(newSeekPosition));
+      Logger.log(
+          '$prefix - onChangePosition - found end: $_playingTimelineItem');
     }
   }
 
@@ -211,41 +224,42 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
             showActionBar = !showActionBar;
           });
         },
-
-        child: _libraryItem == null? Container(
-          color: Colors.black,
-        ) :MyVrPlayer(
-          onViewPlayerCreated: onViewPlayerCreated,
-          playerWidth: _playerWidth,
-          playerHeight: _playerHeight,
-          showActionBar: showActionBar,
-          onChangeSliderPosition: (position) {
-            // Currently not used
-          },
-          fullScreenPressed: () {
-            // Your logic for fullScreenPressed here
-          },
-          cardBoardPressed: () {
-            // Your logic for cardBoardPressed here
-            try {
-              _viewPlayerController.toggleVRMode();
-            } catch (e) {
-              Logger.error('$prefix - ERROR - activateVr: $e');
-            }
-            setState(() {
-              isVrMode = !isVrMode;
-            });
-          },
-          seekToPosition: (position) {
-            // Your logic for seekToPosition here
-            onChangePosition(position);
-            _viewPlayerController.seekTo(position);
-          },
-          playAndPause: () {
-            var isVideoPlaying = vrState.isPlaying;
-            playAndPause(!isVideoPlaying);
-          },
-        ),
+        child: _libraryItem == null
+            ? Container(
+                color: Colors.black,
+              )
+            : MyVrPlayer(
+                onViewPlayerCreated: onViewPlayerCreated,
+                playerWidth: _playerWidth,
+                playerHeight: _playerHeight,
+                showActionBar: showActionBar,
+                onChangeSliderPosition: (position) {
+                  // Currently not used
+                },
+                fullScreenPressed: () {
+                  // Your logic for fullScreenPressed here
+                },
+                cardBoardPressed: () {
+                  // Your logic for cardBoardPressed here
+                  try {
+                    _viewPlayerController.toggleVRMode();
+                  } catch (e) {
+                    Logger.error('$prefix - ERROR - activateVr: $e');
+                  }
+                  setState(() {
+                    isVrMode = !isVrMode;
+                  });
+                },
+                seekToPosition: (position) {
+                  // Your logic for seekToPosition here
+                  onChangePosition(position);
+                  _viewPlayerController.seekTo(position);
+                },
+                playAndPause: () {
+                  var isVideoPlaying = vrState.isPlaying;
+                  playAndPause(!isVideoPlaying);
+                },
+              ),
       ),
     );
   }

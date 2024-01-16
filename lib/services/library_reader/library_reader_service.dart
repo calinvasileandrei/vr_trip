@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:vr_trip/consts/file_consts.dart';
 import 'package:vr_trip/utils/file_utils.dart';
 
 import '../../models/library_item_model.dart';
 import '../../utils/logger.dart';
-
-const String IMPORT_FOLDER = 'VR_TRIP';
 
 class LibraryReaderService {
 

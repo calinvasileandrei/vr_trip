@@ -9,14 +9,11 @@ class MySnapView extends StatelessWidget {
   Widget build(BuildContext context) {
     final PageController controller = PageController();
 
-    return Expanded(
-      child: PageView(
-
-        /// [PageView.scrollDirection] defaults to [Axis.horizontal].
-        /// Use [Axis.vertical] to scroll vertically.
-        controller: controller,
-        children: children,
-      ),
+    return PageView(
+      /// [PageView.scrollDirection] defaults to [Axis.horizontal].
+      /// Use [Axis.vertical] to scroll vertically.
+      controller: controller,
+      children: children,
     );
   }
 }

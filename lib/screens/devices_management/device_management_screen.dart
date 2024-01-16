@@ -19,11 +19,13 @@ class DeviceManagementScreen extends HookConsumerWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: const Column(
         children: [
-          MySnapView(children: [
-            ServerManagementView(),
-            LibraryChooserView(),
-            VideoPreviewView(),
-          ]),
+          Expanded(
+            child: MySnapView(children: [
+              ServerManagementView(),
+              LibraryChooserView(),
+              VideoPreviewView(),
+            ]),
+          ),
           RemoteVideoActionBar(),
         ],
       ),

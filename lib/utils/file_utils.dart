@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:vr_trip/consts/file_consts.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 const String prefix = 'FileUtils';
-const String DATA_FOLDER = 'VR_Video_Library';
-const String DOWNLOAD_FOLDER = '/storage/emulated/0/Download';
 
 class FileUtils {
   static Future<Directory?> getDownloadFolder() async {

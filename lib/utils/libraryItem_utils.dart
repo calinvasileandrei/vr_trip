@@ -6,6 +6,47 @@ import 'package:vr_trip/models/library_item_model.dart';
 
 class LibraryItemUtils {
 
+
+  static bool isValidLibraryItem(String folderPath) {
+    final Directory folder = Directory(folderPath);
+
+    // Check if the directory exists
+    if (!folder.existsSync()) {
+      return false;
+    }
+
+    // Read video file
+    final File videoFile = File('${folder.path}/video.mp4');
+    if (!videoFile.existsSync()) {
+      return false;
+    }
+
+    // Read transcript file
+    final File transcriptFile = File('${folder.path}/transcript.json');
+    if (!transcriptFile.existsSync()) {
+      return false;
+    }
+
+    try {
+      // Read and parse JSON from transcript file
+      final String transcriptJson = transcriptFile.readAsStringSync();
+      final TranscriptObject transcriptObject = TranscriptObject.fromJson(json.decode(transcriptJson));
+
+      // Create LibraryItemModel
+      final LibraryItemModel libraryItem = LibraryItemModel(
+        name: folder.uri.pathSegments.last,
+        path: folder.path,
+        videoPath: videoFile.path,
+        transcriptObject: transcriptObject,
+      );
+
+      return true;
+    } catch (e) {
+      // Handle any errors while reading or parsing files
+      return false;
+    }
+  }
+
   static Future<LibraryItemModel?> fetchLibraryItem(String folderPath) async {
     final Directory folder = Directory(folderPath);
 
