@@ -12,7 +12,6 @@ class MyVrPlayer extends StatelessWidget {
   final Function() fullScreenPressed;
   final Function() cardBoardPressed;
   final Function(int) seekToPosition;
-  final bool isPreview;
 
   const MyVrPlayer({
     super.key,
@@ -25,7 +24,6 @@ class MyVrPlayer extends StatelessWidget {
     required this.fullScreenPressed,
     required this.cardBoardPressed,
     required this.seekToPosition,
-    this.isPreview = false,
   });
 
   @override
@@ -46,7 +44,6 @@ class MyVrPlayer extends StatelessWidget {
             onChangeSliderPosition: onChangeSliderPosition,
             cardBoardPressed: cardBoardPressed,
             seekToPosition: seekToPosition,
-            isPreview: isPreview,
           ),
       ],
     );

@@ -7,7 +7,6 @@ class MyVrPlayerActionBar extends ConsumerWidget {
   final Function(int) onChangeSliderPosition;
   final Function() cardBoardPressed;
   final Function(int) seekToPosition;
-  final bool isPreview;
 
   const MyVrPlayerActionBar({
     super.key,
@@ -15,7 +14,6 @@ class MyVrPlayerActionBar extends ConsumerWidget {
     required this.onChangeSliderPosition,
     required this.cardBoardPressed,
     required this.seekToPosition,
-    this.isPreview = false,
   });
 
   @override
@@ -31,21 +29,17 @@ class MyVrPlayerActionBar extends ConsumerWidget {
         color: Colors.black,
         child: Row(
           children: <Widget>[
-            isPreview
-                ? Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                  )
-                : IconButton(
-                    icon: Icon(
-                      vrState.isVideoFinished
-                          ? Icons.replay
-                          : vrState.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                      color: Colors.white,
-                    ),
-                    onPressed: playAndPause,
-                  ),
+            IconButton(
+              icon: Icon(
+                vrState.isVideoFinished
+                    ? Icons.replay
+                    : vrState.isPlaying
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                color: Colors.white,
+              ),
+              onPressed: playAndPause,
+            ),
             Text(
               vrState.currentPosition?.toString() ?? '00:00',
               style: const TextStyle(color: Colors.white),
@@ -72,17 +66,13 @@ class MyVrPlayerActionBar extends ConsumerWidget {
               vrState.duration?.toString() ?? '99:99',
               style: const TextStyle(color: Colors.white),
             ),
-            isPreview
-                ? Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                  )
-                : IconButton(
-                    icon: const Icon(
-                      Icons.ad_units,
-                      color: Colors.white,
-                    ),
-                    onPressed: cardBoardPressed,
-                  ),
+            IconButton(
+              icon: const Icon(
+                Icons.ad_units,
+                color: Colors.white,
+              ),
+              onPressed: cardBoardPressed,
+            ),
           ],
         ),
       ),

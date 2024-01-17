@@ -1,7 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final vrPlayerClientProvider =
-    StateNotifierProvider<VrPlayerClientNotifier, VrPlayerClientState>(
+    StateNotifierProvider.autoDispose<VrPlayerClientNotifier, VrPlayerClientState>(
   (ref) => VrPlayerClientNotifier(),
 );
 

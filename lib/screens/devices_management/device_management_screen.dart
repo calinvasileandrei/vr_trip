@@ -4,6 +4,7 @@ import 'package:vr_trip/screens/devices_management/views/library_chooser/library
 import 'package:vr_trip/screens/devices_management/views/server_management/server_management_view.dart';
 import 'package:vr_trip/screens/devices_management/views/video_preview/video_preview_view.dart';
 import 'package:vr_trip/screens/devices_management/widgets/remote_video_action_bar/remote_video_action_bar.dart';
+import 'package:vr_trip/shared/keep_alive_page/keep_alive_page.dart';
 import 'package:vr_trip/shared/my_snap_view/my_snap_view.dart';
 
 class DeviceManagementScreen extends HookConsumerWidget {
@@ -23,7 +24,7 @@ class DeviceManagementScreen extends HookConsumerWidget {
             child: MySnapView(children: [
               ServerManagementView(),
               LibraryChooserView(),
-              VideoPreviewView(),
+              KeepAlivePage(child: VideoPreviewView()),
             ]),
           ),
           RemoteVideoActionBar(),

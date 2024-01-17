@@ -29,13 +29,13 @@ class ServerActionBar extends HookConsumerWidget {
         children: [
           ElevatedButton(
             onPressed: () => toggleDiscovery(ref),
-            child: Text('Toggle Ricerca '),
+            child: const Text('Toggle Ricerca '),
           ),
           ElevatedButton(
             onPressed: () {
               ref.read(socketServerSP).stopSocketServer();
             },
-            child: Text('Disconnetti'),
+            child: const Text('Disconnetti'),
           ),
         ],
       ),

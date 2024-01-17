@@ -1,0 +1,5 @@
+
+enum VideoPreviewEvent {
+  play,
+  pause
+}
