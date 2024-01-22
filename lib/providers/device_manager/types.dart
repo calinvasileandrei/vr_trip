@@ -1,5 +1,7 @@
 
 enum VideoPreviewEvent {
   play,
-  pause
+  pause,
+  forward,
+  backward,
 }

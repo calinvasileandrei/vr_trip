@@ -5,42 +5,45 @@ import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 
 class TranscriptPreview extends HookConsumerWidget {
   final TranscriptObject transcriptObject;
+  final Function(TimelineItem) onTimelineItemPress;
 
-  TranscriptPreview({super.key, required this.transcriptObject});
+  const TranscriptPreview(
+      {super.key,
+      required this.transcriptObject,
+      required this.onTimelineItemPress});
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var currentTranscript = ref.watch(currentTimeLineItemSP);
 
     return ListView.builder(
-      itemCount: transcriptObject.timeline.length ,
+      itemCount: transcriptObject.timeline.length,
       shrinkWrap: true,
       itemBuilder: (context, index) {
         return Container(
-          margin: const EdgeInsets.symmetric(vertical: 5),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           child: Container(
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide()),
-            ),
-            child: Row(
-              children: [
-                if (currentTranscript?.nomeClip == transcriptObject.timeline[index].nomeClip)
-                  const Icon(Icons.play_arrow),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          transcriptObject.timeline[index].nomeClip),
-                      Text(
-                          'Inizio: ${transcriptObject.timeline[index].start} - Fine: ${transcriptObject.timeline[index].end}')
-                    ],
-                  ),
-                )
-              ],
-            )
-          ),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide()),
+              ),
+              child: Row(
+                children: [
+                  if (currentTranscript?.nomeClip ==
+                      transcriptObject.timeline[index].nomeClip)
+                    const Icon(Icons.play_arrow),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(transcriptObject.timeline[index].nomeClip),
+                        Text(
+                            'Inizio: ${transcriptObject.timeline[index].start} - Fine: ${transcriptObject.timeline[index].end}')
+                      ],
+                    ),
+                  )
+                ],
+              )),
         );
       },
     );

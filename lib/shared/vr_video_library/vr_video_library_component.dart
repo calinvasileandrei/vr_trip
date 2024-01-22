@@ -14,12 +14,14 @@ class VrVideoLibrary extends HookWidget {
   final Function(LibraryItemModel) onItemPress;
   Function(LibraryItemModel)? onItemLongPress;
   final bool? disableDeleteButton;
+  final LibraryItemModel? selectedLibraryItem;
 
   VrVideoLibrary(
       {super.key,
       required this.onItemPress,
       this.onItemLongPress,
-      this.disableDeleteButton});
+      this.disableDeleteButton,
+      this.selectedLibraryItem});
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,19 @@ class VrVideoLibrary extends HookWidget {
 
       return () => directoryWatcher.value?.cancel(); // Cleanup
     }, const []);
+
+
+    Widget? renderLeadingComponent(LibraryItemModel item){
+      if(selectedLibraryItem != null){
+        if(selectedLibraryItem!.name == item.name){
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            child: Icon(Icons.check,color: Theme.of(context).colorScheme.onSurface),
+          );
+        }
+      }
+      return null;
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -80,6 +95,7 @@ class VrVideoLibrary extends HookWidget {
                       onItemLongPress!(item);
                     }
                   },
+                  leadingComponent: renderLeadingComponent(folders.value[index]),
                 );
               },
             ),

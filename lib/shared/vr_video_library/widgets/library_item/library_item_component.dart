@@ -6,8 +6,9 @@ class LibraryItem extends StatelessWidget {
   final LibraryItemModel item;
   final Function(LibraryItemModel) onPress;
   Function(LibraryItemModel)? onLongPress;
+  Widget? leadingComponent;
 
-  LibraryItem({super.key, required this.item, required this.onPress, this.onLongPress});
+  LibraryItem({super.key, required this.item, required this.onPress, this.onLongPress,this.leadingComponent});
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +27,18 @@ class LibraryItem extends StatelessWidget {
         margin: const EdgeInsets.all(10),
         color: Theme.of(context).colorScheme.surface,
         child: Center(child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.folder,color: Theme.of(context).colorScheme.onSurface)),
-            Text(item.name),
+            Row(
+              children: [
+                Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Icon(Icons.folder,color: Theme.of(context).colorScheme.onSurface)),
+                Text(item.name),
+              ],
+            ),
+            if(leadingComponent != null) leadingComponent!,
+
           ],
         )),
       ),

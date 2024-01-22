@@ -11,6 +11,8 @@ class LibraryChooserView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var selectedLibraryItem = ref.watch(selectedLibraryItemSP);
+
     void handleItemSelected(LibraryItemModel item) {
       ref
           .read(socketServerSP)
@@ -30,7 +32,7 @@ class LibraryChooserView extends HookConsumerWidget {
           ),
         ],
       ),
-      child: VrVideoLibrary(onItemPress: handleItemSelected,disableDeleteButton: true,),
+      child: VrVideoLibrary(onItemPress: handleItemSelected,disableDeleteButton: true, selectedLibraryItem: selectedLibraryItem),
     );
   }
 }

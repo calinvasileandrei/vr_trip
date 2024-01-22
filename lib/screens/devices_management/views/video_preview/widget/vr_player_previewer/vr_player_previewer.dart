@@ -156,6 +156,28 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     }
   }
 
+
+  Map<String,dynamic>? getCurrentTimeline(){
+    var currentTimelineItem = ref.read(currentTimeLineItemSP);
+
+    if(currentTimelineItem != null) {
+      int startSeekPosition =
+          VrPlayerUtils.timeStringToMilliseconds(currentTimelineItem.start) +
+              1000;
+      int endSeekPosition =
+          VrPlayerUtils.timeStringToMilliseconds(currentTimelineItem.end) +
+              1000;
+
+
+      return {
+        'start': startSeekPosition,
+        'end': endSeekPosition,
+        'startDouble': startSeekPosition.toDouble(),
+        'endDouble': endSeekPosition.toDouble(),
+      };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Accessing the state using the provider
@@ -169,6 +191,22 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
             break;
           case VideoPreviewEvent.pause:
             playAndPause(false);
+            break;
+          case VideoPreviewEvent.forward:
+            var timeline =getCurrentTimeline();
+
+            //controller
+            _viewPlayerController.pause();
+            _viewPlayerController.seekTo(timeline!['end']);
+            // state
+            vrPlayerClientNotifier.setSeekPosition(timeline['endDouble']);
+            vrPlayerClientNotifier
+                .setCurrentPosition(millisecondsToDateTime(timeline['end']));
+
+            break;
+          case VideoPreviewEvent.backward:
+            break;
+          default:
             break;
         }
       }

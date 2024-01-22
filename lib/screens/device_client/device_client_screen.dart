@@ -6,6 +6,7 @@ import 'package:vr_trip/providers/network_discovery/network_discovery_provider.d
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
+import 'package:vr_trip/utils/logger.dart';
 
 class DeviceClientScreen extends HookConsumerWidget {
   const DeviceClientScreen({
@@ -42,6 +43,11 @@ class DeviceClientScreen extends HookConsumerWidget {
             if (serverIp != null) {
               ref.read(socketClientSP).stopConnection();
             }
+            ref.invalidate(socketClientSP);
+            ref.invalidate(clientMessagesSP);
+            ref.invalidate(isConnectedSocketClientSP);
+            Logger.log('Disposed all providers for Device Client Screen');
+
             context.pop();
           },
           icon: const Icon(Icons.arrow_back),
