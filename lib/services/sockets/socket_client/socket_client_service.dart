@@ -90,6 +90,18 @@ class SocketClientService {
       _socket?.emit('actionAck', [deviceName, SocketActionTypes.pause.name]);
     });
 
+    _socket?.on('forward', (data) {
+      Logger.log('forward received: $data');
+      _addMessage(data);
+      _socket?.emit('actionAck', [deviceName, SocketActionTypes.forward.name]);
+    });
+
+    _socket?.on('backward', (data) {
+      Logger.log('backward received: $data');
+      _addMessage(data);
+      _socket?.emit('actionAck', [deviceName, SocketActionTypes.backward.name]);
+    });
+
     _socket?.on('selectVideo', (data) {
       Logger.log('SelectVideo received: $data');
       _addMessage(data);

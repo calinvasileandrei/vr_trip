@@ -202,6 +202,7 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
             break;
           case VideoPreviewEvent.backward:
             var timeline = getTimelineItem(true);
+            Logger.log('$prefix - videoPreviewEventSP - backward - $timeline');
             setTimeLineState(timeline);
             break;
           default:
