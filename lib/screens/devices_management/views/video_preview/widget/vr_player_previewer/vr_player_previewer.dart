@@ -64,8 +64,8 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     currentTimeLineItemNotifier.state = currentTimelineItem;
 
     if (currentTimelineItem.end == durationText) {
-      var timelineState = VrPlayerUtils.getTimelineTimingsForState(
-          currentTimelineItem, TimelinePosition.end);
+      var timelineState = VrPlayerUtils.getNextTimelineItem(
+          currentTimelineItem, _libraryItem!.transcriptObject.timeline);
       await playAndPause(false);
       await setTimeLineState(timelineState);
       Logger.log('$prefix - onChangePosition - found end: $timelineState');

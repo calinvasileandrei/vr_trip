@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/utils/logger.dart';
 
+const prefix = '[library_item_utils]';
 class LibraryItemUtils {
 
 
@@ -12,18 +14,21 @@ class LibraryItemUtils {
 
     // Check if the directory exists
     if (!folder.existsSync()) {
+      Logger.log('$prefix Folder does not exist');
       return false;
     }
 
     // Read video file
     final File videoFile = File('${folder.path}/video.mp4');
     if (!videoFile.existsSync()) {
+      Logger.log('$prefix Video file does not exist');
       return false;
     }
 
     // Read transcript file
     final File transcriptFile = File('${folder.path}/transcript.json');
     if (!transcriptFile.existsSync()) {
+      Logger.log('$prefix Transcript file does not exist');
       return false;
     }
 
@@ -31,7 +36,7 @@ class LibraryItemUtils {
       // Read and parse JSON from transcript file
       final String transcriptJson = transcriptFile.readAsStringSync();
       final TranscriptObject transcriptObject = TranscriptObject.fromJson(json.decode(transcriptJson));
-
+      Logger.log('$prefix Transcript object: $transcriptObject');
       // Create LibraryItemModel
       final LibraryItemModel libraryItem = LibraryItemModel(
         name: folder.uri.pathSegments.last,
@@ -43,6 +48,7 @@ class LibraryItemUtils {
       return true;
     } catch (e) {
       // Handle any errors while reading or parsing files
+      Logger.error('$prefix Error: $e');
       return false;
     }
   }

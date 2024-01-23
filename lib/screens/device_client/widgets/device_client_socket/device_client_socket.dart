@@ -26,7 +26,7 @@ class DeviceClientSocket extends HookConsumerWidget {
       case SocketActionTypes.selectVideo:
         Future.delayed(Duration.zero, () {
           context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
-            'videoPath': action.value,
+            'libraryItemPath': action.value,
             'serverIp': serverIp
           });
         });

@@ -8,22 +8,22 @@
     },
     {
       "nomeClip": "AFTER INFO",
-      "start": "00:00:12",
+      "start": "00:00:13",
       "end": "00:00:24"
     },
     {
       "nomeClip": "META",
-      "start": "00:00:24",
+      "start": "00:00:25",
       "end": "00:01:00"
     },
     {
       "nomeClip": "AFTER META",
-      "start": "00:01:00",
+      "start": "00:01:01",
       "end": "00:10:00"
     },
     {
       "nomeClip": "FINE",
-      "start": "00:10:00",
+      "start": "00:10:01",
       "end": "00:17:48"
     }
   ]

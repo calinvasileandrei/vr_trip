@@ -62,7 +62,7 @@ class VrPlayerUtils {
   static TimelineStateModel getNextTimelineItem(TimelineItem item,List<TimelineItem> timeline){
     var index = timeline.indexWhere((element) => element.nomeClip == item.nomeClip);
     Logger.log('getPreviousTimelineItem : timeline: $timeline \n current index: $index, next index: ${index+1}, item: ${timeline[index+1]}');
-    if(index == timeline.length-1) return TimelineStateModel.fromItem(item, TimelinePosition.end);
+    if(index >= timeline.length-1) return TimelineStateModel.fromItem(item, TimelinePosition.end);
 
     return TimelineStateModel.fromItem(timeline[index+1], TimelinePosition.start);
   }

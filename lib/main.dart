@@ -57,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Permission.mediaLibrary,
       Permission.videos,
       Permission.audio,
+      Permission.accessMediaLocation,
     ].request();
     statuses.forEach((key, value) {
       Logger.log('permission key: $key, value: $value');
