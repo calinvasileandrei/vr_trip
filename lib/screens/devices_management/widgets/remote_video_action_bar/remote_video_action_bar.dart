@@ -4,7 +4,9 @@ import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/device_manager/types.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
+import 'package:vr_trip/utils/logger.dart';
 
+const prefix = '[remote_video_action_bar]';
 class RemoteVideoActionBar extends HookConsumerWidget {
   const RemoteVideoActionBar({super.key});
 
@@ -23,6 +25,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                     .sendBroadcastMessage(SocketActionTypes.backward, '');
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.backward;
+                Logger.log('$prefix Backward');
               },
               child: const Icon(Icons.arrow_back_ios)),
           ElevatedButton(
@@ -32,6 +35,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                     .sendBroadcastMessage(SocketActionTypes.play, '');
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.play;
+                Logger.log('$prefix Play');
               },
               child: const Icon(Icons.play_arrow)),
           ElevatedButton(
@@ -41,6 +45,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                     .sendBroadcastMessage(SocketActionTypes.pause, '');
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.pause;
+                Logger.log('$prefix Pause');
               },
               child: const Icon(Icons.pause)),
           ElevatedButton(
@@ -50,6 +55,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                     .sendBroadcastMessage(SocketActionTypes.forward, '');
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.forward;
+                Logger.log('$prefix Forward');
               },
               child: const Icon(Icons.arrow_forward_ios)),
         ],

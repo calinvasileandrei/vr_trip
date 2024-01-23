@@ -84,4 +84,9 @@ class TimelineItem {
       'end': end,
     };
   }
+
+  @override
+  String toString() {
+    return 'TimelineItem{nomeClip: $nomeClip, start: $start, end: $end}';
+  }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/device_manager/types.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
@@ -39,11 +40,10 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   bool showActionBar = true;
   bool isVrMode = false;
 
-  TimelineItem? _playingTimelineItem;
-
   // Using the Riverpod provider to manage the state
   late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
-  late final currentTimeLineItemNotifier = ref.read(currentTimeLineItemSP.notifier);
+  late final currentTimeLineItemNotifier =
+      ref.read(currentTimeLineItemSP.notifier);
 
   @override
   void initState() {
@@ -53,31 +53,22 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     super.initState();
   }
 
-  void onChangePosition(int millis) {
+  void onChangePosition(int millis) async {
     vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
     var durationText = millisecondsToDateTime(millis);
     vrPlayerClientNotifier.setCurrentPosition(durationText);
-    Logger.log('$prefix - onPositionChange: $durationText');
 
     // Logic for stopping the video on timeline item end
     TimelineItem currentTimelineItem = VrPlayerUtils.computeTimeLineItem(
         millis, _libraryItem!.transcriptObject.timeline);
     currentTimeLineItemNotifier.state = currentTimelineItem;
 
-
     if (currentTimelineItem.end == durationText) {
-      _viewPlayerController.pause();
-      //Set seek position
-      var newSeekPosition =
-          VrPlayerUtils.timeStringToMilliseconds(currentTimelineItem.end) +
-              1000;
-      _viewPlayerController.seekTo(newSeekPosition);
-      vrPlayerClientNotifier.setSeekPosition(newSeekPosition.toDouble());
-      //Set current position
-      vrPlayerClientNotifier
-          .setCurrentPosition(millisecondsToDateTime(newSeekPosition));
-      Logger.log(
-          '$prefix - onChangePosition - found end: $_playingTimelineItem');
+      var timelineState = VrPlayerUtils.getTimelineTimingsForState(
+          currentTimelineItem, TimelinePosition.end);
+      await playAndPause(false);
+      await setTimeLineState(timelineState);
+      Logger.log('$prefix - onChangePosition - found end: $timelineState');
     }
   }
 
@@ -127,24 +118,30 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
 
   Future<void> playAndPause(bool startPlay) async {
     if (ref.read(vrPlayerClientProvider).isVideoFinished) {
+      Logger.log('$prefix - playAndPause - video finished');
       try {
         await _viewPlayerController.seekTo(0);
-        vrPlayerClientNotifier.setVideoFinished(false);
         vrPlayerClientNotifier.setSeekPosition(0);
+
         vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(0));
+        vrPlayerClientNotifier.setPlayingStatus(false);
+
+        vrPlayerClientNotifier.setVideoFinished(false);
       } catch (e) {
         Logger.error('$prefix - ERROR - playAndPause seekTo beginning: $e');
       }
     }
 
     try {
-      if (startPlay && !ref.read(vrPlayerClientProvider).isPlaying) {
+      if (startPlay) {
+        Logger.log('$prefix - playAndPause - start play');
         setState(() {
           showActionBar = false;
         });
         await _viewPlayerController.play();
         vrPlayerClientNotifier.setPlayingStatus(true);
-      } else if (!startPlay && ref.read(vrPlayerClientProvider).isPlaying) {
+      } else {
+        Logger.log('$prefix - playAndPause - pause');
         setState(() {
           showActionBar = true;
         });
@@ -156,26 +153,31 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     }
   }
 
-
-  Map<String,dynamic>? getCurrentTimeline(){
+  TimelineStateModel? getTimelineItem(bool? isPrevious) {
     var currentTimelineItem = ref.read(currentTimeLineItemSP);
+    if (currentTimelineItem == null) return null;
 
-    if(currentTimelineItem != null) {
-      int startSeekPosition =
-          VrPlayerUtils.timeStringToMilliseconds(currentTimelineItem.start) +
-              1000;
-      int endSeekPosition =
-          VrPlayerUtils.timeStringToMilliseconds(currentTimelineItem.end) +
-              1000;
-
-
-      return {
-        'start': startSeekPosition,
-        'end': endSeekPosition,
-        'startDouble': startSeekPosition.toDouble(),
-        'endDouble': endSeekPosition.toDouble(),
-      };
+    if (isPrevious == true) {
+      // get previous timeline item
+      return VrPlayerUtils.getPreviousTimelineItem(
+          currentTimelineItem, _libraryItem!.transcriptObject.timeline);
     }
+    // Next timeline item
+    return VrPlayerUtils.getNextTimelineItem(
+        currentTimelineItem, _libraryItem!.transcriptObject.timeline);
+  }
+
+  Future<void> setTimeLineState(TimelineStateModel? newState) async {
+    if (newState == null) return;
+    await playAndPause(false);
+    Logger.log(
+        '$prefix - setTimeLineState - ${newState.getCurrentPositionString()}');
+    //Set seek position
+    await _viewPlayerController.seekTo(newState.getSeekPositionInt());
+    vrPlayerClientNotifier.setSeekPosition(newState.getSeekPositionDouble());
+    // Update current position text
+    vrPlayerClientNotifier
+        .setCurrentPosition(newState.getCurrentPositionString());
   }
 
   @override
@@ -184,6 +186,7 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     final vrState = ref.watch(vrPlayerClientProvider);
 
     ref.listen(videoPreviewEventSP, (previous, next) {
+      Logger.log('$prefix - videoPreviewEventSP - $previous/$next');
       if (next != null) {
         switch (next) {
           case VideoPreviewEvent.play:
@@ -193,22 +196,20 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
             playAndPause(false);
             break;
           case VideoPreviewEvent.forward:
-            var timeline =getCurrentTimeline();
-
-            //controller
-            _viewPlayerController.pause();
-            _viewPlayerController.seekTo(timeline!['end']);
-            // state
-            vrPlayerClientNotifier.setSeekPosition(timeline['endDouble']);
-            vrPlayerClientNotifier
-                .setCurrentPosition(millisecondsToDateTime(timeline['end']));
-
+            TimelineStateModel? timeline = getTimelineItem(false);
+            Logger.log('$prefix - videoPreviewEventSP - forward - $timeline');
+            setTimeLineState(timeline);
             break;
           case VideoPreviewEvent.backward:
+            var timeline = getTimelineItem(true);
+            setTimeLineState(timeline);
             break;
           default:
             break;
         }
+
+        //Reset the state
+        ref.read(videoPreviewEventSP.notifier).state = VideoPreviewEvent.none;
       }
     });
 
@@ -227,13 +228,18 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
       child: _libraryItem == null
           ? Container(
               color: Colors.black,
+              width: 300,
+              height: _playerHeight,
+              child: const Center(
+                child: Text('No video selected'),
+              ),
             )
           : MyVrPlayer(
               onViewPlayerCreated: onViewPlayerCreated,
               playerWidth: _playerWidth,
               playerHeight: _playerHeight,
               showActionBar: showActionBar,
-              isPreview: true,
+              isPreview: false,
               onChangeSliderPosition: (position) {
                 // Currently not used
               },
