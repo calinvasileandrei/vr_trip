@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
+import 'package:vr_trip/services/settings/settings_service.dart';
 
 class SelectManagerScreen extends HookConsumerWidget {
   const SelectManagerScreen({super.key});
@@ -42,6 +43,7 @@ class SelectManagerScreen extends HookConsumerWidget {
                               .read(networkDiscoveryClientServerIpProvider
                                   .notifier)
                               .state = null;
+                          saveManagerIpToPrefs(null);
                         },
                         icon: Icon(
                           Icons.delete,
@@ -66,6 +68,7 @@ class SelectManagerScreen extends HookConsumerWidget {
                                   .read(networkDiscoveryClientServerIpProvider
                                       .notifier)
                                   .state = possibleManagersList[index];
+                              saveManagerIpToPrefs(possibleManagersList[index]);
                               //context.go('/device-client');
                             },
                             child: Container(

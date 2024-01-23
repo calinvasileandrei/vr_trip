@@ -213,6 +213,14 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         .setCurrentPosition(newState.getCurrentPositionString());
   }
 
+  setCustomSeekPosition(int millis) async {
+    //Set seek position
+    await _viewPlayerController.seekTo(millis);
+    vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
+    // Update current position text
+    vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(millis));
+  }
+
   @override
   Widget build(BuildContext context) {
     // Accessing the state using the provider
@@ -230,10 +238,14 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         Logger.log('$prefix - getLastMessage - $action');
         switch (action.type) {
           case SocketActionTypes.play:
+            var seekPosition = action.value;
+            setCustomSeekPosition(int.parse(seekPosition));
             Logger.log('getLastMessage - play');
             playAndPause(true);
             break;
           case SocketActionTypes.pause:
+            var seekPosition = action.value;
+            setCustomSeekPosition(int.parse(seekPosition));
             Logger.log('getLastMessage - pause');
             playAndPause(false);
             break;

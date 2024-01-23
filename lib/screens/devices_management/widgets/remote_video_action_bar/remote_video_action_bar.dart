@@ -4,6 +4,7 @@ import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/device_manager/types.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
+import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 const prefix = '[remote_video_action_bar]';
@@ -22,7 +23,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
               onPressed: () {
                 ref
                     .read(socketServerSP)
-                    .sendBroadcastMessage(SocketActionTypes.backward, '');
+                    .sendBroadcastMessage(SocketActionTypes.backward,'');
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.backward;
                 Logger.log('$prefix Backward');
@@ -30,9 +31,10 @@ class RemoteVideoActionBar extends HookConsumerWidget {
               child: const Icon(Icons.arrow_back_ios)),
           ElevatedButton(
               onPressed: () {
+                var seekPosition = ref.read(vrPlayerClientProvider).seekPosition.toInt();
                 ref
                     .read(socketServerSP)
-                    .sendBroadcastMessage(SocketActionTypes.play, '');
+                    .sendBroadcastMessage(SocketActionTypes.play, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.play;
                 Logger.log('$prefix Play');
@@ -40,9 +42,10 @@ class RemoteVideoActionBar extends HookConsumerWidget {
               child: const Icon(Icons.play_arrow)),
           ElevatedButton(
               onPressed: () {
+                var seekPosition = ref.read(vrPlayerClientProvider).seekPosition.toInt();
                 ref
                     .read(socketServerSP)
-                    .sendBroadcastMessage(SocketActionTypes.pause, '');
+                    .sendBroadcastMessage(SocketActionTypes.pause, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoPreviewEvent.pause;
                 Logger.log('$prefix Pause');

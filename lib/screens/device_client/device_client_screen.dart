@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
@@ -19,6 +21,19 @@ class DeviceClientScreen extends HookConsumerWidget {
     final deviceNumber = ref.watch(deviceNumberSP);
     final serverIp = ref.watch(networkDiscoveryClientServerIpProvider);
 
+    useEffect((){
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
+      ]);
+
+      return () {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+        ]);
+      };
+    },[]);
+
     Widget renderDiscoveryOrDeviceHostSocket() {
       if (serverIp == null) {
         return const Center(child: Text('Seleziona un manager per continuare'));
@@ -37,7 +52,7 @@ class DeviceClientScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Host'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.black,
         leading: IconButton(
           onPressed: () {
             if (serverIp != null) {
@@ -53,17 +68,17 @@ class DeviceClientScreen extends HookConsumerWidget {
           icon: const Icon(Icons.arrow_back),
         ),
       ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.black,
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text('IP: ${deviceIp}'),
+              Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
               Text('Nome: ${deviceNumber}'),
             ],
           ),
-          Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
           renderDiscoveryOrDeviceHostSocket(),
         ],
       ),

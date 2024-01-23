@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/router/router.dart';
 import 'package:vr_trip/screens/home/home_screen.dart';
@@ -12,10 +13,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final initialDeviceNumber = await loadDeviceNumberFromPrefs();
+  final initialManagerIp = await loadManagerIpFromPrefs();
 
   runApp(
     ProviderScope(overrides: [
-      deviceNumberSP.overrideWith((ref) => (initialDeviceNumber))
+      deviceNumberSP.overrideWith((ref) => (initialDeviceNumber)),
+      networkDiscoveryClientServerIpProvider
+          .overrideWith((ref) => initialManagerIp)
     ], child: MyApp()),
   );
 }

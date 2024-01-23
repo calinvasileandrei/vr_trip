@@ -9,3 +9,18 @@ Future<String?> loadDeviceNumberFromPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('deviceNumber');
 }
+
+
+Future<void> saveManagerIpToPrefs(String? managerIp) async {
+  final prefs = await SharedPreferences.getInstance();
+  if(managerIp == null) {
+    prefs.remove('managerIp');
+    return;
+  }
+  prefs.setString('managerIp', managerIp);
+}
+
+Future<String?> loadManagerIpFromPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('managerIp');
+}

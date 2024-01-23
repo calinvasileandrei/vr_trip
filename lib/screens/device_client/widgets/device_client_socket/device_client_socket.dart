@@ -67,25 +67,40 @@ class DeviceClientSocket extends HookConsumerWidget {
       return null;
     }, []);
 
-    return SingleChildScrollView(
-        child: Column(
-      children: [
-        messagesList.isEmpty
-            ? Text('No messages')
-            : SocketMessages(items: messagesList),
-        Text('Socket Client connected: $socketConnected'),
-        ElevatedButton(
-            onPressed: () {
-              ref.read(socketClientSP).initConnection();
-              socketClient.startConnection();
-            },
-            child: Text('Connect To Server')),
-        ElevatedButton(
-            onPressed: () {
-              ref.read(socketClientSP).stopConnection();
-            },
-            child: Text('Disconnect'))
-      ],
-    ));
+    Widget getDevelopmentView() {
+      return SingleChildScrollView(
+          child: Column(
+        children: [
+          messagesList.isEmpty
+              ? Text('No messages')
+              : SocketMessages(items: messagesList),
+          Text('Socket Client connected: $socketConnected'),
+          ElevatedButton(
+              onPressed: () {
+                ref.read(socketClientSP).initConnection();
+                socketClient.startConnection();
+              },
+              child: Text('Connect To Server')),
+        ],
+      ));
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        children: [
+          if (socketConnected == true)
+            ElevatedButton(
+                onPressed: () {
+                  ref.read(socketClientSP).stopConnection();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white10,
+                  onPrimary: Colors.black,
+                ),
+                child: Text('Disconnect'))
+        ],
+      ),
+    ); //getDevelopmentView();
   }
 }

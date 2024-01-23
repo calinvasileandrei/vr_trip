@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/library_item_model.dart';
@@ -217,49 +216,39 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     _playerWidth = MediaQuery.of(context).size.width;
     _playerHeight = _playerWidth / 2;
 
-    return GestureDetector(
-      onLongPress: () {
-        context.pop();
-      },
-      onTap: () {
-        setState(() {
-          showActionBar = !showActionBar;
-        });
-      },
-      child: _libraryItem == null
-          ? Container(
-              color: Colors.black,
-              width: 300,
-              height: _playerHeight,
-              child: const Center(
-                child: Text('No video selected'),
-              ),
-            )
-          : MyVrPlayer(
-              onViewPlayerCreated: onViewPlayerCreated,
-              playerWidth: _playerWidth,
-              playerHeight: _playerHeight,
-              showActionBar: showActionBar,
-              isPreview: false,
-              onChangeSliderPosition: (position) {
-                // Currently not used
-              },
-              fullScreenPressed: () {
-                // Your logic for fullScreenPressed here
-              },
-              cardBoardPressed: () {
-                // Your logic for cardBoardPressed here
-              },
-              seekToPosition: (position) {
-                // Your logic for seekToPosition here
-                onChangePosition(position);
-                _viewPlayerController.seekTo(position);
-              },
-              playAndPause: () {
-                var isVideoPlaying = vrState.isPlaying;
-                playAndPause(!isVideoPlaying);
-              },
+    return _libraryItem == null
+        ? Container(
+            color: Colors.black,
+            width: 300,
+            height: 150,
+            child: const Center(
+              child: Text('Video non disponibile'),
             ),
-    );
+          )
+        : MyVrPlayer(
+            onViewPlayerCreated: onViewPlayerCreated,
+            playerWidth: _playerWidth,
+            playerHeight: _playerHeight,
+            showActionBar: showActionBar,
+            isPreview: true,
+            onChangeSliderPosition: (position) {
+              // Currently not used
+            },
+            fullScreenPressed: () {
+              // Your logic for fullScreenPressed here
+            },
+            cardBoardPressed: () {
+              // Your logic for cardBoardPressed here
+            },
+            seekToPosition: (position) {
+              // Your logic for seekToPosition here
+              onChangePosition(position);
+              _viewPlayerController.seekTo(position);
+            },
+            playAndPause: () {
+              var isVideoPlaying = vrState.isPlaying;
+              playAndPause(!isVideoPlaying);
+            },
+          );
   }
 }
