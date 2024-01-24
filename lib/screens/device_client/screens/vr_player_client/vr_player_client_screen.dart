@@ -159,6 +159,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         setState(() {
           showActionBar = false;
         });
+        activateVr();
         await _viewPlayerController.play();
         vrPlayerClientNotifier.setPlayingStatus(true);
       } else {
@@ -238,14 +239,16 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         Logger.log('$prefix - getLastMessage - $action');
         switch (action.type) {
           case SocketActionTypes.play:
-            var seekPosition = action.value;
-            setCustomSeekPosition(int.parse(seekPosition));
+            var seekPosition = int.parse(action.value);
+            if(seekPosition != 0) {
+              setCustomSeekPosition(seekPosition);
+            }
             Logger.log('getLastMessage - play');
             playAndPause(true);
             break;
           case SocketActionTypes.pause:
-            var seekPosition = action.value;
-            setCustomSeekPosition(int.parse(seekPosition));
+            var seekPosition = int.parse(action.value);
+            setCustomSeekPosition(seekPosition);
             Logger.log('getLastMessage - pause');
             playAndPause(false);
             break;

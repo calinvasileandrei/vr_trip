@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/router/routes.dart';
+import 'package:vr_trip/shared/ui_kit/my_button/my_button_component.dart';
 
 class HomeScreen extends HookConsumerWidget {
   HomeScreen({super.key});
@@ -112,7 +113,19 @@ class HomeScreen extends HookConsumerWidget {
           ),
         );
       } else {
-        return const Text('Device IP: Loading...');
+        return Container(
+          margin: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              const Text('Device IP non trovato...'),
+              MyButton('Aggiorna', onPressed: (){
+                getWifiIp().then((ip) {
+                  ref.read(deviceIpStateProvider.notifier).state = ip;
+                });
+              })
+            ],
+          ),
+        );
       }
     }
 

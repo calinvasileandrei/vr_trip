@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart';
 import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
@@ -21,7 +20,7 @@ class DeviceClientScreen extends HookConsumerWidget {
     final deviceNumber = ref.watch(deviceNumberSP);
     final serverIp = ref.watch(networkDiscoveryClientServerIpProvider);
 
-    useEffect((){
+    useEffect(() {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeRight,
         DeviceOrientation.landscapeLeft,
@@ -32,7 +31,7 @@ class DeviceClientScreen extends HookConsumerWidget {
           DeviceOrientation.portraitUp,
         ]);
       };
-    },[]);
+    }, []);
 
     Widget renderDiscoveryOrDeviceHostSocket() {
       if (serverIp == null) {
@@ -49,38 +48,36 @@ class DeviceClientScreen extends HookConsumerWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Device Host'),
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          onPressed: () {
-            if (serverIp != null) {
-              ref.read(socketClientSP).stopConnection();
-            }
-            ref.invalidate(socketClientSP);
-            ref.invalidate(clientMessagesSP);
-            ref.invalidate(isConnectedSocketClientSP);
-            Logger.log('Disposed all providers for Device Client Screen');
-
-            context.pop();
-          },
-          icon: const Icon(Icons.arrow_back),
+    return WillPopScope(
+      onWillPop: () async {
+        if (serverIp != null) {
+          ref.read(socketClientSP).stopConnection();
+        }
+        ref.invalidate(socketClientSP);
+        ref.invalidate(clientMessagesSP);
+        ref.invalidate(isConnectedSocketClientSP);
+        Logger.log('Disposed all providers for Device Client Screen');
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Device Host'),
+          backgroundColor: Colors.black,
         ),
-      ),
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text('IP: ${deviceIp}'),
-              Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
-              Text('Nome: ${deviceNumber}'),
-            ],
-          ),
-          renderDiscoveryOrDeviceHostSocket(),
-        ],
+        backgroundColor: Colors.black,
+        body: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('IP: ${deviceIp}'),
+                Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
+                Text('Nome: ${deviceNumber}'),
+              ],
+            ),
+            renderDiscoveryOrDeviceHostSocket(),
+          ],
+        ),
       ),
     );
   }
