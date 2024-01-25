@@ -64,52 +64,73 @@ class DownloadLibrary extends HookWidget {
       return () => directoryWatcher.value?.cancel(); // Cleanup
     }, const []);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: const BorderRadius.all(Radius.circular(8.0))),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius:
+                const BorderRadius.all(Radius.circular(8.0))),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    child: const Icon(
+                      Icons.file_copy_rounded,
+                      color: Colors.blue,
+                    )),
                 MyText(
                   'Downloads/VR_TRIP',
-                  textStyle: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
           ),
           Expanded(
-            flex: 20,
-            child: ListView.builder(
-              itemCount: folders.value.length,
-              itemBuilder: (context, index) {
-                return DownloadItem(
-                  item: folders.value[index],
-                  onPress: onItemPress,
-                  onLongPress: (item) {
-                    if (onItemLongPress != null) {
-                      onItemLongPress!(item);
-                    }
-                  },
-                );
-              },
+            child: Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              margin:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius:
+                  const BorderRadius.all(Radius.circular(8.0))),
+              child: ListView.builder(
+                itemCount: folders.value.length,
+                itemBuilder: (context, index) {
+                  return DownloadItem(
+                    item: folders.value[index],
+                    onPress: onItemPress,
+                    onLongPress: (item) {
+                      if (onItemLongPress != null) {
+                        onItemLongPress!(item);
+                      }
+                    },
+                  );
+                },
+              ),
             ),
           ),
-          MyButton(
-            'Importa Download/$IMPORT_FOLDER',
-            onPressed: () async {
-              isLoading.value = true;
-              //await moveFilesToVRTripFolder();
-              await LibraryReaderService.saveFromDownload();
-              isLoading.value = false;
-            },
-            isLoading: isLoading.value,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              MyButton(
+                'Importa Download/$IMPORT_FOLDER',
+                onPressed: () async {
+                  isLoading.value = true;
+                  //await moveFilesToVRTripFolder();
+                  await LibraryReaderService.saveFromDownload();
+                  isLoading.value = false;
+                },
+                isLoading: isLoading.value,
+              ),
+            ],
           ),
         ],
       ),

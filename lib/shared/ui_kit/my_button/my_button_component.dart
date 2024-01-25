@@ -4,13 +4,14 @@ class MyButton extends StatelessWidget {
   final void Function()? onPressed;
   final String label;
   final bool? isLoading;
+  final EdgeInsets? customMargin;
 
-  const MyButton(this.label,{super.key,required this.onPressed, this.isLoading = false});
+  const MyButton(this.label,{super.key,required this.onPressed, this.isLoading = false,this.customMargin = const EdgeInsets.symmetric(vertical: 20)});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
+      margin: customMargin,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,

@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/consts/file_consts.dart';
 import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/providers/google/google_provider.dart';
 import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/shared/my_snap_view/my_snap_view.dart';
 import 'package:vr_trip/shared/vr_video_library/download_library_component.dart';
@@ -13,7 +14,7 @@ import 'package:vr_trip/shared/vr_video_library/vr_video_library_component.dart'
 import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
-class FileManagerScreen extends HookWidget {
+class FileManagerScreen extends HookConsumerWidget {
   const FileManagerScreen({super.key});
 
   Future<void> moveFilesToVRTripFolder() async {
@@ -45,7 +46,7 @@ class FileManagerScreen extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     handleNavigateToVr(LibraryItemModel item) {
       /*context.goNamed(AppRoutes.vrPlayerFile.name, pathParameters: {
         'libraryItemPath': item.path,
@@ -64,23 +65,32 @@ class FileManagerScreen extends HookWidget {
       FileUtils.deleteFile(item.path);
     }
 
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('File Manager'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        body: MySnapView(
-          children: [
-            DownloadLibrary(
-              onItemPress: (item) => null,
-            ),
-            VrVideoLibrary(
-              onItemPress: handleNavigateToVr,
-              onItemLongPress: handleDeleteItem,
-            ),
-            const GoogleDriveLibrary(),
-          ],
-        ));
+    return WillPopScope(
+      onWillPop: () async {
+        ref.read(authGoogleSP.notifier).state = null;
+        ref.read(googleSignInSP.notifier).state = null;
+        ref.read(googleAccountSP.notifier).state = null;
+        ref.read(googleDriveFoldersSP.notifier).state = [];
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            title: const Text('File Manager'),
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          body: MySnapView(
+            children: [
+              DownloadLibrary(
+                onItemPress: (item) => null,
+              ),
+              VrVideoLibrary(
+                onItemPress: handleNavigateToVr,
+                onItemLongPress: handleDeleteItem,
+              ),
+              const GoogleDriveLibrary(),
+            ],
+          )),
+    );
   }
 }

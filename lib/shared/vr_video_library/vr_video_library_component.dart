@@ -62,55 +62,74 @@ class VrVideoLibrary extends HookWidget {
       return null;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: const BorderRadius.all(Radius.circular(8.0))),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
       child: Column(
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius:
+                const BorderRadius.all(Radius.circular(8.0))),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    child: const Icon(
+                      Icons.ad_units_rounded,
+                      color: Colors.blue,
+                    )),
                 MyText(
                   'Libreria Interna',
-                  textStyle: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
           ),
           Expanded(
-            flex: 20,
-            child: ListView.builder(
-              itemCount: folders.value.length,
-              itemBuilder: (context, index) {
-                return LibraryItem(
-                  item: folders.value[index],
-                  onPress: onItemPress,
-                  onLongPress: (item) {
-                    if (onItemLongPress != null) {
-                      onItemLongPress!(item);
-                    }
-                  },
-                  leadingComponent: renderLeadingComponent(folders.value[index]),
-                );
-              },
+            child: Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              margin:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius:
+                  const BorderRadius.all(Radius.circular(8.0))),
+              child: ListView.builder(
+                itemCount: folders.value.length,
+                itemBuilder: (context, index) {
+                  return LibraryItem(
+                    item: folders.value[index],
+                    onPress: onItemPress,
+                    onLongPress: (item) {
+                      if (onItemLongPress != null) {
+                        onItemLongPress!(item);
+                      }
+                    },
+                    leadingComponent: renderLeadingComponent(folders.value[index]),
+                  );
+                },
+              ),
             ),
           ),
           if (disableDeleteButton == null || disableDeleteButton == false)
-            MyButton(
-              'Delete Library',
-              onPressed: () async {
-                final Directory? libraryFolder =
-                await FileUtils.getLocalAppStorageFolder();
-                if (libraryFolder != null) {
-                  await FileUtils.deleteEverythingInPath(libraryFolder.path);
-                }
-              },
-              isLoading: isLoading.value,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                MyButton(
+                  'Delete Library',
+                  onPressed: () async {
+                    final Directory? libraryFolder =
+                    await FileUtils.getLocalAppStorageFolder();
+                    if (libraryFolder != null) {
+                      await FileUtils.deleteEverythingInPath(libraryFolder.path);
+                    }
+                  },
+                  isLoading: isLoading.value,
+                ),
+              ],
             ),
         ],
       ),
