@@ -1,14 +1,12 @@
-
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:vr_trip/models/library_item_model.dart';
+import 'package:vr_trip/utils/file_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 const prefix = '[library_item_utils]';
 class LibraryItemUtils {
-
-
   static bool isValidLibraryItem(String folderPath) {
     final Directory folder = Directory(folderPath);
 
@@ -35,7 +33,8 @@ class LibraryItemUtils {
     try {
       // Read and parse JSON from transcript file
       final String transcriptJson = transcriptFile.readAsStringSync();
-      final TranscriptObject transcriptObject = TranscriptObject.fromJson(json.decode(transcriptJson));
+      final TranscriptObject transcriptObject =
+          TranscriptObject.fromJson(json.decode(transcriptJson));
       Logger.log('$prefix Transcript object: $transcriptObject');
       // Create LibraryItemModel
       final LibraryItemModel libraryItem = LibraryItemModel(
@@ -76,7 +75,8 @@ class LibraryItemUtils {
     try {
       // Read and parse JSON from transcript file
       final String transcriptJson = await transcriptFile.readAsString();
-      final TranscriptObject transcriptObject = TranscriptObject.fromJson(json.decode(transcriptJson));
+      final TranscriptObject transcriptObject =
+          TranscriptObject.fromJson(json.decode(transcriptJson));
 
       // Create LibraryItemModel
       final LibraryItemModel libraryItem = LibraryItemModel(
@@ -92,5 +92,20 @@ class LibraryItemUtils {
       print('Error: $e');
       return null;
     }
+  }
+
+  static Future<Directory?> createFolderForLibraryItem(String directoryName) async {
+    final localStorage = await FileUtils.getLocalAppStorageFolder();
+
+    if (localStorage?.path != null) {
+      Directory newDirectory =
+          Directory('${localStorage!.path}/$directoryName');
+      if (!await newDirectory.exists()) {
+        await newDirectory.create(recursive: true);
+        Logger.log('$prefix Created directory ${newDirectory.path}');
+      }
+      return newDirectory;
+    }
+    return null;
   }
 }

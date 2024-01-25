@@ -49,6 +49,10 @@ dependencies:
   path: 1.8.3
   shared_preferences: 2.2.2
   nsd: 2.3.1
+  # drive
+  google_sign_in: 6.1.5
+  googleapis: 11.4.0
+  open_file: 3.3.2
 
 dev_dependencies:
   flutter_test:

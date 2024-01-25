@@ -240,7 +240,8 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         switch (action.type) {
           case SocketActionTypes.play:
             var seekPosition = int.parse(action.value);
-            if(seekPosition != 0) {
+            if(seekPosition < 0) {
+              Logger.log('getLastMessage - play - seekPosition < 0 - seekPosition: $seekPosition');
               setCustomSeekPosition(seekPosition);
             }
             Logger.log('getLastMessage - play');
