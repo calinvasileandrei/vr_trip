@@ -125,7 +125,7 @@ class GoogleDriveLibrary extends HookConsumerWidget {
                         color: Colors.blue,
                       )),
                   Text(
-                      "Sincronizzazione GoogleDrive: ${authHeaders != null ? "Effettuata" : "Non effettuata"}"),
+                      "Sinc GoogleDrive: ${authHeaders != null ? "Effettuata" : "Non effettuata"}"),
                 ],
               ),
             ),

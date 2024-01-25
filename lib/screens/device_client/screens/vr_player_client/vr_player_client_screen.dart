@@ -8,6 +8,7 @@ import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
+import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
@@ -62,15 +63,17 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     ]);
     super.initState();
 
-    // Fetching the library item
-    (() async {
-      var fetchedItem =
-          await LibraryItemUtils.fetchLibraryItem(_libraryItemPath);
-      if (fetchedItem != null) {
+    fetchItemFromPath(_libraryItemPath);
+  }
+
+  void fetchItemFromPath(String path) async {
+    var fetchedItem = await LibraryItemUtils.fetchLibraryItem(path);
+    if (fetchedItem != null) {
+      setState(() {
         _libraryItem = fetchedItem;
         _currentTimelineItem = _libraryItem!.transcriptObject.timeline[0];
-      }
-    })();
+      });
+    }
   }
 
   void onChangePosition(int millis) async {
@@ -222,6 +225,10 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(millis));
   }
 
+  handleGoBack() {
+    context.goNamed(AppRoutes.deviceHost.name);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Accessing the state using the provider
@@ -240,8 +247,9 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         switch (action.type) {
           case SocketActionTypes.play:
             var seekPosition = int.parse(action.value);
-            if(seekPosition < 0) {
-              Logger.log('getLastMessage - play - seekPosition < 0 - seekPosition: $seekPosition');
+            if (seekPosition < 0) {
+              Logger.log(
+                  'getLastMessage - play - seekPosition < 0 - seekPosition: $seekPosition');
               setCustomSeekPosition(seekPosition);
             }
             Logger.log('getLastMessage - play');
@@ -262,6 +270,12 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
             var timeline = getTimelineItem(true);
             Logger.log('$prefix - videoPreviewEventSP - backward - $timeline');
             setTimeLineState(timeline);
+          case SocketActionTypes.selectVideo:
+            if (action.value == 'no_video') {
+              handleGoBack();
+            } else {
+              fetchItemFromPath(action.value);
+            }
           default:
             break;
         }
@@ -280,7 +294,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         },
         child: _libraryItem == null
             ? Container(
-                color: Colors.black,
+                color: Colors.white10,
               )
             : MyVrPlayer(
                 onViewPlayerCreated: onViewPlayerCreated,

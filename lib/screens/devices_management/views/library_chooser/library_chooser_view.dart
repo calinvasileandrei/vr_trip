@@ -14,25 +14,34 @@ class LibraryChooserView extends HookConsumerWidget {
     var selectedLibraryItem = ref.watch(selectedLibraryItemSP);
 
     void handleItemSelected(LibraryItemModel item) {
-      ref
-          .read(socketServerSP)
-          .sendBroadcastMessage(SocketActionTypes.selectVideo, item.path);
-      ref.read(selectedLibraryItemSP.notifier).state = item;
+      if(selectedLibraryItem == null){
+        ref
+            .read(socketServerSP)
+            .sendBroadcastMessage(SocketActionTypes.selectVideo, item.path);
+        ref.read(selectedLibraryItemSP.notifier).state = item;
+      }
+    }
+
+    Widget renderButton() {
+      return (IconButton(
+        onPressed: () {
+          ref.read(selectedLibraryItemSP.notifier).state = null;
+          ref
+              .read(socketServerSP)
+              .sendBroadcastMessage(SocketActionTypes.selectVideo, 'no_video');
+        },
+        icon: const Icon(Icons.delete, color: Colors.black),
+      ));
     }
 
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5.0),
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.white24,
-            offset: Offset(0.0, 1.0), //(x,y)
-            blurRadius: 12.0,
-          ),
-        ],
-      ),
-      child: VrVideoLibrary(onItemPress: handleItemSelected,disableDeleteButton: true, selectedLibraryItem: selectedLibraryItem),
+      color: Theme.of(context).colorScheme.inversePrimary,
+
+      child: VrVideoLibrary(
+          onItemPress: handleItemSelected,
+          disableDeleteButton: true,
+          selectedLibraryItem: selectedLibraryItem,
+          customEndingHeader: renderButton),
     );
   }
 }

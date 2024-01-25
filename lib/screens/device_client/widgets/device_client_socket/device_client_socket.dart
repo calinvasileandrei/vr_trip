@@ -16,26 +16,6 @@ class DeviceClientSocket extends HookConsumerWidget {
   const DeviceClientSocket(
       {super.key, required this.serverIp, required this.deviceName});
 
-  void getLastMessage(BuildContext context, List<String> messages) async {
-    Logger.log('getLastMessage - messages: $messages');
-    if (messages.isEmpty) return;
-
-    SocketAction action = SocketProtocolService.parseMessage(messages.last);
-
-    switch (action.type) {
-      case SocketActionTypes.selectVideo:
-        Future.delayed(Duration.zero, () {
-          context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
-            'libraryItemPath': action.value,
-            'serverIp': serverIp
-          });
-        });
-        break;
-      default:
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final socketClient = ref.watch(socketClientSP);
@@ -45,11 +25,33 @@ class DeviceClientSocket extends HookConsumerWidget {
     final List<String> messagesList =
         messagesAsyncValue.maybeWhen(data: (value) => value, orElse: () => []);
 
+    void getLastMessage(List<String> messages) async {
+      Logger.log('getLastMessage - messages: $messages');
+      if (messages.isEmpty) return;
+
+      SocketAction action = SocketProtocolService.parseMessage(messages.last);
+
+      switch (action.type) {
+        case SocketActionTypes.selectVideo:
+          Logger.log('getLastMessage - selectVideo');
+          Future.delayed(Duration.zero, () {
+            context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
+              'libraryItemPath': action.value,
+              'serverIp': serverIp
+            });
+          });
+          ref.invalidate(clientMessagesSP);
+          break;
+        default:
+          break;
+      }
+    }
+
     useEffect(() {
       Logger.log('useEffect - messagesList: $messagesList');
       if (messagesList.isNotEmpty) {
         // Assuming you have a function named 'handleListChange' that you want to execute:
-        getLastMessage(context, messagesList);
+        getLastMessage( messagesList);
       }
       return null;
     }, [messagesList.length]);
