@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 
 class MyVrPlayerActionBar extends ConsumerWidget {
   final Function() playAndPause;

@@ -6,7 +6,7 @@ import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart'
 import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
-import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/utils/logger.dart';
 

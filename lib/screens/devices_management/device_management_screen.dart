@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
-import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/screens/devices_management/views/library_chooser/library_chooser_view.dart';
 import 'package:vr_trip/screens/devices_management/views/server_management/server_management_view.dart';
 import 'package:vr_trip/screens/devices_management/views/video_preview/video_preview_view.dart';

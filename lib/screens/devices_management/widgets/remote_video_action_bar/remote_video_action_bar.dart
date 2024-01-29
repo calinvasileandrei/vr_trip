@@ -7,7 +7,7 @@ import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/device_manager/types.dart';
 import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
-import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
 import 'package:vr_trip/utils/vr_player_utils.dart';
 

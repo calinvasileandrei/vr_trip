@@ -6,7 +6,7 @@ import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/device_manager/types.dart';
-import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/utils/date_utils.dart';
 import 'package:vr_trip/utils/logger.dart';

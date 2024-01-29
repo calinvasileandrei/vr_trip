@@ -10,7 +10,7 @@ import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/date_utils.dart';
