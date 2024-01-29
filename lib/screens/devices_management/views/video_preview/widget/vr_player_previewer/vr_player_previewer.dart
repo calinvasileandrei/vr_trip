@@ -186,28 +186,28 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     ref.listen(videoPreviewEventSP, (previous, next) {
       Logger.log('$prefix - videoPreviewEventSP - $previous/$next');
       if (next != null) {
-        switch (next) {
+        switch (next.type) {
           case VideoPreviewEvent.play:
             playAndPause(true);
+            Logger.log('$prefix - videoPreviewEventSP - play');
             break;
           case VideoPreviewEvent.pause:
             playAndPause(false);
+            Logger.log('$prefix - videoPreviewEventSP - pause');
             break;
           case VideoPreviewEvent.forward:
-            TimelineStateModel? timeline = getTimelineItem(false);
-            Logger.log('$prefix - videoPreviewEventSP - forward - $timeline');
-            setTimeLineState(timeline);
+            Logger.log(
+                '$prefix - videoPreviewEventSP - forward - ${next.state}');
+            setTimeLineState(next.state);
             break;
           case VideoPreviewEvent.backward:
-            var timeline = getTimelineItem(true);
-            Logger.log('$prefix - videoPreviewEventSP - backward - $timeline');
-            setTimeLineState(timeline);
+            Logger.log(
+                '$prefix - videoPreviewEventSP - backward - ${next.state}');
+            setTimeLineState(next.state);
             break;
           default:
             break;
         }
-        //Reset the state
-        ref.read(videoPreviewEventSP.notifier).state = VideoPreviewEvent.none;
       }
     });
 

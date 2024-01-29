@@ -1,11 +1,9 @@
-
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/utils/date_utils.dart';
 import 'package:vr_trip/utils/logger.dart';
 
 class VrPlayerUtils {
-
   static int timeStringToMilliseconds(String timeString) {
     List<String> timeComponents = timeString.split(':');
 
@@ -20,7 +18,6 @@ class VrPlayerUtils {
     return (hours * 3600 + minutes * 60 + seconds) * 1000;
   }
 
-
   static bool isTimeLineItemInRange(int millis, TimelineItem timelineItem) {
     var start = timeStringToMilliseconds(timelineItem.start);
     var end = timeStringToMilliseconds(timelineItem.end);
@@ -28,42 +25,68 @@ class VrPlayerUtils {
     return millis >= start && millis <= end;
   }
 
-  static TimelineItem computeTimeLineItem(int millis,List<TimelineItem> timeline){
+  static TimelineItem computeTimeLineItem(
+      int millis, List<TimelineItem> timeline) {
     var durationText = millisecondsToDateTime(millis);
     var position = timeStringToMilliseconds(durationText);
 
-    var timelineItem = timeline.firstWhere((element) => isTimeLineItemInRange(position, element),orElse: ()=> timeline.first);
+    var timelineItem = timeline.firstWhere(
+        (element) => isTimeLineItemInRange(position, element),
+        orElse: () => timeline.first);
 
     return timelineItem;
   }
 
+  static TimelineItem getTimelineItemFromState(
+      TimelineStateModel state, List<TimelineItem> timeline) {
+    var start = millisecondsToDateTime(state.getStart);
+    var end = millisecondsToDateTime(state.getEnd);
 
-  static TimelineStateModel getTimelineTimingsForState(TimelineItem timelineItem, TimelinePosition position){
+    var timelineItem = timeline.firstWhere(
+        (element) => start == element.start && end == element.end,
+        orElse: () => timeline.first);
 
+    return timelineItem;
+  }
+
+  static TimelineStateModel getTimelineTimingsForState(
+      TimelineItem timelineItem, TimelinePosition position) {
     int startSeekPosition =
-        VrPlayerUtils.timeStringToMilliseconds(timelineItem.start) +
-            1000;
+        VrPlayerUtils.timeStringToMilliseconds(timelineItem.start) + 1000;
     int endSeekPosition =
-        VrPlayerUtils.timeStringToMilliseconds(timelineItem.end) +
-            1000;
+        VrPlayerUtils.timeStringToMilliseconds(timelineItem.end) + 1000;
 
-    return TimelineStateModel(start: startSeekPosition, end: endSeekPosition,currentPosition: position);
+    return TimelineStateModel(
+        start: startSeekPosition,
+        end: endSeekPosition,
+        currentPosition: position);
   }
 
-  static TimelineStateModel getPreviousTimelineItem(TimelineItem item,List<TimelineItem> timeline){
-    var index = timeline.indexWhere((element) => element.nomeClip == item.nomeClip);
-    Logger.log('getPreviousTimelineItem : timeline: $timeline \n current index: $index, previous index: ${index-1}, item: ${timeline[index-1]}');
+  static TimelineStateModel getPreviousTimelineItem(
+      TimelineItem item, List<TimelineItem> timeline) {
+    var index =
+        timeline.indexWhere((element) => element.nomeClip == item.nomeClip);
 
-    if(index == 0) return TimelineStateModel.fromItem(item, TimelinePosition.start);
+    if (index == 0)
+      return TimelineStateModel.fromItem(item, TimelinePosition.start);
+    Logger.log(
+        'getPreviousTimelineItem : timeline: $timeline \n current item:$item, \n current index: $index, \n previous index: ${index - 1}, \n item: ${timeline[index - 1]}');
 
-    return TimelineStateModel.fromItem(timeline[index-1], TimelinePosition.start);
+    return TimelineStateModel.fromItem(
+        timeline[index - 1], TimelinePosition.start);
   }
 
-  static TimelineStateModel getNextTimelineItem(TimelineItem item,List<TimelineItem> timeline){
-    var index = timeline.indexWhere((element) => element.nomeClip == item.nomeClip);
-    Logger.log('getPreviousTimelineItem : timeline: $timeline \n current index: $index, next index: ${index+1}, item: ${timeline[index+1]}');
-    if(index >= timeline.length-1) return TimelineStateModel.fromItem(item, TimelinePosition.end);
+  static TimelineStateModel getNextTimelineItem(
+      TimelineItem item, List<TimelineItem> timeline) {
+    var index =
+        timeline.indexWhere((element) => element.nomeClip == item.nomeClip);
 
-    return TimelineStateModel.fromItem(timeline[index+1], TimelinePosition.start);
+    if (index >= timeline.length - 1)
+      return TimelineStateModel.fromItem(item, TimelinePosition.end);
+    Logger.log(
+        'getNextTimelineItem : timeline: $timeline \n current index: $index, next index: ${index + 1}, item: ${timeline[index + 1]}');
+
+    return TimelineStateModel.fromItem(
+        timeline[index + 1], TimelinePosition.start);
   }
 }

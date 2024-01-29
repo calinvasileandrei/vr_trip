@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
 import 'package:vr_trip/providers/device_manager/types.dart';
-import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
 import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
+import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
 import 'package:vr_trip/utils/logger.dart';
 import 'package:vr_trip/utils/vr_player_utils.dart';
 
@@ -18,7 +19,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TimelineStateModel? getTimelineItem(bool? isPrevious) {
+    TimelineStateModel? getTimelineItemState(bool? isPrevious) {
       var currentTimelineItem = ref.read(currentTimeLineItemSP);
       var vrState = ref.read(myVrPlayerProvider);
       if (currentTimelineItem == null) return null;
@@ -33,6 +34,16 @@ class RemoteVideoActionBar extends HookConsumerWidget {
         return VrPlayerUtils.getNextTimelineItem(currentTimelineItem,
             vrState.libraryItem!.transcriptObject.timeline);
       }
+      return null;
+    }
+
+    TimelineItem? getTimeLineItemFromState(TimelineStateModel state) {
+      var vrState = ref.read(myVrPlayerProvider);
+      if (vrState.libraryItem != null) {
+        return VrPlayerUtils.getTimelineItemFromState(
+            state, vrState.libraryItem!.transcriptObject.timeline);
+      }
+      return null;
     }
 
     return Container(
@@ -43,13 +54,19 @@ class RemoteVideoActionBar extends HookConsumerWidget {
         children: [
           ElevatedButton(
               onPressed: () {
-                TimelineStateModel? timeline = getTimelineItem(true);
-                if (timeline == null) return;
+                TimelineStateModel? timelineState = getTimelineItemState(true);
+                if (timelineState == null) return;
+
+                TimelineItem? timelineItem =
+                    getTimeLineItemFromState(timelineState);
+                if (timelineItem == null) return;
+                ref.read(currentTimeLineItemSP.notifier).state = timelineItem;
 
                 ref.read(socketServerSP).sendBroadcastMessage(
-                    SocketActionTypes.backward, jsonEncode(timeline.toJson()));
-                ref.read(videoPreviewEventSP.notifier).state =
-                    VideoPreviewEvent.backward;
+                    SocketActionTypes.backward,
+                    jsonEncode(timelineState.toJson()));
+                ref.read(videoPreviewEventSP.notifier).state = VideoAction(
+                    type: VideoPreviewEvent.backward, state: timelineState);
                 Logger.log('$prefix Backward');
               },
               child: const Icon(Icons.arrow_back_ios)),
@@ -60,7 +77,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.play, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =
-                    VideoPreviewEvent.play;
+                    VideoAction(type: VideoPreviewEvent.play);
                 Logger.log('$prefix Play');
               },
               child: const Icon(Icons.play_arrow)),
@@ -71,18 +88,25 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.pause, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =
-                    VideoPreviewEvent.pause;
+                    VideoAction(type: VideoPreviewEvent.pause);
                 Logger.log('$prefix Pause');
               },
               child: const Icon(Icons.pause)),
           ElevatedButton(
               onPressed: () {
-                TimelineStateModel? timeline = getTimelineItem(false);
-                if (timeline == null) return;
+                TimelineStateModel? timelineState = getTimelineItemState(false);
+                if (timelineState == null) return;
+                TimelineItem? timelineItem =
+                    getTimeLineItemFromState(timelineState);
+                if (timelineItem == null) return;
+                ref.read(currentTimeLineItemSP.notifier).state = timelineItem;
+
                 ref.read(socketServerSP).sendBroadcastMessage(
-                    SocketActionTypes.forward, jsonEncode(timeline.toJson()));
-                ref.read(videoPreviewEventSP.notifier).state =
-                    VideoPreviewEvent.forward;
+                    SocketActionTypes.forward,
+                    jsonEncode(timelineState.toJson()));
+                ref.read(videoPreviewEventSP.notifier).state = VideoAction(
+                    type: VideoPreviewEvent.forward, state: timelineState);
+
                 Logger.log('$prefix Forward');
               },
               child: const Icon(Icons.arrow_forward_ios)),

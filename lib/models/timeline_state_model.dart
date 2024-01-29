@@ -27,15 +27,15 @@ class TimelineStateModel {
     return getSeekPositionInt().toDouble();
   }
 
-  get getStart => _start;
+  int get getStart => _start;
 
-  get getEnd => _end;
+  int get getEnd => _end;
 
-  get getStartDouble => _start.toDouble();
+  double get getStartDouble => _start.toDouble();
 
-  get getEndDouble => _end.toDouble();
+  double get getEndDouble => _end.toDouble();
 
-  get getCurrentPosition => _currentPosition;
+  TimelinePosition? get getCurrentPosition => _currentPosition;
 
   // factory
   TimelineStateModel.fromItem(
