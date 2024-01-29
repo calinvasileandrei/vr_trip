@@ -2,7 +2,13 @@ import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/utils/date_utils.dart';
 import 'package:vr_trip/utils/vr_player_utils.dart';
 
-enum TimelinePosition { start, end }
+enum TimelinePosition {
+  start,
+  end;
+
+  String toJson() => name;
+  static TimelinePosition fromJson(String json) => values.byName(json);
+}
 
 class TimelineStateModel {
   final int _start;
@@ -47,14 +53,15 @@ class TimelineStateModel {
   Map<String, dynamic> toJson() => {
         'start': _start,
         'end': _end,
-        'currentPosition': _currentPosition?.toString()
+        'currentPosition': _currentPosition?.toJson()
       };
 
   factory TimelineStateModel.fromJson(Map<String, dynamic> json) =>
       TimelineStateModel(
           start: json['start'],
           end: json['end'],
-          currentPosition: json['currentPosition']);
+          currentPosition: TimelinePosition.fromJson(json['currentPosition'])
+      );
 
   @override
   String toString() {

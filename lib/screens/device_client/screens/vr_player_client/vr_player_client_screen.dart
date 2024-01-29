@@ -48,8 +48,8 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   LibraryItemModel? _libraryItem;
   TimelineItem? _currentTimelineItem;
 
-  late final vrPlayerClientNotifier = ref.read(myVrPlayerProvider.notifier);
   late final vrState = ref.watch(myVrPlayerProvider);
+  late final vrPlayerNotifier = ref.read(myVrPlayerProvider.notifier);
 
   @override
   void initState() {
@@ -82,14 +82,14 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         ..onStateChange = onReceiveState
         ..onDurationChange = (millis) {
           Logger.log('$prefix - onDurationChange: $millis');
-          vrPlayerClientNotifier.setDuration(
+          vrPlayerNotifier.setDuration(
             millisecondsToDateTime(millis),
             millis,
           );
         }
         ..onPositionChange = onChangePosition
         ..onFinishedChange = (isFinished) {
-          vrPlayerClientNotifier.setVideoFinished(isFinished);
+          vrPlayerNotifier.setVideoFinished(isFinished);
         };
     } catch (e) {
       Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
@@ -98,16 +98,16 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     try {
       _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
       _viewPlayerController.toggleVRMode();
-      vrPlayerClientNotifier.toggleVRMode(true);
+      vrPlayerNotifier.toggleVRMode(true);
     } catch (e) {
       Logger.error('$prefix - ERROR - loadVideo: $e');
     }
   }
 
   void onChangePosition(int millis) async {
-    vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
+    vrPlayerNotifier.setSeekPosition(millis.toDouble());
     var durationText = millisecondsToDateTime(millis);
-    vrPlayerClientNotifier.setCurrentPosition(durationText);
+    vrPlayerNotifier.setCurrentPosition(durationText);
     Logger.log('$prefix - onPositionChange: $durationText');
 
     // Logic for stopping the video on timeline item end
@@ -127,11 +127,11 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   void onReceiveState(VrState state) {
     switch (state) {
       case VrState.loading:
-        vrPlayerClientNotifier.setVideoLoading(true);
+        vrPlayerNotifier.setVideoLoading(true);
         break;
       case VrState.ready:
-        vrPlayerClientNotifier.setVideoLoading(false);
-        vrPlayerClientNotifier.setVideoReady(true);
+        vrPlayerNotifier.setVideoLoading(false);
+        vrPlayerNotifier.setVideoReady(true);
         break;
       default:
         break;
@@ -143,12 +143,12 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       Logger.log('$prefix - playAndPause - video finished');
       try {
         await _viewPlayerController.seekTo(0);
-        vrPlayerClientNotifier.setSeekPosition(0);
+        vrPlayerNotifier.setSeekPosition(0);
 
-        vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(0));
-        vrPlayerClientNotifier.setPlayingStatus(false);
+        vrPlayerNotifier.setCurrentPosition(millisecondsToDateTime(0));
+        vrPlayerNotifier.setPlayingStatus(false);
 
-        vrPlayerClientNotifier.setVideoFinished(false);
+        vrPlayerNotifier.setVideoFinished(false);
       } catch (e) {
         Logger.error('$prefix - ERROR - playAndPause seekTo beginning: $e');
       }
@@ -161,14 +161,14 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
           showActionBar = false;
         });
         await _viewPlayerController.play();
-        vrPlayerClientNotifier.setPlayingStatus(true);
+        vrPlayerNotifier.setPlayingStatus(true);
       } else {
         Logger.log('$prefix - playAndPause - pause');
         setState(() {
           showActionBar = true;
         });
         await _viewPlayerController.pause();
-        vrPlayerClientNotifier.setPlayingStatus(false);
+        vrPlayerNotifier.setPlayingStatus(false);
       }
     } catch (e) {
       Logger.error('$prefix - ERROR - playAndPause: $e');
@@ -179,10 +179,10 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     if (vrState.isVR == false) {
       try {
         _viewPlayerController.toggleVRMode();
-        vrPlayerClientNotifier.toggleVRMode(true);
+        vrPlayerNotifier.toggleVRMode(true);
       } catch (e) {
         Logger.error('$prefix - ERROR - activateVr: $e');
-        vrPlayerClientNotifier.toggleVRMode(false);
+        vrPlayerNotifier.toggleVRMode(false);
       }
     }
   }
@@ -207,18 +207,18 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         '$prefix - setTimeLineState - ${newState.getCurrentPositionString()}');
     //Set seek position
     await _viewPlayerController.seekTo(newState.getSeekPositionInt());
-    vrPlayerClientNotifier.setSeekPosition(newState.getSeekPositionDouble());
+    vrPlayerNotifier.setSeekPosition(newState.getSeekPositionDouble());
     // Update current position text
-    vrPlayerClientNotifier
+    vrPlayerNotifier
         .setCurrentPosition(newState.getCurrentPositionString());
   }
 
   setCustomSeekPosition(int millis) async {
     //Set seek position
     await _viewPlayerController.seekTo(millis);
-    vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
+    vrPlayerNotifier.setSeekPosition(millis.toDouble());
     // Update current position text
-    vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(millis));
+    vrPlayerNotifier.setCurrentPosition(millisecondsToDateTime(millis));
   }
 
   @override
@@ -261,12 +261,16 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
             playAndPause(false);
             break;
           case SocketActionTypes.forward:
+            playAndPause(false);
+
             TimelineStateModel? timeline =
                 TimelineStateModel.fromJson(jsonDecode(action.value));
             Logger.log('$prefix - videoPreviewEventSP - forward - $timeline');
             setTimeLineState(timeline);
             break;
           case SocketActionTypes.backward:
+            playAndPause(false);
+
             TimelineStateModel? timeline =
                 TimelineStateModel.fromJson(jsonDecode(action.value));
             Logger.log('$prefix - videoPreviewEventSP - backward - $timeline');
@@ -311,7 +315,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
                 cardBoardPressed: () {
                   try {
                     _viewPlayerController.toggleVRMode();
-                    vrPlayerClientNotifier.toggleVRMode(!vrState.isVR);
+                    vrPlayerNotifier.toggleVRMode(!vrState.isVR);
                   } catch (e) {
                     Logger.error('$prefix - ERROR - activateVr: $e');
                   }
