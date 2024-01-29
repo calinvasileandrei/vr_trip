@@ -1,4 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vr_trip/models/library_item_model.dart';
 
 final vrPlayerClientProvider =
     StateNotifierProvider<VrPlayerClientNotifier, VrPlayerClientState>(
@@ -39,6 +40,10 @@ class VrPlayerClientNotifier extends StateNotifier<VrPlayerClientState> {
   void toggleVRMode(bool isVR) {
     state = state.copyWith(isVR: isVR);
   }
+
+  void setLibraryItem(LibraryItemModel? libraryItem) {
+    state = state.copyWith(libraryItem: libraryItem);
+  }
 }
 
 class VrPlayerClientState {
@@ -51,6 +56,7 @@ class VrPlayerClientState {
   final double seekPosition;
   final String? currentPosition;
   final bool isVR;
+  final LibraryItemModel? libraryItem;
 
   VrPlayerClientState({
     this.isVideoLoading = false,
@@ -62,6 +68,7 @@ class VrPlayerClientState {
     this.seekPosition = 0,
     this.currentPosition,
     this.isVR = false,
+    this.libraryItem,
   });
 
   VrPlayerClientState copyWith({
@@ -74,6 +81,7 @@ class VrPlayerClientState {
     double? seekPosition,
     String? currentPosition,
     bool? isVR,
+    LibraryItemModel? libraryItem,
   }) {
     return VrPlayerClientState(
       isVideoLoading: isVideoLoading ?? this.isVideoLoading,
@@ -85,6 +93,7 @@ class VrPlayerClientState {
       seekPosition: seekPosition ?? this.seekPosition,
       currentPosition: currentPosition ?? this.currentPosition,
       isVR: isVR ?? this.isVR,
+      libraryItem: libraryItem ?? this.libraryItem,
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +8,6 @@ import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
-import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 import 'package:vr_trip/router/routes.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
@@ -20,25 +21,21 @@ import 'package:vr_trip/utils/vr_player_utils.dart';
 const prefix = '[vr_player_host_screen]';
 
 class VrPlayerClientScreen extends ConsumerStatefulWidget {
-  final String _serverIp;
   final String _libraryItemPath;
 
-  const VrPlayerClientScreen(
-      {super.key, required String serverIp, required String libraryItemPath})
-      : _libraryItemPath = libraryItemPath,
-        _serverIp = serverIp;
+  const VrPlayerClientScreen({super.key, required String libraryItemPath})
+      : _libraryItemPath = libraryItemPath;
 
   @override
   VrPlayerClientScreenState createState() =>
-      VrPlayerClientScreenState(_libraryItemPath, _serverIp);
+      VrPlayerClientScreenState(_libraryItemPath);
 }
 
 class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     with TickerProviderStateMixin {
   final String _libraryItemPath;
-  final String _serverIp;
 
-  VrPlayerClientScreenState(this._libraryItemPath, this._serverIp);
+  VrPlayerClientScreenState(this._libraryItemPath);
 
   late VrPlayerController _viewPlayerController;
 
@@ -47,13 +44,12 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   late double _playerHeight;
 
   bool showActionBar = true;
-  bool isVrMode = false;
 
   LibraryItemModel? _libraryItem;
   TimelineItem? _currentTimelineItem;
 
-  // Using the Riverpod provider to manage the state
   late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
+  late final vrState = ref.watch(vrPlayerClientProvider);
 
   @override
   void initState() {
@@ -73,6 +69,38 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         _libraryItem = fetchedItem;
         _currentTimelineItem = _libraryItem!.transcriptObject.timeline[0];
       });
+    }
+  }
+
+  onViewPlayerCreated(
+    VrPlayerController controller,
+    VrPlayerObserver observer,
+  ) {
+    try {
+      _viewPlayerController = controller;
+      observer
+        ..onStateChange = onReceiveState
+        ..onDurationChange = (millis) {
+          Logger.log('$prefix - onDurationChange: $millis');
+          vrPlayerClientNotifier.setDuration(
+            millisecondsToDateTime(millis),
+            millis,
+          );
+        }
+        ..onPositionChange = onChangePosition
+        ..onFinishedChange = (isFinished) {
+          vrPlayerClientNotifier.setVideoFinished(isFinished);
+        };
+    } catch (e) {
+      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
+    }
+
+    try {
+      _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
+      _viewPlayerController.toggleVRMode();
+      vrPlayerClientNotifier.toggleVRMode(true);
+    } catch (e) {
+      Logger.error('$prefix - ERROR - loadVideo: $e');
     }
   }
 
@@ -110,36 +138,6 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     }
   }
 
-  onViewPlayerCreated(
-    VrPlayerController controller,
-    VrPlayerObserver observer,
-  ) {
-    try {
-      _viewPlayerController = controller;
-      observer
-        ..onStateChange = onReceiveState
-        ..onDurationChange = (millis) {
-          Logger.log('$prefix - onDurationChange: $millis');
-          vrPlayerClientNotifier.setDuration(
-            millisecondsToDateTime(millis),
-            millis,
-          );
-        }
-        ..onPositionChange = onChangePosition
-        ..onFinishedChange = (isFinished) {
-          vrPlayerClientNotifier.setVideoFinished(isFinished);
-        };
-    } catch (e) {
-      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
-    }
-
-    try {
-      _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
-    } catch (e) {
-      Logger.error('$prefix - ERROR - loadVideo: $e');
-    }
-  }
-
   Future<void> playAndPause(bool startPlay) async {
     if (ref.read(vrPlayerClientProvider).isVideoFinished) {
       Logger.log('$prefix - playAndPause - video finished');
@@ -162,7 +160,6 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         setState(() {
           showActionBar = false;
         });
-        activateVr();
         await _viewPlayerController.play();
         vrPlayerClientNotifier.setPlayingStatus(true);
       } else {
@@ -179,15 +176,14 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   }
 
   activateVr() {
-    if (!isVrMode) {
+    if (vrState.isVR == false) {
       try {
         _viewPlayerController.toggleVRMode();
+        vrPlayerClientNotifier.toggleVRMode(true);
       } catch (e) {
         Logger.error('$prefix - ERROR - activateVr: $e');
+        vrPlayerClientNotifier.toggleVRMode(false);
       }
-      setState(() {
-        isVrMode = true;
-      });
     }
   }
 
@@ -225,19 +221,24 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(millis));
   }
 
-  handleGoBack() {
-    context.goNamed(AppRoutes.deviceHost.name);
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Accessing the state using the provider
-    final vrState = ref.watch(vrPlayerClientProvider);
-    final deviceName = ref.watch(deviceNumberSP);
-    final socketClient = ref.watch(socketClientSP);
-
     _playerWidth = MediaQuery.of(context).size.width;
     _playerHeight = MediaQuery.of(context).size.height;
+
+    handleGoBack() {
+      context.goNamed(AppRoutes.deviceHost.name);
+    }
+
+    handleInvalidateOnDispose() async {
+      setState(() {
+        _libraryItem = null;
+      });
+      // wait 1 second to allow the video to stop
+      await Future.delayed(const Duration(milliseconds: 300));
+      ref.invalidate(vrPlayerClientProvider);
+      handleGoBack();
+    }
 
     ref.listen(clientMessagesSP, (previous, next) {
       final list = next.value;
@@ -247,11 +248,9 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         switch (action.type) {
           case SocketActionTypes.play:
             var seekPosition = int.parse(action.value);
-            if (seekPosition < 0) {
-              Logger.log(
-                  'getLastMessage - play - seekPosition < 0 - seekPosition: $seekPosition');
-              setCustomSeekPosition(seekPosition);
-            }
+            setCustomSeekPosition(seekPosition);
+            Logger.log(
+                'getLastMessage - play - seekPosition < 0 - seekPosition: $seekPosition');
             Logger.log('getLastMessage - play');
             playAndPause(true);
             break;
@@ -262,17 +261,19 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
             playAndPause(false);
             break;
           case SocketActionTypes.forward:
-            TimelineStateModel? timeline = getTimelineItem(false);
+            TimelineStateModel? timeline =
+                TimelineStateModel.fromJson(jsonDecode(action.value));
             Logger.log('$prefix - videoPreviewEventSP - forward - $timeline');
             setTimeLineState(timeline);
             break;
           case SocketActionTypes.backward:
-            var timeline = getTimelineItem(true);
+            TimelineStateModel? timeline =
+                TimelineStateModel.fromJson(jsonDecode(action.value));
             Logger.log('$prefix - videoPreviewEventSP - backward - $timeline');
             setTimeLineState(timeline);
           case SocketActionTypes.selectVideo:
             if (action.value == 'no_video') {
-              handleGoBack();
+              handleInvalidateOnDispose();
             } else {
               fetchItemFromPath(action.value);
             }
@@ -308,15 +309,12 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
                   // Your logic for fullScreenPressed here
                 },
                 cardBoardPressed: () {
-                  // Your logic for cardBoardPressed here
                   try {
                     _viewPlayerController.toggleVRMode();
+                    vrPlayerClientNotifier.toggleVRMode(!vrState.isVR);
                   } catch (e) {
                     Logger.error('$prefix - ERROR - activateVr: $e');
                   }
-                  setState(() {
-                    isVrMode = !isVrMode;
-                  });
                 },
                 seekToPosition: (position) {
                   // Your logic for seekToPosition here
@@ -334,9 +332,6 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
 
   @override
   dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
     super.dispose();
   }
 }

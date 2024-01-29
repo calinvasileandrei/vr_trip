@@ -40,7 +40,9 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   bool isVrMode = false;
 
   // Using the Riverpod provider to manage the state
-  late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
+  late final vrState = ref.watch(vrPlayerClientProvider);
+  late final vrPlayerNotifier = ref.read(vrPlayerClientProvider.notifier);
+
   late final currentTimeLineItemNotifier =
       ref.read(currentTimeLineItemSP.notifier);
 
@@ -52,10 +54,41 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     super.initState();
   }
 
+  onViewPlayerCreated(
+    VrPlayerController controller,
+    VrPlayerObserver observer,
+  ) {
+    try {
+      _viewPlayerController = controller;
+      observer
+        ..onStateChange = onReceiveState
+        ..onDurationChange = (millis) {
+          Logger.log('$prefix - onDurationChange: $millis');
+          vrPlayerNotifier.setDuration(
+            millisecondsToDateTime(millis),
+            millis,
+          );
+        }
+        ..onPositionChange = onChangePosition
+        ..onFinishedChange = (isFinished) {
+          vrPlayerNotifier.setVideoFinished(isFinished);
+        };
+    } catch (e) {
+      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
+    }
+
+    try {
+      _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
+      vrPlayerNotifier.setLibraryItem(_libraryItem);
+    } catch (e) {
+      Logger.error('$prefix - ERROR - loadVideo: $e');
+    }
+  }
+
   void onChangePosition(int millis) async {
-    vrPlayerClientNotifier.setSeekPosition(millis.toDouble());
+    vrPlayerNotifier.setSeekPosition(millis.toDouble());
     var durationText = millisecondsToDateTime(millis);
-    vrPlayerClientNotifier.setCurrentPosition(durationText);
+    vrPlayerNotifier.setCurrentPosition(durationText);
 
     // Logic for stopping the video on timeline item end
     TimelineItem currentTimelineItem = VrPlayerUtils.computeTimeLineItem(
@@ -74,44 +107,14 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   void onReceiveState(VrState state) {
     switch (state) {
       case VrState.loading:
-        vrPlayerClientNotifier.setVideoLoading(true);
+        vrPlayerNotifier.setVideoLoading(true);
         break;
       case VrState.ready:
-        vrPlayerClientNotifier.setVideoLoading(false);
-        vrPlayerClientNotifier.setVideoReady(true);
+        vrPlayerNotifier.setVideoLoading(false);
+        vrPlayerNotifier.setVideoReady(true);
         break;
       default:
         break;
-    }
-  }
-
-  onViewPlayerCreated(
-    VrPlayerController controller,
-    VrPlayerObserver observer,
-  ) {
-    try {
-      _viewPlayerController = controller;
-      observer
-        ..onStateChange = onReceiveState
-        ..onDurationChange = (millis) {
-          Logger.log('$prefix - onDurationChange: $millis');
-          vrPlayerClientNotifier.setDuration(
-            millisecondsToDateTime(millis),
-            millis,
-          );
-        }
-        ..onPositionChange = onChangePosition
-        ..onFinishedChange = (isFinished) {
-          vrPlayerClientNotifier.setVideoFinished(isFinished);
-        };
-    } catch (e) {
-      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
-    }
-
-    try {
-      _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
-    } catch (e) {
-      Logger.error('$prefix - ERROR - loadVideo: $e');
     }
   }
 
@@ -120,12 +123,12 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
       Logger.log('$prefix - playAndPause - video finished');
       try {
         await _viewPlayerController.seekTo(0);
-        vrPlayerClientNotifier.setSeekPosition(0);
+        vrPlayerNotifier.setSeekPosition(0);
 
-        vrPlayerClientNotifier.setCurrentPosition(millisecondsToDateTime(0));
-        vrPlayerClientNotifier.setPlayingStatus(false);
+        vrPlayerNotifier.setCurrentPosition(millisecondsToDateTime(0));
+        vrPlayerNotifier.setPlayingStatus(false);
 
-        vrPlayerClientNotifier.setVideoFinished(false);
+        vrPlayerNotifier.setVideoFinished(false);
       } catch (e) {
         Logger.error('$prefix - ERROR - playAndPause seekTo beginning: $e');
       }
@@ -138,14 +141,14 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
           showActionBar = false;
         });
         await _viewPlayerController.play();
-        vrPlayerClientNotifier.setPlayingStatus(true);
+        vrPlayerNotifier.setPlayingStatus(true);
       } else {
         Logger.log('$prefix - playAndPause - pause');
         setState(() {
           showActionBar = true;
         });
         await _viewPlayerController.pause();
-        vrPlayerClientNotifier.setPlayingStatus(false);
+        vrPlayerNotifier.setPlayingStatus(false);
       }
     } catch (e) {
       Logger.error('$prefix - ERROR - playAndPause: $e');
@@ -173,17 +176,13 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
         '$prefix - setTimeLineState - ${newState.getCurrentPositionString()}');
     //Set seek position
     await _viewPlayerController.seekTo(newState.getSeekPositionInt());
-    vrPlayerClientNotifier.setSeekPosition(newState.getSeekPositionDouble());
+    vrPlayerNotifier.setSeekPosition(newState.getSeekPositionDouble());
     // Update current position text
-    vrPlayerClientNotifier
-        .setCurrentPosition(newState.getCurrentPositionString());
+    vrPlayerNotifier.setCurrentPosition(newState.getCurrentPositionString());
   }
 
   @override
   Widget build(BuildContext context) {
-    // Accessing the state using the provider
-    final vrState = ref.watch(vrPlayerClientProvider);
-
     ref.listen(videoPreviewEventSP, (previous, next) {
       Logger.log('$prefix - videoPreviewEventSP - $previous/$next');
       if (next != null) {
@@ -207,7 +206,6 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
           default:
             break;
         }
-
         //Reset the state
         ref.read(videoPreviewEventSP.notifier).state = VideoPreviewEvent.none;
       }

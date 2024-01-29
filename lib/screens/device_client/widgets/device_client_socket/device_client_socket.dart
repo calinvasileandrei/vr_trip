@@ -34,12 +34,13 @@ class DeviceClientSocket extends HookConsumerWidget {
       switch (action.type) {
         case SocketActionTypes.selectVideo:
           Logger.log('getLastMessage - selectVideo');
-          Future.delayed(Duration.zero, () {
-            context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
-              'libraryItemPath': action.value,
-              'serverIp': serverIp
+          if (action.value != 'no_video') {
+            Future.delayed(Duration.zero, () {
+              context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
+                'libraryItemPath': action.value,
+              });
             });
-          });
+          }
           ref.invalidate(clientMessagesSP);
           break;
         default:
@@ -50,7 +51,6 @@ class DeviceClientSocket extends HookConsumerWidget {
     useEffect(() {
       Logger.log('useEffect - messagesList: $messagesList');
       if (messagesList.isNotEmpty) {
-        // Assuming you have a function named 'handleListChange' that you want to execute:
         getLastMessage( messagesList);
       }
       return null;

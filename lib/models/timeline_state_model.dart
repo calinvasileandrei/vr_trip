@@ -44,6 +44,18 @@ class TimelineStateModel {
         _end = VrPlayerUtils.timeStringToMilliseconds(item.end),
         _currentPosition = currentPosition;
 
+  Map<String, dynamic> toJson() => {
+        'start': _start,
+        'end': _end,
+        'currentPosition': _currentPosition?.toString()
+      };
+
+  factory TimelineStateModel.fromJson(Map<String, dynamic> json) =>
+      TimelineStateModel(
+          start: json['start'],
+          end: json['end'],
+          currentPosition: json['currentPosition']);
+
   @override
   String toString() {
     return 'TimelineStateModel{_start: $_start, _end: $_end, currentPosition: ${getCurrentPositionString()}}';

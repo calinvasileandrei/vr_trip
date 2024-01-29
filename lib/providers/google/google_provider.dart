@@ -6,3 +6,5 @@ final authGoogleSP = StateProvider<Map<String,String>?>((ref) => null);
 final googleSignInSP = StateProvider<GoogleSignIn?>((ref) => null);
 final googleAccountSP = StateProvider<GoogleSignInAccount?>((ref) => null);
 final googleDriveFoldersSP = StateProvider<List<drive.File>>((ref) => []);
+
+final googleDownloadFolderSP = StateProvider<List<String>>((ref) => []);

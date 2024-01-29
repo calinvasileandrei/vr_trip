@@ -7,6 +7,7 @@ import 'package:vr_trip/consts/file_consts.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/providers/google/google_provider.dart';
 import 'package:vr_trip/router/routes.dart';
+import 'package:vr_trip/shared/keep_alive_page/keep_alive_page.dart';
 import 'package:vr_trip/shared/my_snap_view/my_snap_view.dart';
 import 'package:vr_trip/shared/vr_video_library/download_library_component.dart';
 import 'package:vr_trip/shared/vr_video_library/googledrive_library.dart';
@@ -47,16 +48,16 @@ class FileManagerScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final googleDownloadFolder = ref.watch(googleDownloadFolderSP);
+
     handleNavigateToVr(LibraryItemModel item) {
       /*context.goNamed(AppRoutes.vrPlayerFile.name, pathParameters: {
         'libraryItemPath': item.path,
       });*/
 
       Future.delayed(Duration.zero, () {
-        context.goNamed(AppRoutes.vrPlayerClient.name, pathParameters: {
-          'libraryItemPath': item.path,
-          'serverIp': '192.168.1.10'
-        });
+        context.goNamed(AppRoutes.vrPlayerClient.name,
+            pathParameters: {'libraryItemPath': item.path});
       });
     }
 
@@ -88,7 +89,9 @@ class FileManagerScreen extends HookConsumerWidget {
                 onItemPress: handleNavigateToVr,
                 onItemLongPress: handleDeleteItem,
               ),
-              const GoogleDriveLibrary(),
+              KeepAlivePage(
+                  keepPageAlive: googleDownloadFolder.isNotEmpty,
+                  child: const GoogleDriveLibrary()),
             ],
           )),
     );

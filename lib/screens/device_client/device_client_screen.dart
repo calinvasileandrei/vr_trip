@@ -6,6 +6,7 @@ import 'package:vr_trip/providers/device_ip_state/device_ip_state_provider.dart'
 import 'package:vr_trip/providers/network_discovery/network_discovery_provider.dart';
 import 'package:vr_trip/providers/settings_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
+import 'package:vr_trip/screens/device_client/screens/vr_player_client/vr_player_client_provider.dart';
 import 'package:vr_trip/screens/device_client/widgets/device_client_socket/device_client_socket.dart';
 import 'package:vr_trip/utils/logger.dart';
 
@@ -56,6 +57,7 @@ class DeviceClientScreen extends HookConsumerWidget {
         ref.invalidate(socketClientSP);
         ref.invalidate(clientMessagesSP);
         ref.invalidate(isConnectedSocketClientSP);
+        ref.invalidate(vrPlayerClientProvider);
         Logger.log('Disposed all providers for Device Client Screen');
         return true;
       },
@@ -70,9 +72,9 @@ class DeviceClientScreen extends HookConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('IP: ${deviceIp}'),
+                Text('IP: $deviceIp'),
                 Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
-                Text('Nome: ${deviceNumber}'),
+                Text('Nome: $deviceNumber'),
               ],
             ),
             renderDiscoveryOrDeviceHostSocket(),

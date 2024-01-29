@@ -22,8 +22,8 @@ class GoogleDriveLibrary extends HookConsumerWidget {
     final googleSignInObj = ref.watch(googleSignInSP);
     final googleAccountObj = ref.watch(googleAccountSP);
     final folders = ref.watch(googleDriveFoldersSP);
+    final googleDownloadFolder = ref.watch(googleDownloadFolderSP);
     //State
-    final isLoadingItemId = useState<String?>(null);
     final isLoading = useState(false);
 
     listFiles() async {
@@ -80,15 +80,19 @@ class GoogleDriveLibrary extends HookConsumerWidget {
       Logger.log('handleItemLongPress - google clients initialized');
 
       if (item.mimeType == 'application/vnd.google-apps.folder' &&
-          item.name != null) {
-        isLoadingItemId.value = item.name;
+          item.name != null && !googleDownloadFolder.contains(item.name)) {
+        ref.read(googleDownloadFolderSP.notifier).state = [
+          ...googleDownloadFolder,
+          item.name!
+        ];
         Logger.log('handleItemLongPress - is folder');
         // Handle folder download
 
         Directory? dir =
             await LibraryItemUtils.createFolderForLibraryItem(item.name!);
         if (dir != null) {
-          Logger.log('handleItemLongPress - dir: ${dir.path}');
+          Logger.log('handleItemLongPress - dir created: ${dir.path}');
+          Logger.log('handleItemLongPress - downloading items');
           try {
             await GoogleDriveService.downloadFolder(
                 item, authenticateClient, driveApi, dir.path);
@@ -99,7 +103,9 @@ class GoogleDriveLibrary extends HookConsumerWidget {
         } else {
           Logger.error('handleItemLongPress - dir is null');
         }
-        isLoadingItemId.value = null;
+        var newDownloadFolders = [...googleDownloadFolder];
+        newDownloadFolders.remove(item.name);
+        ref.read(googleDownloadFolderSP.notifier).state = newDownloadFolders;
       }
       Logger.log('handleItemLongPress - completed');
     }
@@ -120,9 +126,9 @@ class GoogleDriveLibrary extends HookConsumerWidget {
                 children: [
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 8),
-                      child: const Icon(
+                      child: Icon(
                         Icons.cloud,
-                        color: Colors.blue,
+                        color: Theme.of(context).primaryColor,
                       )),
                   Text(
                       "Sinc GoogleDrive: ${authHeaders != null ? "Effettuata" : "Non effettuata"}"),
@@ -133,12 +139,10 @@ class GoogleDriveLibrary extends HookConsumerWidget {
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.background,
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(8.0))),
+                    borderRadius: const BorderRadius.all(Radius.circular(8.0))),
                 child: isLoading.value
                     ? const Center(
                         child: CircularProgressIndicator(),
@@ -165,8 +169,18 @@ class GoogleDriveLibrary extends HookConsumerWidget {
                                               .colorScheme
                                               .onSurface)),
                                   Text(item.name ?? 'nome non disponibile'),
-                                  if (isLoadingItemId.value == item.name)
-                                    const CircularProgressIndicator(),
+                                  Expanded(child: Container()),
+                                  if (googleDownloadFolder.contains(item.name))
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
                                 ],
                               )),
                             ),
