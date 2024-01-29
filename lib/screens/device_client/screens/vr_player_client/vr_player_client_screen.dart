@@ -48,8 +48,8 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   LibraryItemModel? _libraryItem;
   TimelineItem? _currentTimelineItem;
 
-  late final vrPlayerClientNotifier = ref.read(vrPlayerClientProvider.notifier);
-  late final vrState = ref.watch(vrPlayerClientProvider);
+  late final vrPlayerClientNotifier = ref.read(myVrPlayerProvider.notifier);
+  late final vrState = ref.watch(myVrPlayerProvider);
 
   @override
   void initState() {
@@ -139,7 +139,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   }
 
   Future<void> playAndPause(bool startPlay) async {
-    if (ref.read(vrPlayerClientProvider).isVideoFinished) {
+    if (ref.read(myVrPlayerProvider).isVideoFinished) {
       Logger.log('$prefix - playAndPause - video finished');
       try {
         await _viewPlayerController.seekTo(0);
@@ -236,7 +236,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       });
       // wait 1 second to allow the video to stop
       await Future.delayed(const Duration(milliseconds: 300));
-      ref.invalidate(vrPlayerClientProvider);
+      ref.invalidate(myVrPlayerProvider);
       handleGoBack();
     }
 

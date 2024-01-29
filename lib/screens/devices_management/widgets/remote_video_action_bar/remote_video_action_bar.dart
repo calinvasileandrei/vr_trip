@@ -20,7 +20,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     TimelineStateModel? getTimelineItem(bool? isPrevious) {
       var currentTimelineItem = ref.read(currentTimeLineItemSP);
-      var vrState = ref.read(vrPlayerClientProvider);
+      var vrState = ref.read(myVrPlayerProvider);
       if (currentTimelineItem == null) return null;
 
       if (vrState.libraryItem != null) {
@@ -56,7 +56,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
           ElevatedButton(
               onPressed: () {
                 var seekPosition =
-                    ref.read(vrPlayerClientProvider).seekPosition.toInt();
+                    ref.read(myVrPlayerProvider).seekPosition.toInt();
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.play, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =
@@ -67,7 +67,7 @@ class RemoteVideoActionBar extends HookConsumerWidget {
           ElevatedButton(
               onPressed: () {
                 var seekPosition =
-                    ref.read(vrPlayerClientProvider).seekPosition.toInt();
+                    ref.read(myVrPlayerProvider).seekPosition.toInt();
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.pause, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =

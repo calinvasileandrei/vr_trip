@@ -21,7 +21,7 @@ class MyVrPlayerActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get the state using the provider
-    final vrState = ref.watch(vrPlayerClientProvider);
+    final vrState = ref.watch(myVrPlayerProvider);
 
     return Positioned(
       bottom: 0,

@@ -28,7 +28,7 @@ class DeviceManagementScreen extends HookConsumerWidget {
         ref.invalidate(serverConnectionsSP);
         ref.invalidate(socketServerSP);
         ref.invalidate(networkDiscoveryServerSP);
-        ref.invalidate(vrPlayerClientProvider);
+        ref.invalidate(myVrPlayerProvider);
         Logger.log('Disposed all providers for Device Management Screen');
         return true;
       },

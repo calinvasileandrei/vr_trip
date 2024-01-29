@@ -57,7 +57,7 @@ class DeviceClientScreen extends HookConsumerWidget {
         ref.invalidate(socketClientSP);
         ref.invalidate(clientMessagesSP);
         ref.invalidate(isConnectedSocketClientSP);
-        ref.invalidate(vrPlayerClientProvider);
+        ref.invalidate(myVrPlayerProvider);
         Logger.log('Disposed all providers for Device Client Screen');
         return true;
       },

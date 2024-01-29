@@ -40,8 +40,8 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   bool isVrMode = false;
 
   // Using the Riverpod provider to manage the state
-  late final vrState = ref.watch(vrPlayerClientProvider);
-  late final vrPlayerNotifier = ref.read(vrPlayerClientProvider.notifier);
+  late final vrState = ref.watch(myVrPlayerProvider);
+  late final vrPlayerNotifier = ref.read(myVrPlayerProvider.notifier);
 
   late final currentTimeLineItemNotifier =
       ref.read(currentTimeLineItemSP.notifier);
@@ -119,7 +119,7 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   }
 
   Future<void> playAndPause(bool startPlay) async {
-    if (ref.read(vrPlayerClientProvider).isVideoFinished) {
+    if (ref.read(myVrPlayerProvider).isVideoFinished) {
       Logger.log('$prefix - playAndPause - video finished');
       try {
         await _viewPlayerController.seekTo(0);

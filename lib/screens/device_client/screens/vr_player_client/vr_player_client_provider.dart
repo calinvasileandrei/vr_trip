@@ -1,13 +1,13 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 
-final vrPlayerClientProvider =
-    StateNotifierProvider<VrPlayerClientNotifier, VrPlayerClientState>(
-  (ref) => VrPlayerClientNotifier(),
+final myVrPlayerProvider =
+    StateNotifierProvider<MyVrPlayerNotifier, MyVrPlayerState>(
+  (ref) => MyVrPlayerNotifier(),
 );
 
-class VrPlayerClientNotifier extends StateNotifier<VrPlayerClientState> {
-  VrPlayerClientNotifier() : super(VrPlayerClientState());
+class MyVrPlayerNotifier extends StateNotifier<MyVrPlayerState> {
+  MyVrPlayerNotifier() : super(MyVrPlayerState());
 
   void setVideoLoading(bool isLoading) {
     state = state.copyWith(isVideoLoading: isLoading);
@@ -46,7 +46,7 @@ class VrPlayerClientNotifier extends StateNotifier<VrPlayerClientState> {
   }
 }
 
-class VrPlayerClientState {
+class MyVrPlayerState {
   final bool isVideoLoading;
   final bool isVideoReady;
   final bool isVideoFinished;
@@ -58,7 +58,7 @@ class VrPlayerClientState {
   final bool isVR;
   final LibraryItemModel? libraryItem;
 
-  VrPlayerClientState({
+  MyVrPlayerState({
     this.isVideoLoading = false,
     this.isVideoReady = false,
     this.isVideoFinished = false,
@@ -71,7 +71,7 @@ class VrPlayerClientState {
     this.libraryItem,
   });
 
-  VrPlayerClientState copyWith({
+  MyVrPlayerState copyWith({
     bool? isVideoLoading,
     bool? isVideoReady,
     bool? isVideoFinished,
@@ -83,7 +83,7 @@ class VrPlayerClientState {
     bool? isVR,
     LibraryItemModel? libraryItem,
   }) {
-    return VrPlayerClientState(
+    return MyVrPlayerState(
       isVideoLoading: isVideoLoading ?? this.isVideoLoading,
       isVideoReady: isVideoReady ?? this.isVideoReady,
       isVideoFinished: isVideoFinished ?? this.isVideoFinished,
