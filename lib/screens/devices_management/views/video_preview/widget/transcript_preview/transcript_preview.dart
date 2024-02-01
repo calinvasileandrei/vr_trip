@@ -14,7 +14,8 @@ class TranscriptPreview extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var currentTranscript = ref.watch(currentTimeLineItemSP);
+    var currentTranscript =
+        ref.watch(deviceManagerProvider).currentTimeLineItem;
 
     return ListView.builder(
       itemCount: transcriptObject.timeline.length,

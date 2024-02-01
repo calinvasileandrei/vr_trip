@@ -27,7 +27,7 @@ class LibraryChooserView extends HookConsumerWidget {
     Widget renderButton() {
       return (IconButton(
         onPressed: () {
-          ref.read(deviceManagerProvider.notifier).setSelectedLibraryItem(null);
+          ref.invalidate(deviceManagerProvider);
           ref.read(myVrPlayerProvider.notifier).setLibraryItem(null);
           ref.invalidate(myVrPlayerProvider);
           ref

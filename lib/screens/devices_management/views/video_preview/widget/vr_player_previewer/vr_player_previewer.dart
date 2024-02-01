@@ -43,9 +43,6 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   late final vrState = ref.watch(myVrPlayerProvider);
   late final vrPlayerNotifier = ref.read(myVrPlayerProvider.notifier);
 
-  late final currentTimeLineItemNotifier =
-      ref.read(currentTimeLineItemSP.notifier);
-
   @override
   void initState() {
     SystemChrome.setPreferredOrientations([
@@ -93,7 +90,9 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
     // Logic for stopping the video on timeline item end
     TimelineItem currentTimelineItem = VrPlayerUtils.computeTimeLineItem(
         millis, _libraryItem!.transcriptObject.timeline);
-    currentTimeLineItemNotifier.state = currentTimelineItem;
+    ref
+        .read(deviceManagerProvider.notifier)
+        .setCurrentTimeLineItem(currentTimelineItem);
 
     if (currentTimelineItem.end == durationText) {
       var timelineState = VrPlayerUtils.getNextTimelineItem(
@@ -156,7 +155,7 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
   }
 
   TimelineStateModel? getTimelineItem(bool? isPrevious) {
-    var currentTimelineItem = ref.read(currentTimeLineItemSP);
+    var currentTimelineItem = ref.read(deviceManagerProvider).currentTimeLineItem;
     if (currentTimelineItem == null) return null;
 
     if (isPrevious == true) {

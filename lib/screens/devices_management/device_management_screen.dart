@@ -23,9 +23,7 @@ class DeviceManagementScreen extends HookConsumerWidget {
     return WillPopScope(
       onWillPop: () async {
         ref.invalidate(deviceManagerProvider);
-
         ref.invalidate(videoPreviewEventSP);
-        ref.invalidate(currentTimeLineItemSP);
 
         ref.invalidate(serverMessagesSP);
         ref.invalidate(serverConnectionsSP);

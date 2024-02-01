@@ -296,6 +296,14 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     });
 
     return Scaffold(
+      appBar: _libraryItem == null ? AppBar(
+        title: const Text('VR Player Client'),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: handleGoBack,
+        ),
+      ):null,
       body: GestureDetector(
         onLongPress: () {
           context.pop();
@@ -307,7 +315,11 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         },
         child: _libraryItem == null
             ? Container(
-                color: Colors.white10,
+                color: Colors.black,
+                child: const Center(
+                  child: Text('Video non disponibile',
+                      style: TextStyle(color: Colors.white60)),
+                ),
               )
             : MyVrPlayer(
                 onViewPlayerCreated: onViewPlayerCreated,

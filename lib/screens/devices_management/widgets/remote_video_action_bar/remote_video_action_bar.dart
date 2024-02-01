@@ -20,7 +20,8 @@ class RemoteVideoActionBar extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     TimelineStateModel? getTimelineItemState(bool? isPrevious) {
-      var currentTimelineItem = ref.read(currentTimeLineItemSP);
+      var currentTimelineItem =
+          ref.read(deviceManagerProvider).currentTimeLineItem;
       var vrState = ref.read(myVrPlayerProvider);
       if (currentTimelineItem == null) return null;
 
@@ -60,8 +61,9 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                 TimelineItem? timelineItem =
                     getTimeLineItemFromState(timelineState);
                 if (timelineItem == null) return;
-                ref.read(currentTimeLineItemSP.notifier).state = timelineItem;
-
+                ref
+                    .read(deviceManagerProvider.notifier)
+                    .setCurrentTimeLineItem(timelineItem);
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.backward,
                     jsonEncode(timelineState.toJson()));
@@ -79,9 +81,6 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoAction(type: VideoPreviewEvent.play);
 
-                ref
-                    .read(socketServerSP)
-                    .sendBroadcastMessage(SocketActionTypes.toggleVR, '');
                 Logger.log('$prefix Play');
               },
               child: const Icon(Icons.play_arrow)),
@@ -103,8 +102,9 @@ class RemoteVideoActionBar extends HookConsumerWidget {
                 TimelineItem? timelineItem =
                     getTimeLineItemFromState(timelineState);
                 if (timelineItem == null) return;
-                ref.read(currentTimeLineItemSP.notifier).state = timelineItem;
-
+                ref
+                    .read(deviceManagerProvider.notifier)
+                    .setCurrentTimeLineItem(timelineItem);
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.forward,
                     jsonEncode(timelineState.toJson()));

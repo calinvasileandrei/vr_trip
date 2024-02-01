@@ -5,8 +5,6 @@ import 'types.dart';
 
 final videoPreviewEventSP = StateProvider<VideoAction?>((ref) => null);
 
-final currentTimeLineItemSP = StateProvider<TimelineItem?>((ref) => null);
-
 final deviceManagerProvider =
     StateNotifierProvider<DeviceManagerNotifier, DeviceManagerState>(
   (ref) => DeviceManagerNotifier(),
