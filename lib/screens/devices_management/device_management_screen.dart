@@ -17,13 +17,16 @@ class DeviceManagementScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var selectedLibraryItem = ref.watch(selectedLibraryItemSP);
+    var deviceManager = ref.watch(deviceManagerProvider);
+    var selectedLibraryItem= deviceManager.selectedLibraryItem;
 
     return WillPopScope(
       onWillPop: () async {
-        ref.invalidate(selectedLibraryItemSP);
+        ref.invalidate(deviceManagerProvider);
+
         ref.invalidate(videoPreviewEventSP);
         ref.invalidate(currentTimeLineItemSP);
+
         ref.invalidate(serverMessagesSP);
         ref.invalidate(serverConnectionsSP);
         ref.invalidate(socketServerSP);

@@ -11,7 +11,8 @@ class VideoPreviewView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final libraryItemPath = ref.watch(selectedLibraryItemSP);
+    var deviceManager = ref.watch(deviceManagerProvider);
+    var selectedLibraryItem = deviceManager.selectedLibraryItem;
 
     onTimelineItemPress(TimelineItem timelineItem) {
       //TODO: Implement this
@@ -41,9 +42,9 @@ class VideoPreviewView extends HookConsumerWidget {
     return Column(
       children: [
         const Text('Remote Video Player'),
-        if (libraryItemPath != null)
+        if (selectedLibraryItem != null)
           VrPlayerPreviewer(
-            libraryItem: libraryItemPath,
+            libraryItem: selectedLibraryItem,
           )
         else
           Container(
@@ -51,9 +52,10 @@ class VideoPreviewView extends HookConsumerWidget {
               width: MediaQuery.of(context).size.width,
               color: Colors.black,
               child: const Center(
-                child: Text('Nessun video selezionato',style: TextStyle(color: Colors.white) ),
+                child: Text('Nessun video selezionato',
+                    style: TextStyle(color: Colors.white)),
               )),
-        getTranscriptPreview(libraryItemPath?.transcriptObject)
+        getTranscriptPreview(selectedLibraryItem?.transcriptObject)
       ],
     );
   }
