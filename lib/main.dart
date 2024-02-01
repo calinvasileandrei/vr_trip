@@ -7,10 +7,12 @@ import 'package:vr_trip/router/router.dart';
 import 'package:vr_trip/screens/home/home_screen.dart';
 import 'package:vr_trip/services/settings/settings_service.dart';
 import 'package:vr_trip/utils/logger.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   final initialDeviceNumber = await loadDeviceNumberFromPrefs();
   final initialManagerIp = await loadManagerIpFromPrefs();

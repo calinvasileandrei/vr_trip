@@ -71,13 +71,17 @@ class RemoteVideoActionBar extends HookConsumerWidget {
               },
               child: const Icon(Icons.arrow_back_ios)),
           ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 var seekPosition =
                     ref.read(myVrPlayerProvider).seekPosition.toInt();
                 ref.read(socketServerSP).sendBroadcastMessage(
                     SocketActionTypes.play, seekPosition.toString());
                 ref.read(videoPreviewEventSP.notifier).state =
                     VideoAction(type: VideoPreviewEvent.play);
+
+                ref
+                    .read(socketServerSP)
+                    .sendBroadcastMessage(SocketActionTypes.toggleVR, '');
                 Logger.log('$prefix Play');
               },
               child: const Icon(Icons.play_arrow)),

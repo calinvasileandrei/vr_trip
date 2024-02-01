@@ -89,7 +89,7 @@ class LibraryItemUtils {
       return libraryItem;
     } catch (e) {
       // Handle any errors while reading or parsing files
-      print('Error: $e');
+      Logger.error('Error: $e');
       return null;
     }
   }

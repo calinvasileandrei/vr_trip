@@ -8,9 +8,9 @@ import 'package:vr_player/vr_player.dart';
 import 'package:vr_trip/models/library_item_model.dart';
 import 'package:vr_trip/models/socket_protocol_message.dart';
 import 'package:vr_trip/models/timeline_state_model.dart';
+import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/providers/socket_client/socket_client_provider.dart';
 import 'package:vr_trip/router/routes.dart';
-import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
 import 'package:vr_trip/screens/device_client/screens/vr_player_client/widgets/my_vr_player/my_vr_player.dart';
 import 'package:vr_trip/services/sockets/socket_protocol/socket_protocol_service.dart';
 import 'package:vr_trip/utils/date_utils.dart';
@@ -75,7 +75,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   onViewPlayerCreated(
     VrPlayerController controller,
     VrPlayerObserver observer,
-  ) {
+  ) async {
     try {
       _viewPlayerController = controller;
       observer
@@ -96,9 +96,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     }
 
     try {
-      _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
-      _viewPlayerController.toggleVRMode();
-      vrPlayerNotifier.toggleVRMode(true);
+      await _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
     } catch (e) {
       Logger.error('$prefix - ERROR - loadVideo: $e');
     }
@@ -180,10 +178,13 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       try {
         _viewPlayerController.toggleVRMode();
         vrPlayerNotifier.toggleVRMode(true);
+        Logger.log('activateVR TRUE');
       } catch (e) {
         Logger.error('$prefix - ERROR - activateVr: $e');
         vrPlayerNotifier.toggleVRMode(false);
       }
+    }else{
+      Logger.log('activateVR FALSE');
     }
   }
 
@@ -209,8 +210,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
     await _viewPlayerController.seekTo(newState.getSeekPositionInt());
     vrPlayerNotifier.setSeekPosition(newState.getSeekPositionDouble());
     // Update current position text
-    vrPlayerNotifier
-        .setCurrentPosition(newState.getCurrentPositionString());
+    vrPlayerNotifier.setCurrentPosition(newState.getCurrentPositionString());
   }
 
   setCustomSeekPosition(int millis) async {
@@ -275,12 +275,20 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
                 TimelineStateModel.fromJson(jsonDecode(action.value));
             Logger.log('$prefix - videoPreviewEventSP - backward - $timeline');
             setTimeLineState(timeline);
+            break;
           case SocketActionTypes.selectVideo:
             if (action.value == 'no_video') {
               handleInvalidateOnDispose();
             } else {
               fetchItemFromPath(action.value);
             }
+            break;
+          case SocketActionTypes.toggleVR:
+            if (vrState.isVideoReady == true && vrState.isVideoLoading == false) {
+              activateVr();
+            }
+            break;
+
           default:
             break;
         }
@@ -325,9 +333,9 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
                   onChangePosition(position);
                   _viewPlayerController.seekTo(position);
                 },
-                playAndPause: () {
-                  var isVideoPlaying = vrState.isPlaying;
-                  playAndPause(!isVideoPlaying);
+                playAndPause: () async {
+                  var isPlaying = await _viewPlayerController.isPlaying();
+                  playAndPause(!isPlaying);
                 },
               ),
       ),
