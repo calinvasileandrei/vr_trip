@@ -4,13 +4,11 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To init the project to a new machine remember:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Copy the google-services.json file to authenticate to google api inside android/app/Paste here
+- Copy the debug.keystore file to ~/.android
+- Ensure that the project is clean with:
+  - flutter clean
+  - ./gradlew clean
+- run the project and should be fine

@@ -47,6 +47,7 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
 
   LibraryItemModel? _libraryItem;
   TimelineItem? _currentTimelineItem;
+  int _retries = 0;
 
   late final vrState = ref.watch(myVrPlayerProvider);
   late final vrPlayerNotifier = ref.read(myVrPlayerProvider.notifier);
@@ -91,14 +92,18 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
         ..onFinishedChange = (isFinished) {
           vrPlayerNotifier.setVideoFinished(isFinished);
         };
-    } catch (e) {
-      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
-    }
 
-    try {
       await _viewPlayerController.loadVideo(videoPath: _libraryItem!.videoPath);
     } catch (e) {
-      Logger.error('$prefix - ERROR - loadVideo: $e');
+      Logger.error('$prefix - ERROR - onViewPlayerCreated Observer: $e');
+      if(_retries < 3){
+        setState(() {
+          _libraryItem = null;
+          _currentTimelineItem = null;
+        });
+        fetchItemFromPath(_libraryItemPath);
+        _retries++;
+      }
     }
   }
 
@@ -130,8 +135,10 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
       case VrState.ready:
         vrPlayerNotifier.setVideoLoading(false);
         vrPlayerNotifier.setVideoReady(true);
+        // TODO: implement socket ready message
         break;
       default:
+        Logger.log('$prefix - onReceiveState - state: $state');
         break;
     }
   }

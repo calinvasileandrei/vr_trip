@@ -7,7 +7,6 @@ import 'package:vr_trip/screens/devices_management/device_management_screen.dart
 import 'package:vr_trip/screens/file_manager/file_manager_screen.dart';
 import 'package:vr_trip/screens/select_manager/select_manager_screen.dart';
 import 'package:vr_trip/screens/settings/settings_screen.dart';
-import 'package:vr_trip/screens/vr_player/vr_player_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   routes: [
@@ -45,7 +44,7 @@ final GoRouter appRouter = GoRouter(
               name: AppRoutes.vrPlayerFile.name,
               path: 'vr_player_file/:libraryItemPath',
               builder: (context, state) =>
-                  VrPlayerScreen(libraryItemPath: state.pathParameters["libraryItemPath"]!),
+                  VrPlayerClientScreen(libraryItemPath: state.pathParameters["libraryItemPath"]!),
             ),
           ],
         ),

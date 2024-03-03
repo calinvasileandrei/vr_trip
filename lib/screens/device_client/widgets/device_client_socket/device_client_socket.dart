@@ -98,7 +98,7 @@ class DeviceClientSocket extends HookConsumerWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white10,
-                  onPrimary: Colors.black,
+                  //onPrimary: Colors.black,
                 ),
                 child: Text('Disconnect'))
         ],

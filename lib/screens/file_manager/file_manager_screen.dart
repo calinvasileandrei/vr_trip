@@ -51,12 +51,8 @@ class FileManagerScreen extends HookConsumerWidget {
     final googleDownloadFolder = ref.watch(googleDownloadFolderSP);
 
     handleNavigateToVr(LibraryItemModel item) {
-      /*context.goNamed(AppRoutes.vrPlayerFile.name, pathParameters: {
-        'libraryItemPath': item.path,
-      });*/
-
       Future.delayed(Duration.zero, () {
-        context.goNamed(AppRoutes.vrPlayerClient.name,
+        context.goNamed(AppRoutes.vrPlayerFile.name,
             pathParameters: {'libraryItemPath': item.path});
       });
     }
