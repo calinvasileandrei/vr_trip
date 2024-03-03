@@ -33,7 +33,7 @@ class HomeScreen extends HookConsumerWidget {
     {
       "route": AppRoutes.deviceHost.name,
       "icon": Icons.person_outline,
-      "label": "Device Host",
+      "label": "Device Client",
     },
     {
       "route": AppRoutes.selectManager.name,

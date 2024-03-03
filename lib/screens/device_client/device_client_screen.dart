@@ -63,7 +63,7 @@ class DeviceClientScreen extends HookConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Device Host'),
+          title: const Text('Device Client'),
           backgroundColor: Colors.black,
         ),
         backgroundColor: Colors.black,
@@ -73,7 +73,7 @@ class DeviceClientScreen extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('IP: $deviceIp'),
-                Text('Server IP: ${serverIp ?? 'Nessun server trovato'}'),
+                Text('Manager IP: ${serverIp ?? 'Nessun server trovato'}'),
                 Text('Nome: $deviceNumber'),
               ],
             ),

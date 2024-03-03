@@ -121,7 +121,7 @@ class DownloadLibrary extends HookWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               MyButton(
-                'Importa Download/$IMPORT_FOLDER',
+                'Importa Downloads/$IMPORT_FOLDER',
                 onPressed: () async {
                   isLoading.value = true;
                   //await moveFilesToVRTripFolder();

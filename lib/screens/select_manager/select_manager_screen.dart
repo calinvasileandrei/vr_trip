@@ -36,7 +36,7 @@ class SelectManagerScreen extends HookConsumerWidget {
                     Container(
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                         child:
-                            Text('Server IP: ${serverIp ?? 'Nessun server'}')),
+                            Text('Manager IP: ${serverIp ?? 'Nessun manager'}')),
                     IconButton(
                         onPressed: () {
                           ref

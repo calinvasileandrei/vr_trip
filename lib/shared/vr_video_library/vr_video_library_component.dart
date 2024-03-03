@@ -120,7 +120,7 @@ class VrVideoLibrary extends HookWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 MyButton(
-                  'Delete Library',
+                  'Cancella Libreria',
                   onPressed: () async {
                     final Directory? libraryFolder =
                         await FileUtils.getLocalAppStorageFolder();

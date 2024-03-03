@@ -235,7 +235,12 @@ class VrPlayerPreviewerState extends ConsumerState<VrPlayerPreviewer>
               // Your logic for fullScreenPressed here
             },
             cardBoardPressed: () {
-              // Your logic for cardBoardPressed here
+              try {
+                _viewPlayerController.toggleVRMode();
+                vrPlayerNotifier.toggleVRMode(!vrState.isVR);
+              } catch (e) {
+                Logger.error('$prefix - ERROR - activateVr: $e');
+              }
             },
             seekToPosition: (position) {
               // Your logic for seekToPosition here

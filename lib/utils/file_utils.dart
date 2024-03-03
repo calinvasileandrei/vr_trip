@@ -115,7 +115,8 @@ class FileUtils {
 
   static Future<void> deleteEverythingInPath(String targetPath) async {
     // Check if the target path exists
-    if (await Directory(targetPath).exists()) {
+    var targetDir = Directory(targetPath);
+    if (await targetDir.exists()) {
       // Get a list of all files and subdirectories in the target directory
       List<FileSystemEntity> entities = Directory(targetPath).listSync();
 
@@ -133,6 +134,8 @@ class FileUtils {
         }
       }
       Logger.log('Deleted everything in $targetPath completed');
+      targetDir.deleteSync();
+      Logger.log('Deleted directory $targetPath completed');
     } else {
       Logger.error('Target path does not exist');
     }

@@ -72,11 +72,7 @@ class MyVrPlayerActionBar extends ConsumerWidget {
               vrState.duration?.toString() ?? '99:99',
               style: const TextStyle(color: Colors.white),
             ),
-            isPreview
-                ? Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                  )
-                : IconButton(
+            IconButton(
                     icon: const Icon(
                       Icons.ad_units,
                       color: Colors.white,

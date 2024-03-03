@@ -59,15 +59,15 @@ class FileManagerScreen extends HookConsumerWidget {
 
     handleDeleteItem(LibraryItemModel item) {
       Logger.log('handleDeleteItem - item: $item');
-      FileUtils.deleteFile(item.path);
+      FileUtils.deleteEverythingInPath(item.path);
     }
 
     return WillPopScope(
       onWillPop: () async {
-        ref.read(authGoogleSP.notifier).state = null;
-        ref.read(googleSignInSP.notifier).state = null;
-        ref.read(googleAccountSP.notifier).state = null;
-        ref.read(googleDriveFoldersSP.notifier).state = [];
+        ref.invalidate(authGoogleSP);
+        ref.invalidate(googleSignInSP);
+        ref.invalidate(googleAccountSP);
+        ref.invalidate(googleDriveFoldersSP);
         return true;
       },
       child: Scaffold(

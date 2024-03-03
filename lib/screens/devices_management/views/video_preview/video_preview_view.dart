@@ -21,42 +21,40 @@ class VideoPreviewView extends HookConsumerWidget {
       //ref.read(videoPreviewEventSP.notifier).state = VideoPreviewEvent.play;
     }
 
-    Widget getTranscriptPreview(TranscriptObject? transcriptObject) {
-      if (transcriptObject == null) return Container();
-      return (Column(
-        children: [
-          const Text('Transcript Preview'),
+    List<Widget> getTranscriptPreview(TranscriptObject? transcriptObject) {
+      if (transcriptObject == null) return [];
+      return [
+          Text('Transcript Preview'),
           Text('Nome Video: ${transcriptObject.nomeVideo}'),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 5),
-            height: MediaQuery.of(context).size.height / 2.27,
             width: MediaQuery.of(context).size.width,
             child: TranscriptPreview(
                 transcriptObject: transcriptObject,
                 onTimelineItemPress: onTimelineItemPress),
           )
-        ],
-      ));
+        ];
     }
 
-    return Column(
-      children: [
-        const Text('Remote Video Player'),
-        if (selectedLibraryItem != null)
-          VrPlayerPreviewer(
-            libraryItem: selectedLibraryItem,
-          )
-        else
-          Container(
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.black,
-              child: const Center(
-                child: Text('Nessun video selezionato',
-                    style: TextStyle(color: Colors.white)),
-              )),
-        getTranscriptPreview(selectedLibraryItem?.transcriptObject)
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          if (selectedLibraryItem != null)
+            VrPlayerPreviewer(
+              libraryItem: selectedLibraryItem,
+            )
+          else
+            Container(
+                height: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width,
+                color: Colors.black,
+                child: const Center(
+                  child: Text('Nessun video selezionato',
+                      style: TextStyle(color: Colors.white)),
+                )),
+          ...getTranscriptPreview(selectedLibraryItem?.transcriptObject)
+        ],
+      ),
     );
   }
 }

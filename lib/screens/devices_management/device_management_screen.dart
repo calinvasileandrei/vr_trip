@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vr_trip/providers/device_manager/device_manager_provider.dart';
-import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
 import 'package:vr_trip/providers/my_vr_player/my_vr_player_provider.dart';
+import 'package:vr_trip/providers/socket_server/socket_server_provider.dart';
 import 'package:vr_trip/screens/devices_management/views/library_chooser/library_chooser_view.dart';
 import 'package:vr_trip/screens/devices_management/views/server_management/server_management_view.dart';
 import 'package:vr_trip/screens/devices_management/views/video_preview/video_preview_view.dart';
@@ -18,7 +17,7 @@ class DeviceManagementScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var deviceManager = ref.watch(deviceManagerProvider);
-    var selectedLibraryItem= deviceManager.selectedLibraryItem;
+    var selectedLibraryItem = deviceManager.selectedLibraryItem;
 
     return WillPopScope(
       onWillPop: () async {
@@ -37,12 +36,6 @@ class DeviceManagementScreen extends HookConsumerWidget {
         appBar: AppBar(
           title: const Text('Device Manager'),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          leading: IconButton(
-            onPressed: () {
-              context.pop();
-            },
-            icon: const Icon(Icons.arrow_back),
-          ),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Column(
