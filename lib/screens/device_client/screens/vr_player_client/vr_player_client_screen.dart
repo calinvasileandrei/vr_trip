@@ -365,7 +365,9 @@ class VrPlayerClientScreenState extends ConsumerState<VrPlayerClientScreen>
   dispose() {
     super.dispose();
     SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
+/*      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,*/
     ]);
   }
 }

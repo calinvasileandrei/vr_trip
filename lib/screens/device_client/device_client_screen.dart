@@ -25,13 +25,8 @@ class DeviceClientScreen extends HookConsumerWidget {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeRight,
         DeviceOrientation.landscapeLeft,
+        DeviceOrientation.portraitUp,
       ]);
-
-      return () {
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-        ]);
-      };
     }, []);
 
     Widget renderDiscoveryOrDeviceHostSocket() {
